@@ -10,6 +10,14 @@
         window.addEventListener('resize', () => {
             app.renderer.resize(window.innerWidth, window.innerHeight);
         });
+
+
+        let ground = new PIXI.Graphics();
+        ground.beginFill(0x654321);
+        ground.drawRect(0, app.renderer.height - 250, app.renderer.width, 250);
+        ground.endFill();
+        app.stage.addChild(ground);
+
         // load the PNG asynchronously
         await PIXI.Assets.load('images/sample.png');
         await PIXI.Assets.load('images/basic_background.png');
@@ -22,8 +30,6 @@
         basic_background.x = app.screen.width;
         basic_background.y = app.screen.height;
         
-        const bckgrnd = PIXI.Assets.load
-        document.body.style.background_image = 
         document.body.appendChild(app.canvas);
         app.stage.addChild(basic_background);
         app.stage.addChild(sprite);

@@ -7,7 +7,7 @@ export class Ground {
     }
     async initialiseGround(){
         this.ground = new Graphics()
-          .drawRect(0, this.app.renderer.height - 200, this.app.renderer.width, 200) // Draw ground with desired height
+          .rect(0, this.app.renderer.height - 200, this.app.renderer.width, 200) // Draw ground with desired height
           .fill(0x654321);
     };
 

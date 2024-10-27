@@ -5,8 +5,8 @@ export class tankPlayer {
         // setup the x, y co-ordinates
         this.playerX = playerX;
         this.playerY = playerY;
-        this.playerSpeed = 10;
-        this.keys = {};
+        this.playerSpeed = 5;
+        this.keys = {}; // dict setup
     }
 
     async initialiseSprite(){

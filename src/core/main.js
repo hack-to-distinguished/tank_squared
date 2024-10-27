@@ -18,7 +18,7 @@ import { Ground } from "./background.js";
     app.stage.addChild(activeGround.getGround());
 
     // Adding player
-    const testPlayer = new tankPlayer(400, 400);
+    const testPlayer = new tankPlayer(400, app.renderer.height - 303);
     await testPlayer.initialiseSprite();
     testPlayer.addToStage(app);
 
@@ -26,8 +26,6 @@ import { Ground } from "./background.js";
 
     // create ticker in order to update sprite positioning
     app.ticker.add(() => {
-        // testPlayer.getSprite().x -= 10;
-        // testPlayer.updatePlayerPosition();
         testPlayer.updatePlayerPosition();
     })
 

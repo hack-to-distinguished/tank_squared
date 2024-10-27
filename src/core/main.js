@@ -2,8 +2,6 @@ import { Application, Sprite, Assets, Ticker } from "pixi.js"; // import applica
 import { tankPlayer } from "./player"; // import player class from js file
 import { Ground } from "./background.js";
 
-// let elapsed = 0.0;
-
 (async() => { // https://developer.mozilla.org/en-US/docs/Glossary/IIFE IIFE (Immediately Invoked Function Expression) JS function that runs as soon as it is defined
 
     // app setup 
@@ -22,13 +20,7 @@ import { Ground } from "./background.js";
     // Adding player
     const testPlayer = new tankPlayer(400, 400);
     await testPlayer.initialiseSprite();
-    // app.stage.addChild(testPlayer.getSprite());
     testPlayer.addToStage(app);
-
-    // const keysDown = testPlayer.keysDown;
-    // window.addEventListener("keydown", keysDown); // event object is automatically passed through to the keysDown method
-
-    // testPlayer.setupKeyboardControls();
 
     testPlayer.setupKeyboardControls();
 

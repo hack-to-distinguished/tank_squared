@@ -31,6 +31,5 @@ import { Ground } from "./background.js";
         testPlayer.updatePlayerPosition();
     })
 
-
 })();
 

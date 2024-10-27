@@ -15,8 +15,8 @@ export class tankPlayer {
         const sprite = Sprite.from(texture);
 
         // resizing the texture
-        sprite.height = 100;
-        sprite.width = 225;
+        sprite.height = 105;
+        sprite.width = 150;
 
         // initialise x, y to arguements passed through via constructor
         sprite.x = this.playerX;
@@ -26,10 +26,6 @@ export class tankPlayer {
 
     addToStage(app) {
         app.stage.addChild(this.sprite);
-    }
-
-    getSprite(){
-        return this.sprite;
     }
 
     updatePlayerPosition(){

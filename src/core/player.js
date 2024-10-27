@@ -5,6 +5,10 @@ export class tankPlayer {
         // setup the x, y co-ordinates
         this.playerX = playerX;
         this.playerY = playerY;
+        this.playerSpeed = 10;
+        this.sprite = null;
+        console.log("Created tank!")
+        console.log(this.playerX);
     }
 
     async initialiseSprite(){
@@ -22,7 +26,31 @@ export class tankPlayer {
         this.sprite = sprite;
     }
 
+    addToStage(app) {
+        app.stage.addChild(this.sprite);
+    }
+
     getSprite(){
         return this.sprite;
+    }
+
+    updatePlayerPosition(){
+        console.log("Updating sprite position");
+        // this.sprite.x = this.playerX;
+        // this.sprite.y = this.playerY;
+        this.sprite.x = this.playerX;
+    }
+
+    setupKeyboardControls() {
+        window.addEventListener("keydown", this.keysDown);
+    }
+
+    keysDown(e) {
+        if (e.keyCode == 68) {
+            this.playerX += this.playerSpeed;
+            // console.log("Key was pressed");
+            console.log(e.keyCode);
+            console.log(this.playerX);
+        }
     }
 }

@@ -1,5 +1,6 @@
 import { Application, Sprite, Assets } from "pixi.js"; // import application class
 import { tankPlayer } from "./player"; // import player class from js file
+import { Ground } from "./background.js";
 
 (async() => { // https://developer.mozilla.org/en-US/docs/Glossary/IIFE IIFE (Immediately Invoked Function Expression) JS function that runs as soon as it is defined
 
@@ -11,9 +12,16 @@ import { tankPlayer } from "./player"; // import player class from js file
     app.canvas.style.position = 'absolute'; // line required in order to get rid of side bars
     document.body.appendChild(app.canvas); // adds canvas to body
 
+    // Adding ground
+    const activeGround = new Ground(app)
+    activeGround.initialiseGround();
+    app.stage.addChild(activeGround.getGround());
+
+    // Adding player
     const testPlayer = new tankPlayer(400, 400);
     await testPlayer.initialiseSprite();
     app.stage.addChild(testPlayer.getSprite());
+
 
 })();
 

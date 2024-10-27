@@ -3,7 +3,7 @@ import { tankPlayer } from "./player"; // import player class from js file
 import { Ground } from "./background.js";
 
 // let elapsed = 0.0;
- 
+
 (async() => { // https://developer.mozilla.org/en-US/docs/Glossary/IIFE IIFE (Immediately Invoked Function Expression) JS function that runs as soon as it is defined
 
     // app setup 

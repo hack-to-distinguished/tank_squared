@@ -18,7 +18,7 @@ import { Ground } from "./background.js";
     app.stage.addChild(activeGround.getGround());
 
     // Adding player
-    const testPlayer = new tankPlayer(400, app.renderer.height - 303);
+    const testPlayer = new tankPlayer(400, app.renderer.height - 251);
     await testPlayer.initialiseSprite();
     testPlayer.addToStage(app);
 

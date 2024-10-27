@@ -2,8 +2,6 @@ import { Application, Sprite, Assets, Ticker } from "pixi.js"; // import applica
 import { tankPlayer } from "./player"; // import player class from js file
 import { Ground } from "./background.js";
 
-// let elapsed = 0.0;
- 
 (async() => { // https://developer.mozilla.org/en-US/docs/Glossary/IIFE IIFE (Immediately Invoked Function Expression) JS function that runs as soon as it is defined
 
     // app setup 
@@ -20,25 +18,16 @@ import { Ground } from "./background.js";
     app.stage.addChild(activeGround.getGround());
 
     // Adding player
-    const testPlayer = new tankPlayer(400, 400);
+    const testPlayer = new tankPlayer(400, app.renderer.height - 303);
     await testPlayer.initialiseSprite();
-    // app.stage.addChild(testPlayer.getSprite());
     testPlayer.addToStage(app);
-
-    // const keysDown = testPlayer.keysDown;
-    // window.addEventListener("keydown", keysDown); // event object is automatically passed through to the keysDown method
-
-    // testPlayer.setupKeyboardControls();
 
     testPlayer.setupKeyboardControls();
 
     // create ticker in order to update sprite positioning
     app.ticker.add(() => {
-        // testPlayer.getSprite().x -= 10;
-        // testPlayer.updatePlayerPosition();
         testPlayer.updatePlayerPosition();
     })
-
 
 })();
 

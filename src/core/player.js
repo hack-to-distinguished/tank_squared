@@ -13,10 +13,12 @@ export class tankPlayer {
         // load texture of player, and convert into sprite.
         const texture = await Assets.load('assets/images/tank.png'); // 'await' keyword used for asynchronous texture loading
         const sprite = Sprite.from(texture);
+        sprite.anchor.set(0.5, 0.5); // set anchor point to centre of the sprite
 
         // resizing the texture
-        sprite.height = 105;
-        sprite.width = 150;
+        const desiredWidth = 150;
+        const desiredHeight = 105;
+        sprite.scale.set(desiredWidth / texture.width, desiredHeight / texture.height); // set the scale so there is no sprite distortion
 
         // initialise x, y to arguements passed through via constructor
         sprite.x = this.playerX;
@@ -34,8 +36,10 @@ export class tankPlayer {
         this.sprite.y = this.playerY;
         if (this.keys['68']) {
             this.playerX += this.playerSpeed;
+            this.sprite.scale.x = Math.abs(this.sprite.scale.x); // make sprite face right
         } else if (this.keys['65']) {
             this.playerX -= this.playerSpeed;
+            this.sprite.scale.x = -Math.abs(this.sprite.scale.x); // make sprite face left
         }
     }
 

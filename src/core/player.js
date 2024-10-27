@@ -1,4 +1,4 @@
-import { Assets, Sprite, Application } from "pixi.js";
+import { Assets, Sprite } from "pixi.js";
 
 export class tankPlayer {
     constructor(playerX, playerY){

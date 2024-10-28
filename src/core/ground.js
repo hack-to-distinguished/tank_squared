@@ -14,4 +14,11 @@ export class Ground {
     getGround(){
         return this.ground;
     };
+
+    // For now this only gets the flat ground. We might have to calculate the 
+    // ground at every point if we want to add hills etc
+    getGroundSurface(){
+        const bounds = this.ground.getBounds().maxY;
+        return bounds;
+    };
 };

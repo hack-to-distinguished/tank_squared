@@ -1,7 +1,7 @@
 import { Application } from "pixi.js"; // import application class
 import { tankPlayer } from "./core/player"; // import player class from js file
+import { bulletProjectile } from "./core/bullet.js";
 import { Ground } from "./core/background.js";
-
 (async () => { // https://developer.mozilla.org/en-US/docs/Glossary/IIFE IIFE (Immediately Invoked Function Expression) JS function that runs as soon as it is defined
 
   // app setup 
@@ -20,7 +20,12 @@ import { Ground } from "./core/background.js";
   // Adding player
   const testPlayer = new tankPlayer(400, app.renderer.height - 251);
   await testPlayer.initialiseSprite();
-  testPlayer.addToStage(app);
+  app.stage.addChild(testPlayer.getSprite())
+
+  // Adding a test bullet
+  const bullet = new bulletProjectile(200, 200, app);
+  await bullet.initialiseSprite();
+  app.stage.addChild(bullet.getSprite());
 
   testPlayer.setupKeyboardControls();
 

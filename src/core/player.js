@@ -26,10 +26,13 @@ export class tankPlayer {
     this.sprite = sprite;
   }
 
-  addToStage(app) {
-    app.stage.addChild(this.sprite);
+  getSprite() {
+    if (this.sprite) {
+      return this.sprite;
+    } else {
+      console.log("Sprite not initialised!");
+    }
   }
-
   updatePlayerPosition() {
     // console.log(this.keys);
     this.sprite.x = this.playerX;

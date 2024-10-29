@@ -29,6 +29,26 @@ import { Ground } from "./core/background.js";
 
   testPlayer.setupKeyboardControls();
 
+  // testing userinput (separate from player class, can't find way to wrap it inside an oop class), this will be used for firing a bulletProjectile
+  window.addEventListener("keydown", checkForSpaceBarPress);
+
+  function checkForSpaceBarPress(e) {
+    if (e.keyCode == 32) {
+      console.log("Fire!");
+      return true;
+    }
+  }
+
+  function createBullet() {
+    const bullet = new bulletProjectile(200, 200, app);
+    return bullet;
+  }
+
+  function fireBullet() {
+    // add functionality to this later
+  }
+
+
   // create ticker in order to update sprite positioning
   app.ticker.add(() => {
     testPlayer.updatePlayerPosition();

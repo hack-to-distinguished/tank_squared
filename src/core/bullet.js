@@ -5,6 +5,7 @@ export class bulletProjectile {
     this.bulletX = bulletX;
     this.bulletY = bulletY;
     this.app = app;
+    this.bulletSpeed = 10;
   }
 
   async initialiseSprite() {
@@ -27,5 +28,10 @@ export class bulletProjectile {
     } else {
       console.log("Sprite not initialised!");
     }
+  }
+
+  updateBullet() {
+    this.bulletX += this.bulletSpeed;
+    this.sprite.x = this.bulletX;
   }
 }

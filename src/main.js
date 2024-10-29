@@ -21,6 +21,7 @@ import { Ground } from "./core/ground";
     const testPlayer = new tankPlayer(400, app.renderer.height - 251);
     await testPlayer.initialiseSprite();
     testPlayer.addToStage(app);
+    await activeGround.isThereCollision(testPlayer);
 
     testPlayer.setupKeyboardControls();
 

@@ -22,37 +22,44 @@ import { Ground } from "./core/background.js";
   await testPlayer.initialiseSprite();
   app.stage.addChild(testPlayer.getSprite())
 
-  // Adding a test bullet
-  const bullet = new bulletProjectile(200, 200, app);
-  await bullet.initialiseSprite();
-  app.stage.addChild(bullet.getSprite());
-
   testPlayer.setupKeyboardControls();
+
+  // setting up temp bullet 
+  let bullets = [];
 
   // testing userinput (separate from player class, can't find way to wrap it inside an oop class), this will be used for firing a bulletProjectile
   window.addEventListener("keydown", checkForSpaceBarPress);
 
   function checkForSpaceBarPress(e) {
     if (e.keyCode == 32) {
-      console.log("Fire!");
+      fireBullet();
       return true;
     }
   }
 
-  function createBullet() {
+  async function createBullet(bullets) {
     const bullet = new bulletProjectile(200, 200, app);
-    return bullet;
+    await bullet.initialiseSprite();
+    app.stage.addChild(bullet.getSprite());
+    console.log("Creating a new bullet!");
+    bullets.push(bullet);
   }
 
   function fireBullet() {
-    // add functionality to this later
+    createBullet(bullets);
   }
 
+  function updateAllBullets() {
+    for (let i = 0; i < bullets.length; i++) {
+      const projectile = bullets[i];
+      projectile.updateBullet();
+    }
+  }
 
   // create ticker in order to update sprite positioning
   app.ticker.add(() => {
     testPlayer.updatePlayerPosition();
+    updateAllBullets();
   })
-
 })();
 

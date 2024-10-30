@@ -24,6 +24,7 @@ export class bulletProjectile {
 
   getSprite() {
     if (this.sprite) {
+      console.log("Sprite initialised!");
       return this.sprite;
     } else {
       console.log("Sprite not initialised!");

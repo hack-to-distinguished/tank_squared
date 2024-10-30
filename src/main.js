@@ -48,7 +48,7 @@ import { Ground } from "./core/ground";
       projectile.updateBullet();
 
       // check if bullet has gone off the screen, if it has, then it will be deleted. 
-      if (projectile.getX() > app.canvas.width || projectile.getX() < 0) {
+      if (projectile.getX() > (app.canvas.width + 20) || projectile.getX() < 0) {
         app.stage.removeChild(projectile);
         testPlayer.getBulletsList().splice(i, 1);
       }

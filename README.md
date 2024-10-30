@@ -48,14 +48,14 @@ Ideas/Possible Development paths:
 - Calculate distance travelled so that the tanks the tanks have limited movement per turn
 
 ### We are currently working on:
-[ ] Implementing Bullet Tragectory
-[ ] Collisions between players and environment
-[ ] Functional game screens/loops
-[ ] Animations for both players and environment
-[ ] Update Sprites for players, background and other props
-[ ] Implement Keyboard setups for local players
+- [ ] Implementing Bullet Tragectory
+- [ ] Collisions between players and environment
+- [ ] Functional game screens/loops
+- [ ] Animations for both players and environment
+- [ ] Update Sprites for players, background and other props
+- [ ] Implement Keyboard setups for local players
 
 ### Possible features:
-[ ] Mutliplayer functionality between different computers
-[ ] Terrain destruction
-[ ] Coin System with additional Shop for purchases
+- [ ] Mutliplayer functionality between different computers
+- [ ] Terrain destruction
+- [ ] Coin System with additional Shop for purchases

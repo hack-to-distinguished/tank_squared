@@ -45,6 +45,7 @@ import { Ground } from "./core/ground";
     console.log("Bullets List: ", testPlayer.getBulletsList());
     for (let i = 0; i < testPlayer.getBulletsList().length; i++) {
       const projectile = testPlayer.getBulletsList()[i];
+      projectile.applyGravityToVerticalMotion();
       projectile.updateBullet();
 
       // check if bullet has gone off the screen, if it has, then it will be deleted. 

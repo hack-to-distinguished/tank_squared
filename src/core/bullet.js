@@ -5,7 +5,11 @@ export class bulletProjectile {
     this.bulletX = bulletX;
     this.bulletY = bulletY;
     this.app = app;
-    this.bulletSpeed = 10;
+
+    // when sliders are implemented, these values should be manipulated roughly 
+    this.bulletSpeedX = 100;
+    this.bulletSpeedY = 50;
+    this.gravity = 5;
   }
 
   getX() {
@@ -40,7 +44,14 @@ export class bulletProjectile {
   }
 
   updateBullet() {
-    this.bulletX += this.bulletSpeed;
+    this.bulletX += this.bulletSpeedX;
     this.sprite.x = this.bulletX;
+
+    this.bulletY -= this.bulletSpeedY;
+    this.sprite.y = this.bulletY;
+  }
+
+  applyGravityToVerticalMotion() {
+    this.bulletSpeedY -= this.gravity;
   }
 }

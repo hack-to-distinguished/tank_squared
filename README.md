@@ -41,3 +41,17 @@ my-pixi-game/\
 ### Development
 Ideas/Possible Development paths:
 - Large background that goes off screen. When the player moves, he can discover more of the background.
+
+### We are currently working on:
+[ ] Implementing Bullet Tragectory
+[ ] Collisions between players and environment
+[ ] Functional game screens/loops
+[ ] Animations for both players and environment
+[ ] Update Sprites for players, background and other props
+[ ] Implement Keyboard setups for local players
+
+### Possible features:
+
+[ ] Mutliplayer functionality between different computers
+[ ] Terrain destruction
+[ ] Coin System with additional Shop for purchases

@@ -1,6 +1,6 @@
 import { Application, Sprite, Assets, Ticker } from "pixi.js"; // import application class
 import { tankPlayer } from "./core/player"; // import player class from js file
-import { Ground } from "./core/background.js";
+import { Ground } from "./core/ground";
 
 (async() => { // https://developer.mozilla.org/en-US/docs/Glossary/IIFE IIFE (Immediately Invoked Function Expression) JS function that runs as soon as it is defined
 
@@ -14,10 +14,11 @@ import { Ground } from "./core/background.js";
 
     // Adding ground
     const activeGround = new Ground(app)
-    activeGround.initialiseGround();
+    await activeGround.initialiseGround();
     app.stage.addChild(activeGround.getGround());
 
     // Adding player
+    console.log("render height", app.renderer.height)
     const testPlayer = new tankPlayer(400, app.renderer.height - 251);
     await testPlayer.initialiseSprite();
     testPlayer.addToStage(app);
@@ -29,5 +30,7 @@ import { Ground } from "./core/background.js";
         testPlayer.updatePlayerPosition();
     })
 
+    // Testing Collision
+    await activeGround.isThereCollision(testPlayer);
 })();
 

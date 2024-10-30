@@ -41,6 +41,11 @@ my-pixi-game/\
 ### Development
 Ideas/Possible Development paths:
 - Large background that goes off screen. When the player moves, he can discover more of the background.
+- Make the space larger
+- Add nicer background
+- Add enemy tank
+- Add turn by turn tactic
+- Calculate distance travelled so that the tanks the tanks have limited movement per turn
 
 ### We are currently working on:
 [ ] Implementing Bullet Tragectory
@@ -51,7 +56,6 @@ Ideas/Possible Development paths:
 [ ] Implement Keyboard setups for local players
 
 ### Possible features:
-
 [ ] Mutliplayer functionality between different computers
 [ ] Terrain destruction
 [ ] Coin System with additional Shop for purchases

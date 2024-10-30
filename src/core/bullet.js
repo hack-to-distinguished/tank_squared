@@ -8,6 +8,14 @@ export class bulletProjectile {
     this.bulletSpeed = 10;
   }
 
+  getX() {
+    return this.bulletX;
+  }
+
+  getY() {
+    return this.bulletY;
+  }
+
   async initialiseSprite() {
     // load texture of player, and convert into sprite.
     const texture = await Assets.load('assets/images/bullet.png'); // 'await' keyword used for asynchronous texture loading
@@ -17,8 +25,8 @@ export class bulletProjectile {
     // initialise x, y to arguements passed through via constructor
     sprite.x = this.bulletX;
     sprite.y = this.bulletY;
-    sprite.width = 50;
-    sprite.height = 50;
+    sprite.width = 30;
+    sprite.height = 30;
     this.sprite = sprite;
   }
 

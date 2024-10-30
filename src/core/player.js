@@ -7,6 +7,23 @@ export class tankPlayer {
     this.playerY = playerY;
     this.playerSpeed = 5;
     this.keys = {}; // dict setup
+    this.bullets = [];
+  }
+
+  getX() {
+    return this.playerX;
+  }
+
+  getY() {
+    return this.playerY;
+  }
+
+  getBulletsList() {
+    return this.bullets;
+  }
+
+  addBulletToBullets(bullet) {
+    this.bullets.push(bullet);
   }
 
   async initialiseSprite() {

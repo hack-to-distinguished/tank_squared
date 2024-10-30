@@ -17,42 +17,40 @@ import { Ground } from "./core/background.js";
   activeGround.initialiseGround();
   app.stage.addChild(activeGround.getGround());
 
-  // Adding player
+  // Adding player + setting up keyboard controls for movement
   const testPlayer = new tankPlayer(400, app.renderer.height - 251);
   await testPlayer.initialiseSprite();
   app.stage.addChild(testPlayer.getSprite())
-
   testPlayer.setupKeyboardControls();
 
-  // setting up temp bullet 
-  let bullets = [];
-
-  // testing userinput (separate from player class, can't find way to wrap it inside an oop class), this will be used for firing a bulletProjectile
+  // Setting up bullet logic, creation, and updating
   window.addEventListener("keydown", checkForSpaceBarPress);
-
   function checkForSpaceBarPress(e) {
     if (e.keyCode == 32) {
-      fireBullet();
+      createBullet();
       return true;
     }
   }
-
-  async function createBullet(bullets) {
-    const bullet = new bulletProjectile(200, 200, app);
+  // instantiates new bulletProjectile object, and pushes it to player object's bullet list
+  async function createBullet() {
+    const bullet = new bulletProjectile(testPlayer.getX(), testPlayer.getY(), app);
     await bullet.initialiseSprite();
     app.stage.addChild(bullet.getSprite());
     console.log("Creating a new bullet!");
-    bullets.push(bullet);
+    testPlayer.addBulletToBullets(bullet);
   }
-
-  function fireBullet() {
-    createBullet(bullets);
-  }
-
+  // for loop used to iterate through list of bullets, and update corresponding x, y coords for each one
   function updateAllBullets() {
-    for (let i = 0; i < bullets.length; i++) {
-      const projectile = bullets[i];
+    console.log("Bullets List: ", testPlayer.getBulletsList());
+    for (let i = 0; i < testPlayer.getBulletsList().length; i++) {
+      const projectile = testPlayer.getBulletsList()[i];
       projectile.updateBullet();
+
+      // check if bullet has gone off the screen, if it has, then it will be deleted. 
+      if (projectile.getX() > app.canvas.width || projectile.getX() < 0) {
+        app.stage.removeChild(projectile);
+        testPlayer.getBulletsList().splice(i, 1);
+      }
     }
   }
 

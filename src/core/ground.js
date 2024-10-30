@@ -18,20 +18,26 @@ export class Ground {
     // For now this only gets the flat ground. We might have to calculate the 
     // ground at every point if we want to add hills etc
     getGroundSurface(){
+        // TODO: Find a better way of getting ground lvl - Needs to work with hills
         console.log("GROUND LVL", this.ground.getBounds());
-        return this.ground.getBounds().maxY;
+        return this.ground.getBounds().minY;
     };
 
     // Check if anything is lower than ground and if so move it just about it
     isThereCollision(collidingSprite){
-        // TODO: Find an alternative way of getting the bounds because relying on the x and y set by us won't work. We need something regular
-        console.log("COLLIDING ELE", collidingSprite);
+        console.log("Colliding sprite", collidingSprite);
         const surface = this.getGroundSurface()
-        const yPosition = collidingSprite.sprite.bounds.minY;
-        console.log("objectBounds:", yPosition);
-        console.log("SURFACE", surface);
+        //const yPosition = collidingSprite.sprite.bounds.maxY;
+        const yPosition = collidingSprite.playerY;
+        console.log("Sprite yPosition", yPosition);
+        console.log("Ground lvl", surface);
+        /*
+        */
         if (yPosition < surface){
-            collidingSprite.sprite.bounds = surface + 1
+            console.log("yPos < surface");
+            //collidingSprite.sprite.bounds.maxY = surface - 60
+            collidingSprite.playerY = surface - 50
+            console.log("Updated yPosition", collidingSprite.playerY);
         };
     };
 };

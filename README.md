@@ -41,3 +41,8 @@ my-pixi-game/\
 ### Development
 Ideas/Possible Development paths:
 - Large background that goes off screen. When the player moves, he can discover more of the background.
+- Make the space larger
+- Add nicer background
+- Add enemy tank
+- Add turn by turn tactic
+- Calculate distance travelled so that the tanks the tanks have limited movement per turn

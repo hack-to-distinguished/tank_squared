@@ -40,6 +40,7 @@ import { Ground } from "./core/ground";
       testPlayer.createBullet();
     }
   })
+
   // Testing Collision
   activeGround.isThereCollision(testPlayer);
 })();

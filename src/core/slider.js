@@ -1,7 +1,7 @@
-import { Graphics } from "pixi.js";
+import { Graphics, Text } from "pixi.js";
 
 export class slider {
-  constructor(sliderX, sliderY, app, sliderWidth) {
+  constructor(sliderX, sliderY, app, sliderWidth, label) {
     this.sliderY = sliderY;
     this.sliderX = sliderX;
     this.app = app;
@@ -28,6 +28,16 @@ export class slider {
     this.handle.on('pointerdown', this.onDragStart);
     this.handle.on('pointerup', this.onDragEnd);
     this.handle.on('pointerupoutside', this.onDragEnd);
+
+    this.label = new Text({
+      text: label,
+      style: {
+        fill: '#FFFFFF',
+        fontFamily: 'Roboto',
+        fontSize: 20,
+        align: 'center',
+      },
+    });
   }
 
   onDragStart() {
@@ -54,5 +64,8 @@ export class slider {
   addGraphicsToStage() {
     this.app.stage.addChild(this.slider);
     this.slider.addChild(this.handle);
+    this.label.x = this.sliderX;
+    this.label.y = this.sliderY - 30;
+    this.app.stage.addChild(this.label);
   }
 }

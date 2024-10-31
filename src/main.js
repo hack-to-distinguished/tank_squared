@@ -59,9 +59,12 @@ import { Ground } from "./core/ground";
     }
   }
 
-  // test slider class instantiation
-  const sliderObjectTest = new slider(100, 100, app, 320);
-  sliderObjectTest.addGraphicsToStage();
+  // create sliders for both initial velocitym and launch angle (in degrees)
+  const sliderVelocity = new slider(100, 100, app, 320, "Initial Velocity");
+  sliderVelocity.addGraphicsToStage();
+
+  const sliderLaunchAngle = new slider(100, 200, app, 320, "Launch Angle");
+  sliderLaunchAngle.addGraphicsToStage();
 
   // create ticker in order to update sprite positioning
   app.ticker.add(() => {

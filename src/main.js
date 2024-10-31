@@ -1,3 +1,4 @@
+import { slider } from './core/slider.js';
 import { Application, Assets, Text, Graphics, Sprite, SCALE_MODES } from 'pixi.js';
 import { tankPlayer } from "./core/player"; // import player class from js file
 import { bulletProjectile } from "./core/bullet.js";
@@ -57,42 +58,10 @@ import { Ground } from "./core/ground";
       }
     }
   }
-  // create slider for initial velocity
-  const sliderWidth = 320;
-  const slider = new Graphics().rect(0, 0, sliderWidth, 4).fill({ color: 0x272d37 });
-  slider.x = 100;
-  slider.y = 100;
 
-  // Draw the handle
-  const handle = new Graphics().circle(0, 0, 8).fill({ color: 0xffffff });
-  handle.y = slider.height / 2;
-  handle.x = sliderWidth / 2;
-  handle.eventMode = 'static';
-  handle.cursor = 'pointer';
-
-  handle.on('pointerdown', onDragStart).on('pointerup', onDragEnd).on('pointerupoutside', onDragEnd);
-
-  app.stage.addChild(slider);
-  slider.addChild(handle);
-
-  function onDragStart() {
-    app.stage.eventMode = 'static';
-    app.stage.addEventListener('pointermove', onDrag);
-  }
-
-  function onDragEnd(e) {
-    app.stage.eventMode = 'auto';
-    app.stage.removeEventListener('pointermove', onDrag);
-  }
-
-  function onDrag(e) {
-    const halfHandleWidth = handle.width / 2;
-    // Set handle y-position to match pointer, clamped to (4, screen.height - 4).
-
-    handle.x = Math.max(halfHandleWidth, Math.min(slider.toLocal(e.global).x, sliderWidth - halfHandleWidth));
-    // Normalize handle position between -1 and 1.
-    const t = 2 * (handle.x / sliderWidth - 0.5);
-  }
+  // test slider class instantiation
+  const sliderObjectTest = new slider(100, 100, app, 320);
+  sliderObjectTest.addGraphicsToStage();
 
   // create ticker in order to update sprite positioning
   app.ticker.add(() => {

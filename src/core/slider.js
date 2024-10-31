@@ -1,0 +1,58 @@
+import { Graphics } from "pixi.js";
+
+export class slider {
+  constructor(sliderX, sliderY, app, sliderWidth) {
+    this.sliderY = sliderY;
+    this.sliderX = sliderX;
+    this.app = app;
+    this.sliderWidth = sliderWidth;
+
+    // Graphics
+    this.slider = new Graphics().rect(0, 0, sliderWidth, 4).fill({ color: 0x272d37 });
+    this.slider.x = this.sliderX;
+    this.slider.y = this.sliderY;
+
+    // drawing handle 
+    this.handle = new Graphics().circle(0, 0, 8).fill({ color: 0xffffff });
+    this.handle.y = this.slider.height / 2;
+    this.handle.x = this.sliderWidth / 2;
+    this.handle.eventMode = 'static';
+    this.handle.cursor = 'pointer';
+
+    // Bind methods to the current instance (avoids issues that are caused by the key word 'this') 
+    this.onDragStart = this.onDragStart.bind(this);
+    this.onDragEnd = this.onDragEnd.bind(this);
+    this.onDrag = this.onDrag.bind(this);
+
+    // set up the interactivity for user
+    this.handle.on('pointerdown', this.onDragStart);
+    this.handle.on('pointerup', this.onDragEnd);
+    this.handle.on('pointerupoutside', this.onDragEnd);
+  }
+
+  onDragStart() {
+    console.log("On drag start!");
+    this.app.stage.eventMode = 'static';
+    this.app.stage.addEventListener('pointermove', this.onDrag);
+  }
+
+  onDragEnd(e) {
+    console.log("On drag end!");
+    this.app.stage.eventMode = 'auto';
+    this.app.stage.removeEventListener('pointermove', this.onDrag);
+  }
+
+  onDrag(e) {
+    const halfHandleWidth = this.handle.width / 2;
+    // Set handle y-position to match pointer, clamped to (4, screen.height - 4).
+
+    this.handle.x = Math.max(halfHandleWidth, Math.min(this.slider.toLocal(e.global).x, this.sliderWidth - halfHandleWidth));
+    // Normalize handle position between -1 and 1.
+    const t = 2 * (this.handle.x / this.sliderWidth - 0.5);
+  }
+
+  addGraphicsToStage() {
+    this.app.stage.addChild(this.slider);
+    this.slider.addChild(this.handle);
+  }
+}

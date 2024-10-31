@@ -7,6 +7,9 @@ export class slider {
     this.app = app;
     this.sliderWidth = sliderWidth;
 
+    // value representation
+    this.normalisedSliderValue = 0;
+
     // Graphics
     this.slider = new Graphics().rect(0, 0, sliderWidth, 4).fill({ color: 0x272d37 });
     this.slider.x = this.sliderX;
@@ -29,6 +32,7 @@ export class slider {
     this.handle.on('pointerup', this.onDragEnd);
     this.handle.on('pointerupoutside', this.onDragEnd);
 
+    // Label text 
     this.label = new Text({
       text: label,
       style: {
@@ -57,15 +61,24 @@ export class slider {
     // Set handle y-position to match pointer, clamped to (4, screen.height - 4).
 
     this.handle.x = Math.max(halfHandleWidth, Math.min(this.slider.toLocal(e.global).x, this.sliderWidth - halfHandleWidth));
-    // Normalize handle position between -1 and 1.
-    const t = 2 * (this.handle.x / this.sliderWidth - 0.5);
+
+    // normalised the values from 0 - 1
+    this.normalisedSliderValue = this.handle.x / this.sliderWidth;
+    console.log(this.normalisedSliderValue);
   }
 
   addGraphicsToStage() {
     this.app.stage.addChild(this.slider);
     this.slider.addChild(this.handle);
+
+    // positioning the label correctly in correspondence with the slider itself
     this.label.x = this.sliderX;
     this.label.y = this.sliderY - 30;
     this.app.stage.addChild(this.label);
   }
+
+  getNormalisedSliderValue() {
+    return this.normalisedSliderValue;
+  }
+
 }

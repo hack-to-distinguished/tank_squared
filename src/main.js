@@ -45,7 +45,6 @@ import { Ground } from "./core/ground";
 
   // for loop used to iterate through list of bullets, and update corresponding x, y coords for each one
   function updateAllBullets() {
-    console.log("Bullets List: ", testPlayer.getBulletsList());
     for (let i = 0; i < testPlayer.getBulletsList().length; i++) {
       const projectile = testPlayer.getBulletsList()[i];
       projectile.applyGravityToVerticalMotion();

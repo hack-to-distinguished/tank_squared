@@ -1,8 +1,10 @@
 import { Assets, Sprite } from "pixi.js";
+import { bulletProjectile } from "./bullet";
 
 export class tankPlayer {
-  constructor(playerX, playerY) {
+  constructor(playerX, playerY, app) {
     // setup the x, y co-ordinates
+    this.app = app;
     this.playerX = playerX;
     this.playerY = playerY;
     this.playerSpeed = 5;
@@ -18,6 +20,27 @@ export class tankPlayer {
     return this.playerY;
   }
 
+  async createBullet() {
+    const bullet = new bulletProjectile(this.playerX, this.playerY, this.app);
+    await bullet.initialiseSprite();
+    this.app.stage.addChild(bullet.getSprite());
+    this.addBulletToBullets(bullet);
+  }
+
+  updateBullets() {
+    for (let i = 0; i < this.getBulletsList().length; i++) {
+      const projectile = this.getBulletsList()[i];
+      projectile.applyGravityToVerticalMotion();
+      projectile.updateBullet();
+
+      // check if bullet has gone off the screen, if it has, then it will be deleted. 
+      if (projectile.getX() > (this.app.canvas.width + 20) || projectile.getX() < 0) {
+        this.app.stage.removeChild(projectile);
+        this.getBulletsList().splice(i, 1);
+      }
+    }
+  }
+
   getBulletsList() {
     return this.bullets;
   }
@@ -27,6 +50,7 @@ export class tankPlayer {
   }
 
   async initialiseSprite() {
+
     // load texture of player, and convert into sprite.
     const texture = await Assets.load('assets/images/tank.png'); // 'await' keyword used for asynchronous texture loading
     const sprite = Sprite.from(texture);
@@ -50,6 +74,15 @@ export class tankPlayer {
       console.log("Sprite not initialised!");
     }
   }
+
+  checkSpaceBarInput() {
+    if (this.keys['32']) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   updatePlayerPosition() {
     // console.log(this.keys);
     this.sprite.x = this.playerX;
@@ -76,6 +109,8 @@ export class tankPlayer {
       this.keys[e.keyCode] = true;
     } else if (e.keyCode == 65) {
       this.keys[e.keyCode] = true;
+    } else if (e.keyCode == 32) {
+      this.keys[e.keyCode] = true;
     }
   }
 
@@ -83,6 +118,8 @@ export class tankPlayer {
     if (e.keyCode == 68) {
       this.keys[e.keyCode] = false;
     } else if (e.keyCode == 65) {
+      this.keys[e.keyCode] = false;
+    } else if (e.keyCode == 32) {
       this.keys[e.keyCode] = false;
     }
   }

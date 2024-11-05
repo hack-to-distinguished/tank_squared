@@ -2,6 +2,7 @@ import { slider } from './core/slider.js';
 import { Application, Assets, Text, Graphics, Sprite, SCALE_MODES } from 'pixi.js';
 import { tankPlayer } from "./core/player"; // import player class from js file
 import { Ground } from "./core/ground";
+import { trajectoryCalculator } from './core/trajectoryCalculator.js';
 
 (async () => { // https://developer.mozilla.org/en-US/docs/Glossary/IIFE IIFE (Immediately Invoked Function Expression) JS function that runs as soon as it is defined
 
@@ -32,7 +33,12 @@ import { Ground } from "./core/ground";
   const sliderLaunchAngle = new slider(100, 200, app, 320, "Launch Angle");
   sliderLaunchAngle.addGraphicsToStage();
 
-  // create ticker in order to update sprite positioning
+  // create test bezier curve
+  const testBezier = new trajectoryCalculator(app, 50, 50);
+  testBezier.createBezier();
+  app.stage.addChild(testBezier.getBezierCurve());
+
+  // c:eate ticker in order to update sprite positioning
   app.ticker.add(() => {
     testPlayer.updatePlayerPosition();
     testPlayer.updateBullets();

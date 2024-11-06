@@ -33,7 +33,7 @@ export class Ground {
         console.log("Ground lvl", surface);
         /*
         */
-        if (yPosition < surface){
+        if (yPosition > surface){
             console.log("yPos < surface");
             //collidingSprite.sprite.bounds.maxY = surface - 60
             collidingSprite.playerY = surface - 50

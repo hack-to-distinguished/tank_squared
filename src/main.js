@@ -26,7 +26,7 @@ import { Background } from "./scenes/mapImage";
 
     // Adding player
     console.log("render height", app.renderer.height)
-    const testPlayer = new tankPlayer(400, app.renderer.height - 251);
+    const testPlayer = new tankPlayer(400, app.renderer.height - 300);
     await testPlayer.initialiseSprite();
     testPlayer.addToStage(app);
 

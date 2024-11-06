@@ -1,7 +1,7 @@
 import { Application, Sprite, Assets, Ticker } from "pixi.js"; // import application class
 import { tankPlayer } from "./core/player"; // import player class from js file
 import { Ground } from "./core/ground";
-import { Background } from "./scenes/gameScene";
+import { Background } from "./scenes/mapImage";
 
 (async() => { // https://developer.mozilla.org/en-US/docs/Glossary/IIFE IIFE (Immediately Invoked Function Expression) JS function that runs as soon as it is defined
 
@@ -15,7 +15,7 @@ import { Background } from "./scenes/gameScene";
     document.body.appendChild(app.canvas); // adds canvas to body
 
     // Adding background
-    const background = new Background();
+    const background = new Background(app.renderer.height - 150, app.renderer.width);
     await background.initialiseBackground();
     app.stage.addChild(background.getBackground());
 

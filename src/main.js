@@ -34,11 +34,11 @@ import { trajectoryCalculator } from './core/trajectoryCalculator.js';
   sliderLaunchAngle.addGraphicsToStage();
 
   // create test bezier curve
-  const testBezier = new trajectoryCalculator(app, 50, 50);
-  testBezier.createBezier();
-  app.stage.addChild(testBezier.getBezierCurve());
+  //const testBezier = new trajectoryCalculator(app, 50, 50);
+  //testBezier.createBezier();
+  //app.stage.addChild(testBezier.getBezierCurve());
 
-  // c:eate ticker in order to update sprite positioning
+  // create ticker in order to update sprite positioning
   app.ticker.add(() => {
     testPlayer.updatePlayerPosition();
     testPlayer.updateBullets();

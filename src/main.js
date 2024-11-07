@@ -1,6 +1,7 @@
+// importing necessary libraries, and external classes
 import { slider } from './core/slider.js';
 import { Application, Assets, Text, Graphics, Sprite, SCALE_MODES } from 'pixi.js';
-import { tankPlayer } from "./core/player"; // import player class from js file
+import { tankPlayer } from "./core/player"; 
 import { Ground } from "./core/ground";
 import { trajectoryCalculator } from './core/trajectoryCalculator.js';
 
@@ -13,6 +14,11 @@ import { trajectoryCalculator } from './core/trajectoryCalculator.js';
   });
   app.canvas.style.position = 'absolute'; // line required in order to get rid of side bars
   document.body.appendChild(app.canvas); // adds canvas to body
+  
+  // Adding background
+  const background = new Background(app.renderer.height - 150, app.renderer.width);
+  await background.initialiseBackground();
+  app.stage.addChild(background.getBackground());
 
   // Adding ground
   const activeGround = new Ground(app)

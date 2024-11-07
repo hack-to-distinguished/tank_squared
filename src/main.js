@@ -14,8 +14,11 @@ import { Background } from "./scenes/mapImage";
     app.canvas.style.position = 'absolute'; // line required in order to get rid of side bars
     document.body.appendChild(app.canvas); // adds canvas to body
 
+    // We re-use these a lot so lets save them
+    const [appHeight, appWidth] = [app.renderer.height, app.renderer.width];
+
     // Adding background
-    const background = new Background(app.renderer.height - 150, app.renderer.width);
+    const background = new Background(appHeight - 150, appWidth);
     await background.initialiseBackground();
     app.stage.addChild(background.getBackground());
 
@@ -25,19 +28,23 @@ import { Background } from "./scenes/mapImage";
     app.stage.addChild(activeGround.getGround());
 
     // Adding player
-    console.log("render height", app.renderer.height)
-    const testPlayer = new tankPlayer(400, app.renderer.height - 300);
-    await testPlayer.initialiseSprite();
-    testPlayer.addToStage(app);
-
-    testPlayer.setupKeyboardControls();
+    let [playerOneX, playerOneY] = [400, appHeight - 300];
+    const playerOne = new tankPlayer(playerOneX, playerOneY);
+    await playerOne.initialiseSprite();
+    playerOne.addToStage(app);
+    playerOne.setupKeyboardControls();
 
     // create ticker in order to update sprite positioning
     app.ticker.add(() => {
-        testPlayer.updatePlayerPosition();
+        playerOne.updatePlayerPosition();
     })
 
     // Testing Collision
-    await activeGround.isThereCollision(testPlayer);
+    await activeGround.isThereCollision(playerOne);
+
+    function gameloop(timeStamp) {
+        playerOne.ohGravity();
+        window.requestAnimationFrame(gameloop);
+    };
 })();
 

@@ -28,7 +28,11 @@ export class tankPlayer {
 
     addToStage(app) {
         app.stage.addChild(this.sprite);
-    }
+    };
+
+    ohGravity() {
+        this.playerY -= 5;
+    };
 
     updatePlayerPosition(){
         // console.log(this.keys);

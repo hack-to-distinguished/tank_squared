@@ -30,8 +30,8 @@ export class tankPlayer {
         app.stage.addChild(this.sprite);
     };
 
-    ohGravity() {
-        this.playerY -= 5;
+    applyGravity() {
+        this.playerY += 3;
     };
 
     updatePlayerPosition(){

@@ -39,12 +39,22 @@ import { Background } from "./scenes/mapImage";
         playerOne.updatePlayerPosition();
     })
 
-    // Testing Collision
     await activeGround.isThereCollision(playerOne);
+    let isFalling = true;
 
+    gameloop();
     function gameloop(timeStamp) {
-        playerOne.ohGravity();
-        window.requestAnimationFrame(gameloop);
+
+        let isColliding = activeGround.isThereCollision(playerOne);
+        if (isColliding){
+            isFalling = false;
+        };
+
+        if (isFalling){
+            playerOne.applyGravity();
+        };
+
+        requestAnimationFrame(gameloop);
     };
 })();
 

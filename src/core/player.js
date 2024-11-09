@@ -20,7 +20,7 @@ export class TankPlayer {
     }
 
     async createBullet() {
-        const bullet = new bulletProjectile(this.playerX, this.playerY, this.app);
+        const bullet = new BulletProjectile(this.playerX, this.playerY, this.app);
         await bullet.initialiseBulletSprite();
         this.app.stage.addChild(bullet.getSprite());
         this.addBulletToBullets(bullet);
@@ -71,49 +71,47 @@ export class TankPlayer {
 
     applyGravity() {
         this.playerY += 3;
-    };
-
-    checkSpaceBarInput() {
-        if (this.keys['32']) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
-  updatePlayerPosition() {
-      this.playerSprite.x = this.playerX;
-      this.playerSprite.y = this.playerY;
-      if (this.keys['68']) {
-          this.playerX += this.playerSpeed;
-          this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x); // make sprite face right
-      } else if (this.keys['65']) {
-          this.playerX -= this.playerSpeed;
-          this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x); // make sprite face left
-      }
-  }
+
+    checkSpaceBarInput() {
+        return this.keys['32'] === true;
+    }
+
+    updatePlayerPosition() {
+        this.playerSprite.x = this.playerX;
+        this.playerSprite.y = this.playerY;
+        if (this.keys['68']) {
+            this.playerX += this.playerSpeed;
+            this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x); // make sprite face right
+        } else if (this.keys['65']) {
+            this.playerX -= this.playerSpeed;
+            this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x); // make sprite face left
+        }
+    }
 
     setupKeyboardControls() {
         window.addEventListener("keydown", this.keysDown.bind(this));
         window.addEventListener("keyup", this.keysUp.bind(this));
     }
 
-  keysDown(e) {
-      if (e.keyCode == 68) {
-          this.keys[e.keyCode] = true;
-      } else if (e.keyCode == 65) {
-          this.keys[e.keyCode] = true;
-      } else if (e.keyCode == 32) {
-          this.keys[e.keyCode] = true;
-      }
-  }
+    keysDown(e) {
+        if (e.keyCode == 68) {
+            this.keys[e.keyCode] = true;
+        } else if (e.keyCode == 65) {
+            this.keys[e.keyCode] = true;
+        } else if (e.keyCode == 32) {
+            this.keys[e.keyCode] = true;
+        }
+    }
 
-  keysUp(e) {
-      if (e.keyCode == 68) {
-          this.keys[e.keyCode] = false;
-      } else if (e.keyCode == 65) {
-          this.keys[e.keyCode] = false;
-      } else if (e.keyCode == 32) {
-          this.keys[e.keyCode] = false;
-      }
+    keysUp(e) {
+        if (e.keyCode == 68) {
+            this.keys[e.keyCode] = false;
+        } else if (e.keyCode == 65) {
+            this.keys[e.keyCode] = false;
+        } else if (e.keyCode == 32) {
+            this.keys[e.keyCode] = false;
+        }
+    }
 };

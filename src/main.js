@@ -1,9 +1,9 @@
-import { Application, Assets, Text, Graphics, Sprite, SCALE_MODES } from 'pixi.js';
-import { Slider } from './core/slider.js';
+import { Application, Assets, Text, Graphics, Sprite, SCALE_MODES } from "pixi.js";
+import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { Ground } from "./core/ground";
 //import { Background } from "./scenes/mapImage.js";
-import { TrajectoryCalculator } from './core/trajectoryCalculator.js';
+import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
 
 (async () => {
 
@@ -28,17 +28,17 @@ import { TrajectoryCalculator } from './core/trajectoryCalculator.js';
   
     // Adding player
     let [playerOneX, playerOneY] = [400, appHeight - 300];
-    const playerOne = new tankPlayer(playerOneX, playerOneY);
+    const playerOne = new TankPlayer(playerOneX, playerOneY);
     await playerOne.initialiseSprite();
     playerOne.addToStage(app);
     playerOne.setupKeyboardControls();
 
     // Adding projectile mechanism
-    const sliderLaunchAngle = new slider(100, 200, app, 320, "Launch Angle");
-    sliderLaunchAngle.addGraphicsToStage();
+    //const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
+    //sliderLaunchAngle.addGraphicsToStage();
 
-    const sliderVelocity = new slider(100, 100, app, 320, "Initial Velocity");
-    sliderVelocity.addGraphicsToStage();
+    //const sliderVelocity = new Slider(100, 100, app, 320, "Initial Velocity");
+    //sliderVelocity.addGraphicsToStage();
 
     // Create ticker in order to update sprite positioning
     app.ticker.add(() => {

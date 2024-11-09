@@ -22,7 +22,7 @@ export class tankPlayer {
 
   async createBullet() {
     const bullet = new bulletProjectile(this.playerX, this.playerY, this.app);
-    await bullet.initialiseSprite();
+    await bullet.initialiseBulletSprite();
     this.app.stage.addChild(bullet.getSprite());
     this.addBulletToBullets(bullet);
   }
@@ -49,29 +49,27 @@ export class tankPlayer {
     this.bullets.push(bullet);
   }
 
-  async initialiseSprite() {
+  async initialisePlayerSprite() {
 
     // load texture of player, and convert into sprite.
-    const texture = await Assets.load('assets/images/tank.png'); // 'await' keyword used for asynchronous texture loading
-    const sprite = Sprite.from(texture);
-    sprite.anchor.set(0.5, 0.5); // set anchor point to centre of the sprite
+    const playerTexture = await Assets.load('assets/images/tank.png');
+    const playerSprite = Sprite.from(playerTexture);
+    playerSprite.anchor.set(0.5, 0.5); // set anchor point to centre of the sprite
 
     // resizing the texture
     const desiredWidth = 150;
     const desiredHeight = 105;
-    sprite.scale.set(desiredWidth / texture.width, desiredHeight / texture.height); // set the scale so there is no sprite distortion
+    playerSprite.scale.set(desiredWidth / playerTexture.width, desiredHeight / playerTexture.height); // set the scale so there is no sprite distortion
 
     // initialise x, y to arguements passed through via constructor
-    sprite.x = this.playerX;
-    sprite.y = this.playerY;
-    this.sprite = sprite;
+    playerSprite.x = this.playerX;
+    playerSprite.y = this.playerY;
+    this.playerSprite = playerSprite;
   }
 
   getSprite() {
-    if (this.sprite) {
-      return this.sprite;
-    } else {
-      console.log("Sprite not initialised!");
+    if (this.playerSprite) {
+      return this.playerSprite;
     }
   }
 
@@ -85,14 +83,14 @@ export class tankPlayer {
 
   updatePlayerPosition() {
     // console.log(this.keys);
-    this.sprite.x = this.playerX;
-    this.sprite.y = this.playerY;
+    this.playerSprite.x = this.playerX;
+    this.playerSprite.y = this.playerY;
     if (this.keys['68']) {
       this.playerX += this.playerSpeed;
-      this.sprite.scale.x = Math.abs(this.sprite.scale.x); // make sprite face right
+      this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x); // make sprite face right
     } else if (this.keys['65']) {
       this.playerX -= this.playerSpeed;
-      this.sprite.scale.x = -Math.abs(this.sprite.scale.x); // make sprite face left
+      this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x); // make sprite face left
     }
   }
 

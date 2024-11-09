@@ -20,35 +20,32 @@ export class bulletProjectile {
     return this.bulletY;
   }
 
-  async initialiseSprite() {
+  async initialiseBulletSprite() {
     // load texture of player, and convert into sprite.
-    const texture = await Assets.load('assets/images/bullet.png'); // 'await' keyword used for asynchronous texture loading
-    const sprite = Sprite.from(texture);
-    sprite.anchor.set(0.5, 0.5); // set anchor point to centre of the sprite
+    const bulletTexture = await Assets.load('assets/images/bullet.png');
+    const bulletSprite = Sprite.from(bulletTexture);
+    bulletSprite.anchor.set(0.5, 0.5); // set anchor point to centre of the sprite
 
     // initialise x, y to arguements passed through via constructor
-    sprite.x = this.bulletX;
-    sprite.y = this.bulletY;
-    sprite.width = 30;
-    sprite.height = 30;
-    this.sprite = sprite;
+    bulletSprite.x = this.bulletX;
+    bulletSprite.y = this.bulletY;
+    bulletSprite.width = 30;
+    bulletSprite.height = 30;
+    this.bulletSprite = bulletSprite;
   }
 
   getSprite() {
-    if (this.sprite) {
-      console.log("Sprite initialised!");
-      return this.sprite;
-    } else {
-      console.log("Sprite not initialised!");
+    if (this.bulletSprite) {
+      return this.bulletSprite;
     }
   }
 
   updateBullet() {
     this.bulletX += this.bulletSpeedX;
-    this.sprite.x = this.bulletX;
+    this.bulletSprite.x = this.bulletX;
 
     this.bulletY -= this.bulletSpeedY;
-    this.sprite.y = this.bulletY;
+    this.bulletSprite.y = this.bulletY;
   }
 
   applyGravityToVerticalMotion() {

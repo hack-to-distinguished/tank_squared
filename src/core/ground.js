@@ -25,7 +25,6 @@ export class Ground {
     isThereCollision(collidingSprite){
         const surface = this.getGroundSurface()
         const yPosition = collidingSprite.playerY + 50;
-        console.log(yPosition);
         if (yPosition > surface){
             collidingSprite.playerY = surface - 50
             return true;

@@ -40,6 +40,10 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     const sliderVelocity = new Slider(100, 100, app, 320, "Initial Velocity");
     sliderVelocity.addGraphicsToStage();
 
+    // Checking ground collision
+    await activeGround.isThereCollision(playerOne);
+    let isFalling = true;
+
     // Create ticker in order to update sprite positioning
     app.ticker.add(() => {
         playerOne.updatePlayerPosition();
@@ -47,14 +51,6 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
         if (playerOne.checkSpaceBarInput()) {
             playerOne.createBullet();
         }
-    })
-
-    // Checking ground collision
-    await activeGround.isThereCollision(playerOne);
-    let isFalling = true;
-
-    gameloop();
-    function gameloop(timeStamp) {
 
         let isColliding = activeGround.isThereCollision(playerOne);
         if (isColliding){
@@ -65,5 +61,5 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
             playerOne.applyGravity();
         };
         requestAnimationFrame(gameloop);
-    };
+    })
 })();

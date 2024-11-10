@@ -37,25 +37,18 @@ my-pixi-game/\
 ├── styles.css            # Optional: CSS for the game's HTML container\
 └── package.json          # Project metadata and dependencies\
 
-
-### Development
-Ideas/Possible Development paths:
-- Large background that goes off screen. When the player moves, he can discover more of the background.
-- Make the space larger
-- Add nicer background
-- Add enemy tank
-- Add turn by turn tactic
-- Calculate distance travelled so that the tanks the tanks have limited movement per turn
-
-### We are currently working on:
-- [ ] Implementing Bullet Tragectory
-- [ ] Collisions between players and environment
-- [ ] Functional game screens/loops
-- [ ] Animations for both players and environment
-- [ ] Update Sprites for players, background and other props
-- [ ] Implement Keyboard setups for local players
+### Development Timeline
+- [x] Implementing Bullet Trajectory
+- [x] Collisions between players and the ground
+- [ ] Main game loop and turn by turn play
+- [ ] Enemy tank
+- [ ] Health and death
+- [ ] Game screens (start -> select tank -> death)
+- [ ] Complex terrain (hills and cliff)
+- [ ] Terrain destruction
+- [ ] Multiplayer
 
 ### Possible features:
-- [ ] Mutliplayer functionality between different computers
-- [ ] Terrain destruction
-- [ ] Coin System with additional Shop for purchases
+- [ ] Larger and more varied set of maps
+- [ ] Different tank options
+- [ ] Play against AI

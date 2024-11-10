@@ -1,49 +1,64 @@
-// importing necessary libraries, and external classes
-import { slider } from './core/slider.js';
-import { Application, Assets, Text, Graphics, Sprite, SCALE_MODES } from 'pixi.js';
-import { tankPlayer } from "./core/player";
+import { Application, Assets, Text, Graphics, Sprite, SCALE_MODES } from "pixi.js";
+import { Slider } from "./core/slider.js";
+import { TankPlayer } from "./core/player";
 import { Ground } from "./core/ground";
-import { trajectoryCalculator } from './core/trajectoryCalculator.js';
+import { Background } from "./scenes/mapImage.js";
+import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
 
-(async () => { // https://developer.mozilla.org/en-US/docs/Glossary/IIFE IIFE (Immediately Invoked Function Expression) JS function that runs as soon as it is defined
+(async () => {
 
-  // app setup 
-  const app = new Application(); // instantiating a new instance of application class
-  await app.init({ // sets up the 'canvas'; this is the area on the webpage that is controlled and managed by pixijs
-    resizeTo: window
-  });
-  app.canvas.style.position = 'absolute'; // line required in order to get rid of side bars
-  document.body.appendChild(app.canvas); // adds canvas to body
+    const app = new Application();
+    await app.init({
+        resizeTo: window
+    });
 
-  // Adding ground
-  const activeGround = new Ground(app)
-  await activeGround.initialiseGround();
-  app.stage.addChild(activeGround.getGround());
+    app.canvas.style.position = 'absolute';
+    document.body.appendChild(app.canvas);
+    const [appHeight, appWidth] = [app.renderer.height, app.renderer.width];
 
-  // Adding player + setting up keyboard controls for movement
-  console.log("render height", app.renderer.height)
-  const testPlayer = new tankPlayer(400, app.renderer.height - 251, app);
-  await testPlayer.initialisePlayerSprite();
-  app.stage.addChild(testPlayer.getSprite())
-  testPlayer.setupKeyboardControls();
+    // Adding ground
+    const activeGround = new Ground(app)
+    await activeGround.initialiseGround();
+    app.stage.addChild(activeGround.getGround());
 
-  // create sliders for both initial velocitym and launch angle (in degrees)
-  const sliderVelocity = new slider(100, 100, app, 320, "Initial Velocity");
-  sliderVelocity.addGraphicsToStage();
+    // Adding background
+    const background = new Background(appHeight - 150, appWidth);
+    await background.initialiseBackground();
+    app.stage.addChild(background.getBackground());
+  
+    // Adding player
+    let [playerOneX, playerOneY] = [400, appHeight - 300];
+    const playerOne = new TankPlayer(playerOneX, playerOneY, app);
+    await playerOne.initialisePlayerSprite();
+    app.stage.addChild(playerOne.getSprite());
+    playerOne.setupKeyboardControls();
 
-  const sliderLaunchAngle = new slider(100, 200, app, 320, "Launch Angle");
-  sliderLaunchAngle.addGraphicsToStage();
+    // Adding projectile mechanism
+    const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
+    sliderLaunchAngle.addGraphicsToStage();
 
-  // create ticker in order to update sprite positioning
-  app.ticker.add(() => {
-    testPlayer.updatePlayerPosition();
-    testPlayer.updateBullets();
-    if (testPlayer.checkSpaceBarInput()) {
-      testPlayer.createBullet();
-    }
-  })
+    const sliderVelocity = new Slider(100, 100, app, 320, "Initial Velocity");
+    sliderVelocity.addGraphicsToStage();
 
-  // Testing Collision
-  activeGround.isThereCollision(testPlayer);
+    // Checking ground collision
+    await activeGround.isThereCollision(playerOne);
+    let isFalling = true;
+
+    // Create ticker in order to update sprite positioning
+    app.ticker.add(() => {
+        playerOne.updatePlayerPosition();
+        playerOne.updateBullets();
+        if (playerOne.checkSpaceBarInput()) {
+            playerOne.createBullet();
+        }
+
+        let isColliding = activeGround.isThereCollision(playerOne);
+        if (isColliding){
+            isFalling = false;
+        };
+
+        if (isFalling){
+            playerOne.applyGravity();
+        };
+    })
 })();
-

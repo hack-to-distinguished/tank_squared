@@ -1,6 +1,6 @@
 import { Sprite, Assets } from "pixi.js";
 
-export class bulletProjectile {
+export class BulletProjectile {
   constructor(bulletX, bulletY, app) {
     this.bulletX = bulletX;
     this.bulletY = bulletY;

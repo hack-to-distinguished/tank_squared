@@ -5,7 +5,7 @@ export class Background {
         this.backgroundImage = null;
         this.appHeight = appHeight;
         this.appWidth = appWidth;
-    };
+    }
 
     async initialiseBackground() {
         const texture = await Assets.load("../assets/images/tank_squared_background.png");
@@ -13,10 +13,10 @@ export class Background {
         //this.backgroundImage = new Sprite.from("../assets/images/tank_squared_background.png");
         this.backgroundImage.height = this.appHeight;
         this.backgroundImage.width = this.appWidth;
-    };
+    }
 
     getBackground() {
         return this.backgroundImage;
-    };
+    }
 };
 

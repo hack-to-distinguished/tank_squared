@@ -1,6 +1,6 @@
 import { Application, Graphics } from "pixi.js";
 
-export class trajectoryCalculator {
+export class TrajectoryCalculator {
   constructor(app, angle, initialVelocity) {
     this.app = app;
     this.angle = angle;

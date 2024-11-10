@@ -7,37 +7,27 @@ export class Ground {
     }
     async initialiseGround(){
         this.ground = new Graphics()
-          .rect(0, this.app.renderer.height - 200, this.app.renderer.width, 200) // Draw ground with desired height
-          .fill(0x654321);
+            .rect(0, this.app.renderer.height - 200, this.app.renderer.width, 200)
+            .fill(0x654321);
     }
 
     getGround(){
         return this.ground;
-    };
+    }
 
-    // For now this only gets the flat ground. We might have to calculate the 
-    // ground at every point if we want to add hills etc
+    // For now this only gets the flat ground. We might have to calculate the ground at every point if we want to add hills etc
     getGroundSurface(){
         // TODO: Find a better way of getting ground lvl - Needs to work with hills
-        console.log("GROUND LVL", this.ground.getBounds());
         return this.ground.getBounds().minY;
-    };
+    }
 
     // Check if anything is lower than ground and if so move it just about it
     isThereCollision(collidingSprite){
-        console.log("Colliding sprite", collidingSprite);
         const surface = this.getGroundSurface()
-        //const yPosition = collidingSprite.sprite.bounds.maxY;
-        const yPosition = collidingSprite.playerY;
-        console.log("Sprite yPosition", yPosition);
-        console.log("Ground lvl", surface);
-        /*
-        */
-        if (yPosition < surface){
-            console.log("yPos < surface");
-            //collidingSprite.sprite.bounds.maxY = surface - 60
+        const yPosition = collidingSprite.playerY + 50;
+        if (yPosition > surface){
             collidingSprite.playerY = surface - 50
-            console.log("Updated yPosition", collidingSprite.playerY);
-        };
-    };
+            return true;
+        }
+    }
 };

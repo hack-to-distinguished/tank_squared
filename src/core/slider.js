@@ -1,6 +1,6 @@
 import { Graphics, Text } from "pixi.js";
 
-export class slider {
+export class Slider {
   constructor(sliderX, sliderY, app, sliderWidth, label) {
     this.sliderY = sliderY;
     this.sliderX = sliderX;

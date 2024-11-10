@@ -60,6 +60,5 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
         if (isFalling){
             playerOne.applyGravity();
         };
-        requestAnimationFrame(gameloop);
     })
 })();

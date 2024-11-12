@@ -27,11 +27,18 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     app.stage.addChild(background.getBackground());
   
     // Adding player
-    let [playerOneX, playerOneY] = [400, appHeight - 300];
+    let [playerOneX, playerOneY] = [550, appHeight - 300];
     const playerOne = new TankPlayer(playerOneX, playerOneY, app);
     await playerOne.initialisePlayerSprite();
     app.stage.addChild(playerOne.getSprite());
     playerOne.setupKeyboardControls();
+
+    // Adding second player
+    const playerTwo = new TankPlayer(playerOneX - 400, playerOneY, app);
+    await playerTwo.initialisePlayerSprite();
+    app.stage.addChild(playerTwo.getSprite());
+    playerTwo.setupKeyboardControls();
+
 
     // Adding projectile mechanism
     const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
@@ -42,23 +49,28 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
 
     // Checking ground collision
     await activeGround.isThereCollision(playerOne);
-    let isFalling = true;
+    await activeGround.isThereCollision(playerTwo);
+    let [isPlayerOneFalling, isPlayerTwoFalling] = [true, true];
 
     // Create ticker in order to update sprite positioning
     app.ticker.add(() => {
         playerOne.updatePlayerPosition();
+        playerTwo.updatePlayerPosition();
         playerOne.updateBullets();
         if (playerOne.checkSpaceBarInput()) {
             playerOne.createBullet();
         }
 
-        let isColliding = activeGround.isThereCollision(playerOne);
-        if (isColliding){
-            isFalling = false;
+        // Player One Ground Collision
+        activeGround.isThereCollision(playerOne);
+        if (isPlayerOneFalling){
+            playerOne.applyGravity();
         };
 
-        if (isFalling){
-            playerOne.applyGravity();
+        // Player Two Ground Collision
+        activeGround.isThereCollision(playerTwo);
+        if (isPlayerTwoFalling){
+            playerTwo.applyGravity();
         };
     })
 })();

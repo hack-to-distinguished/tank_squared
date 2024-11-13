@@ -38,13 +38,13 @@ my-pixi-game/\
 └── package.json          # Project metadata and dependencies\
 
 ### Development Timeline
-- [x] Implementing Bullet Trajectory
+- [ ] Implementing Bullet Trajectory (Alejandro)
 - [x] Collisions between players and the ground
 - [x] Main game loop and turn by turn play
 - [x] Enemy tank
 - [ ] Health and death
 - [ ] Game screens (start -> select tank -> death)
-- [ ] Complex terrain (hills and cliff)
+- [ ] Complex terrain (hills and cliff) (chris)
 - [ ] Terrain destruction
 - [ ] Multiplayer
 

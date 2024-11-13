@@ -69,11 +69,9 @@ export class TankPlayer {
         }
     }
 
-
     applyGravity() {
         this.playerY += 3;
     }
-
 
     checkSpaceBarInput() {
         return this.keys['32'] === true;

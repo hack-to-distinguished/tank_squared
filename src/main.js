@@ -57,8 +57,11 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     // Create ticker in order to update sprite positioning
     app.ticker.add(() => {
         playerOne.updateBullets();
-        if (playerOne.checkSpaceBarInput()) {
+        playerTwo.updateBullets();
+        if (playerOne.checkSpaceBarInput() && playerTurn) {
             playerOne.createBullet();
+        } else if (playerTwo.checkSpaceBarInput() && !playerTurn) {
+            playerTwo.createBullet();
         }
 
         // Ground collision and movement detection

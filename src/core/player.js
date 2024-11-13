@@ -83,15 +83,16 @@ export class TankPlayer {
         this.playerSprite.y = this.playerY;
     }
 
-    movePlayer() {
-        this.playerSprite.x = this.playerX;
-        this.playerSprite.y = this.playerY;
+    movePlayer(moveSet) {
+        console.log("Remaining moves:", this.moveSet);
         if (this.keys['68']) {
             this.playerX += this.playerSpeed;
             this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x); // make sprite face right
+            this.moveSet -= 1;
         } else if (this.keys['65']) {
             this.playerX -= this.playerSpeed;
             this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x); // make sprite face left
+            this.moveSet -= 1;
         }
     }
 

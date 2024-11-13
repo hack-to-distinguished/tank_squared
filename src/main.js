@@ -51,30 +51,35 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     await activeGround.isThereCollision(playerOne);
     await activeGround.isThereCollision(playerTwo);
     let [isPlayerOneFalling, isPlayerTwoFalling] = [true, true];
+    let playerTurn = true;
+    let [playerOneMoveSet, playerTwoMoveSet] = [20, 20];
 
     // Create ticker in order to update sprite positioning
     app.ticker.add(() => {
-        playerOne.updatePlayerPosition();
-        playerTwo.updatePlayerPosition();
-        
         playerOne.updateBullets();
         if (playerOne.checkSpaceBarInput()) {
             playerOne.createBullet();
         }
-        // Move the player with A & D
-        playerOne.movePlayer();
-        playerTwo.movePlayer();
 
-        // Player One Ground Collision
+        // Ground collision and movement detection
+        playerOne.updatePlayerPosition();
+        playerTwo.updatePlayerPosition();
         activeGround.isThereCollision(playerOne);
         if (isPlayerOneFalling){
             playerOne.applyGravity();
-        };
-
-        // Player Two Ground Collision
+        }
         activeGround.isThereCollision(playerTwo);
         if (isPlayerTwoFalling){
             playerTwo.applyGravity();
-        };
+        }
+
+        // TODO: Calculate distance travelled and stop player when reached
+        if (playerTurn & playerOneMoveSet > 0){
+            playerOne.movePlayer(playerOneMoveSet);
+            playerTwoMoveSet = 20;
+        } else {
+            playerTwo.movePlayer(playerTwoMoveSet);
+            playerOneMoveSet = 20;
+        }
     })
 })();

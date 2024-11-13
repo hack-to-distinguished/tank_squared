@@ -56,10 +56,14 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     app.ticker.add(() => {
         playerOne.updatePlayerPosition();
         playerTwo.updatePlayerPosition();
+        
         playerOne.updateBullets();
         if (playerOne.checkSpaceBarInput()) {
             playerOne.createBullet();
         }
+        // Move the player with A & D
+        playerOne.movePlayer();
+        playerTwo.movePlayer();
 
         // Player One Ground Collision
         activeGround.isThereCollision(playerOne);

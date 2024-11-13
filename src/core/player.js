@@ -78,7 +78,12 @@ export class TankPlayer {
         return this.keys['32'] === true;
     }
 
-    updatePlayerPosition() {
+    updatePlayerPosition(){
+        this.playerSprite.x = this.playerX;
+        this.playerSprite.y = this.playerY;
+    }
+
+    movePlayer() {
         this.playerSprite.x = this.playerX;
         this.playerSprite.y = this.playerY;
         if (this.keys['68']) {

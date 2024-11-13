@@ -40,8 +40,8 @@ my-pixi-game/\
 ### Development Timeline
 - [x] Implementing Bullet Trajectory
 - [x] Collisions between players and the ground
-- [ ] Main game loop and turn by turn play
-- [ ] Enemy tank
+- [x] Main game loop and turn by turn play
+- [x] Enemy tank
 - [ ] Health and death
 - [ ] Game screens (start -> select tank -> death)
 - [ ] Complex terrain (hills and cliff)

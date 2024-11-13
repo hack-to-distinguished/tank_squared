@@ -9,6 +9,7 @@ export class TankPlayer {
         this.playerSpeed = 5;
         this.keys = {};
         this.bullets = [];
+        this.moveSet = 30;
     }
 
     getX() {
@@ -83,17 +84,22 @@ export class TankPlayer {
         this.playerSprite.y = this.playerY;
     }
 
-    movePlayer(moveSet) {
-        console.log("Remaining moves:", this.moveSet);
-        if (this.keys['68']) {
-            this.playerX += this.playerSpeed;
-            this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x); // make sprite face right
-            this.moveSet -= 1;
-        } else if (this.keys['65']) {
-            this.playerX -= this.playerSpeed;
-            this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x); // make sprite face left
-            this.moveSet -= 1;
+    movePlayer() {
+        if (this.moveSet > 0){
+            if (this.keys['68']) {
+                this.playerX += this.playerSpeed;
+                this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
+                this.moveSet -= 1;
+            } else if (this.keys['65']) {
+                this.playerX -= this.playerSpeed;
+                this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
+                this.moveSet -= 1;
+            }
         }
+    }
+
+    resetMoveSet(){
+        this.moveSet = 30;
     }
 
     setupKeyboardControls() {

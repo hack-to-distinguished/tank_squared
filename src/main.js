@@ -73,13 +73,20 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
             playerTwo.applyGravity();
         }
 
-        // TODO: Calculate distance travelled and stop player when reached
-        if (playerTurn & playerOneMoveSet > 0){
-            playerOne.movePlayer(playerOneMoveSet);
-            playerTwoMoveSet = 20;
+        if (playerTurn){
+            if (playerOne.moveSet > 0){
+                playerOne.movePlayer();
+            } else {
+                playerTurn = false;
+                playerTwo.resetMoveSet();
+            }
         } else {
-            playerTwo.movePlayer(playerTwoMoveSet);
-            playerOneMoveSet = 20;
+            if (playerTwo.moveSet > 0){
+                playerTwo.movePlayer();
+            } else {
+                playerTurn = true;
+                playerOne.resetMoveSet();
+            }
         }
     })
 })();

@@ -28,13 +28,15 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
   
     // Adding player
     let [playerOneX, playerOneY] = [550, appHeight - 300];
-    const playerOne = new TankPlayer(playerOneX, playerOneY, app);
+    const playerOneTexture = await Assets.load('assets/images/tank.png');
+    const playerOne = new TankPlayer(playerOneX, playerOneY, app, playerOneTexture);
     await playerOne.initialisePlayerSprite();
     app.stage.addChild(playerOne.getSprite());
     playerOne.setupKeyboardControls();
 
     // Adding second player
-    const playerTwo = new TankPlayer(playerOneX - 400, playerOneY, app);
+    const playerTwoTexture = await Assets.load('assets/images/tank.png');
+    const playerTwo = new TankPlayer(playerOneX - 400, playerOneY, app, playerTwoTexture);
     await playerTwo.initialisePlayerSprite();
     app.stage.addChild(playerTwo.getSprite());
     playerTwo.setupKeyboardControls();
@@ -52,7 +54,7 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     await activeGround.isThereCollision(playerTwo);
     let [isPlayerOneFalling, isPlayerTwoFalling] = [true, true];
     let playerTurn = true;
-    let [playerOneMoveSet, playerTwoMoveSet] = [20, 20];
+    let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
     // Create ticker in order to update sprite positioning
     app.ticker.add(() => {
@@ -77,18 +79,18 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
         }
 
         if (playerTurn){
-            if (playerOne.moveSet > 0){
+            if (playerOne.moveDist > 0){
                 playerOne.movePlayer();
             } else {
                 playerTurn = false;
-                playerTwo.resetMoveSet();
+                playerTwo.resetMoveDist();
             }
         } else {
-            if (playerTwo.moveSet > 0){
+            if (playerTwo.moveDist > 0){
                 playerTwo.movePlayer();
             } else {
                 playerTurn = true;
-                playerOne.resetMoveSet();
+                playerOne.resetMoveDist();
             }
         }
     })

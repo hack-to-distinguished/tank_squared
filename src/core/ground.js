@@ -27,7 +27,6 @@ export class Ground {
         const yPosition = collidingSprite.playerY + 50;
         if (yPosition > surface){
             collidingSprite.playerY = surface - 50
-            return true;
         }
     }
 };

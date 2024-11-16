@@ -27,11 +27,20 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     app.stage.addChild(background.getBackground());
   
     // Adding player
-    let [playerOneX, playerOneY] = [400, appHeight - 300];
-    const playerOne = new TankPlayer(playerOneX, playerOneY, app);
+    let [playerOneX, playerOneY] = [550, appHeight - 300];
+    const playerOneTexture = await Assets.load('assets/images/tank.png');
+    const playerOne = new TankPlayer(playerOneX, playerOneY, app, playerOneTexture);
     await playerOne.initialisePlayerSprite();
     app.stage.addChild(playerOne.getSprite());
     playerOne.setupKeyboardControls();
+
+    // Adding second player
+    const playerTwoTexture = await Assets.load('assets/images/tank.png');
+    const playerTwo = new TankPlayer(playerOneX - 400, playerOneY, app, playerTwoTexture);
+    await playerTwo.initialisePlayerSprite();
+    app.stage.addChild(playerTwo.getSprite());
+    playerTwo.setupKeyboardControls();
+
 
     // Adding projectile mechanism
     const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
@@ -41,24 +50,48 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     sliderVelocity.addGraphicsToStage();
 
     // Checking ground collision
-    await activeGround.isThereCollision(playerOne);
-    let isFalling = true;
+    activeGround.isThereCollision(playerOne);
+    activeGround.isThereCollision(playerTwo);
+    let [isPlayerOneFalling, isPlayerTwoFalling] = [true, true];
+    let playerTurn = true;
+    let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
     // Create ticker in order to update sprite positioning
     app.ticker.add(() => {
-        playerOne.updatePlayerPosition();
         playerOne.updateBullets();
-        if (playerOne.checkSpaceBarInput()) {
+        playerTwo.updateBullets();
+        if (playerOne.checkSpaceBarInput() && playerTurn) {
             playerOne.createBullet();
+        } else if (playerTwo.checkSpaceBarInput() && !playerTurn) {
+            playerTwo.createBullet();
         }
 
-        let isColliding = activeGround.isThereCollision(playerOne);
-        if (isColliding){
-            isFalling = false;
-        };
-
-        if (isFalling){
+        // Ground collision and movement detection
+        playerOne.updatePlayerPosition();
+        playerTwo.updatePlayerPosition();
+        activeGround.isThereCollision(playerOne);
+        if (isPlayerOneFalling){
             playerOne.applyGravity();
-        };
+        }
+        activeGround.isThereCollision(playerTwo);
+        if (isPlayerTwoFalling){
+            playerTwo.applyGravity();
+        }
+
+        if (playerTurn){
+            if (playerOne.moveDist > 0){
+                playerOne.movePlayer();
+            } else {
+                playerTurn = false;
+                playerTwo.resetMoveDist();
+            }
+        } else {
+            if (playerTwo.moveDist > 0){
+                playerTwo.movePlayer();
+            } else {
+                playerTurn = true;
+                playerOne.resetMoveDist();
+            }
+        }
     })
 })();

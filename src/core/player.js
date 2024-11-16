@@ -2,13 +2,15 @@ import { Assets, Sprite } from "pixi.js";
 import { BulletProjectile } from "./bullet";
 
 export class TankPlayer {
-    constructor(playerX, playerY, app) {
+    constructor(playerX, playerY, app, playerTexture) {
         this.app = app;
         this.playerX = playerX;
         this.playerY = playerY;
         this.playerSpeed = 5;
         this.keys = {};
         this.bullets = [];
+        this.moveDist = 30;
+        this.playerTexture = playerTexture;
     }
 
     getX() {
@@ -49,13 +51,12 @@ export class TankPlayer {
     }
 
     async initialisePlayerSprite() {
-        const playerTexture = await Assets.load('assets/images/tank.png');
-        const playerSprite = Sprite.from(playerTexture);
+        const playerSprite = Sprite.from(this.playerTexture);
         playerSprite.anchor.set(0.5, 0.5);
 
         const desiredWidth = 150;
         const desiredHeight = 105;
-        playerSprite.scale.set(desiredWidth / playerTexture.width, desiredHeight / playerTexture.height); // set the scale so there is no sprite distortion
+        playerSprite.scale.set(desiredWidth / this.playerTexture.width, desiredHeight / this.playerTexture.height); 
 
         playerSprite.x = this.playerX;
         playerSprite.y = this.playerY;
@@ -68,26 +69,35 @@ export class TankPlayer {
         }
     }
 
-
     applyGravity() {
         this.playerY += 3;
     }
-
 
     checkSpaceBarInput() {
         return this.keys['32'] === true;
     }
 
-    updatePlayerPosition() {
+    updatePlayerPosition(){
         this.playerSprite.x = this.playerX;
         this.playerSprite.y = this.playerY;
-        if (this.keys['68']) {
-            this.playerX += this.playerSpeed;
-            this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x); // make sprite face right
-        } else if (this.keys['65']) {
-            this.playerX -= this.playerSpeed;
-            this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x); // make sprite face left
+    }
+
+    movePlayer() {
+        if (this.moveDist > 0){
+            if (this.keys['68']) {
+                this.playerX += this.playerSpeed;
+                this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
+                this.moveDist -= 1;
+            } else if (this.keys['65']) {
+                this.playerX -= this.playerSpeed;
+                this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
+                this.moveDist -= 1;
+            }
         }
+    }
+
+    resetMoveDist(){
+        this.moveDist = 30;
     }
 
     setupKeyboardControls() {

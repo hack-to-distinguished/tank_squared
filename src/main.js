@@ -50,8 +50,8 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     sliderVelocity.addGraphicsToStage();
 
     // Checking ground collision
-    await activeGround.isThereCollision(playerOne);
-    await activeGround.isThereCollision(playerTwo);
+    activeGround.isThereCollision(playerOne);
+    activeGround.isThereCollision(playerTwo);
     let [isPlayerOneFalling, isPlayerTwoFalling] = [true, true];
     let playerTurn = true;
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];

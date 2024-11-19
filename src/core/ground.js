@@ -4,13 +4,21 @@ export class Ground {
     constructor(app){
         this.app = app;
         this.ground = null;
+        this.appHeight = this.app.renderer.height;
+        this.appWidth = this.app.renderer.width;
     };
 
     async initialiseGround(){
-        let flatGround = new GraphicsContext()
-            .rect(0, this.app.renderer.height - 200, this.app.renderer.width, 200)
+        //let flatGround = new GraphicsContext()
+        //    .rect(0, this.appHeight - 200, this.appWidth, 200)
+        //    .fill(0x654321);
+        let bump = new GraphicsContext()
+            .rect(0, this.appHeight - 200, this.appWidth, 200)
+            .regularPoly(100, this.appHeight - 190, 20, 3, 0)
+            .regularPoly(this.appWidth/2, this.appHeight - 160, 20, 3, 0)
             .fill(0x654321);
-        this.ground = new Graphics(flatGround);
+        //let completeGround = [flatGround, bump]
+        this.ground = new Graphics(bump);
     };
 
     getGround(){

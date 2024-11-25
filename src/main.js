@@ -24,7 +24,7 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     // Adding background
     const background = new Background(appHeight - 150, appWidth);
     await background.initialiseBackground();
-    app.stage.addChild(background.getBackground());
+    //app.stage.addChild(background.getBackground());
   
     // Adding player
     let [playerOneX, playerOneY] = [550, appHeight - 300];

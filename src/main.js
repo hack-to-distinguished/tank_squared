@@ -1,4 +1,4 @@
-import { Application, Assets, Text, Graphics, Sprite, SCALE_MODES } from "pixi.js";
+import { Application, Assets } from "pixi.js";
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { Ground } from "./core/ground";
@@ -24,30 +24,29 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     // Adding background
     const background = new Background(appHeight - 150, appWidth);
     await background.initialiseBackground();
-    app.stage.addChild(background.getBackground());
+    //app.stage.addChild(background.getBackground());
   
     // Adding player
-    let [playerOneX, playerOneY] = [550, appHeight - 300];
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(playerOneX, playerOneY, app, playerOneTexture);
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture);
     await playerOne.initialisePlayerSprite();
     app.stage.addChild(playerOne.getSprite());
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(playerOneX - 400, playerOneY, app, playerTwoTexture);
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture);
     await playerTwo.initialisePlayerSprite();
     app.stage.addChild(playerTwo.getSprite());
     playerTwo.setupKeyboardControls();
 
 
     // Adding projectile mechanism
+    // TODO: Re-Add the Sliders once they are working
     const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
-    sliderLaunchAngle.addGraphicsToStage();
-
     const sliderVelocity = new Slider(100, 100, app, 320, "Initial Velocity");
-    sliderVelocity.addGraphicsToStage();
+    //sliderLaunchAngle.addGraphicsToStage();
+    //sliderVelocity.addGraphicsToStage();
 
     // Checking ground collision
     activeGround.isThereCollision(playerOne);
@@ -56,7 +55,7 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     let playerTurn = true;
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
-    // Create ticker in order to update sprite positioning
+    // Gameloop
     app.ticker.add(() => {
         playerOne.updateBullets();
         playerTwo.updateBullets();

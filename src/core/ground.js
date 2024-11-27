@@ -1,4 +1,4 @@
-import { Graphics, GraphicsContext } from "pixi.js";
+import { Graphics } from "pixi.js";
 
 export class Ground {
     constructor(app){
@@ -12,28 +12,32 @@ export class Ground {
         const groundGraphics = new Graphics()
             .beginFill(0x654321)
 
-            .moveTo(0, this.appHeight - 150)
-            .lineTo(100, this.appHeight - 200)
+            .moveTo(0, this.appHeight - 200)
+            .lineTo(100, this.appHeight - 180)
             .lineTo(200, this.appHeight - 150)
             .lineTo(300, this.appHeight - 170)
-            .lineTo(400, this.appHeight - 160)
+            .lineTo(400, this.appHeight - 250)
+            .lineTo(450, this.appHeight - 250)
             .lineTo(500, this.appHeight - 180)
             .lineTo(600, this.appHeight - 140)
             .lineTo(700, this.appHeight - 150)
             .lineTo(800, this.appHeight - 190)
-            .lineTo(900, this.appHeight - 150)
-
+            .lineTo(900, this.appHeight - 250)
+            .lineTo(950, this.appHeight - 250)
+            .lineTo(1080, this.appHeight - 150)
+            .lineTo(1180, this.appHeight - 140)
+            .lineTo(1300, this.appHeight - 110)
+            .lineTo(this.appWidth, this.appHeight - 250)
+            
             .lineTo(this.appWidth, this.appHeight)
             .lineTo(0, this.appHeight)
             .closePath()
-
             .endFill()
 
         this.ground = groundGraphics;
     }
 
     getGround(){
-        console.log("Returned Ground", this.ground);
         return this.ground;
     };
 

@@ -28,7 +28,7 @@ export class Ground {
             .lineTo(this.appWidth/1.18, this.appHeight - 140)
             .lineTo(this.appWidth/1.06, this.appHeight - 110)
             .lineTo(this.appWidth, this.appHeight - 250)
-            
+
             .lineTo(this.appWidth, this.appHeight)
             .lineTo(0, this.appHeight)
             .closePath()

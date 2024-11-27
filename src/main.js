@@ -3,7 +3,6 @@ import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { Ground } from "./core/ground";
 import { Background } from "./scenes/mapImage.js";
-import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
 
 (async () => {
 

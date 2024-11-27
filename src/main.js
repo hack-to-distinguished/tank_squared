@@ -28,14 +28,14 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
   
     // Adding player
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth - 1200, appHeight - 300, app, playerOneTexture);
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture);
     await playerOne.initialisePlayerSprite();
     app.stage.addChild(playerOne.getSprite());
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth - 200, appHeight - 300, app, playerTwoTexture);
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture);
     await playerTwo.initialisePlayerSprite();
     app.stage.addChild(playerTwo.getSprite());
     playerTwo.setupKeyboardControls();

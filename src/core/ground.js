@@ -8,48 +8,29 @@ export class Ground {
         this.appWidth = this.app.renderer.width;
     };
 
-    async initialiseGround(){
-        let groundShape = new Graphics()
-            //.rect(0, this.appHeight - 70, this.appWidth, 200)
-            .beginFill(0xffff00)
-            .moveTo(0, this.appHeight - 200)
+    async initialiseGround() {
+        const groundGraphics = new Graphics()
+            .beginFill(0x654321)
+
+            .moveTo(0, this.appHeight - 150)
             .lineTo(100, this.appHeight - 200)
-            .lineTo(200, this.appHeight - 100)
-            .lineTo(300, this.appHeight - 100)
-            //.lineTo(400, this.appHeight - 300)
-            //.lineTo(this.appWidth, this.appHeight - 50)
+            .lineTo(200, this.appHeight - 150)
+            .lineTo(300, this.appHeight - 170)
+            .lineTo(400, this.appHeight - 160)
+            .lineTo(500, this.appHeight - 180)
+            .lineTo(600, this.appHeight - 140)
+            .lineTo(700, this.appHeight - 150)
+            .lineTo(800, this.appHeight - 190)
+            .lineTo(900, this.appHeight - 150)
 
-            .endFill(0xffff00);
-        this.ground = new Graphics(groundShape)
-        //    .fill(0xffff00)
-        // INFO: the background changes the colour of the ground
-    };
+            .lineTo(this.appWidth, this.appHeight)
+            .lineTo(0, this.appHeight)
+            .closePath()
 
-    //async initialiseGround() {
-    //    const groundGraphics = new Graphics();
-    //
-    //    groundGraphics.beginFill(0x654321); // Brown color for the ground
-    //
-    //    groundGraphics.moveTo(0, this.appHeight - 150);
-    // INFO: Try using directly GroundShape like below with groundGraphics
-    //    groundGraphics.lineTo(100, this.appHeight - 200); // First bump
-    //    groundGraphics.lineTo(200, this.appHeight - 150); // Downhill
-    //    groundGraphics.lineTo(300, this.appHeight - 170); // Small bump
-    //    groundGraphics.lineTo(400, this.appHeight - 160); // Gentle rise
-    //    groundGraphics.lineTo(500, this.appHeight - 180); // Second hill
-    //    groundGraphics.lineTo(600, this.appHeight - 140); // Sharp descent
-    //    groundGraphics.lineTo(700, this.appHeight - 150); // Plateau
-    //    groundGraphics.lineTo(800, this.appHeight - 190); // Hill again
-    //    groundGraphics.lineTo(900, this.appHeight - 150); // Back to flat
-    //
-    //    groundGraphics.lineTo(this.appWidth, this.appHeight);
-    //    groundGraphics.lineTo(0, this.appHeight);
-    //    groundGraphics.closePath();
-    //
-    //    groundGraphics.endFill();
-    //
-    //    this.ground = groundGraphics;
-    //}
+            .endFill()
+
+        this.ground = groundGraphics;
+    }
 
     getGround(){
         console.log("Returned Ground", this.ground);

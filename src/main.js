@@ -3,6 +3,8 @@ import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { Ground } from "./core/ground";
 import { Background } from "./scenes/mapImage.js";
+import { World, Circle, Vec2 } from "planck";
+import { BulletProjectile } from "./core/bullet.js";
 
 (async () => {
 
@@ -54,8 +56,57 @@ import { Background } from "./scenes/mapImage.js";
     let playerTurn = true;
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
+    // creating the 'world' object to do physics calculations
+    let world = new World({
+        gravity: new Vec2(0.0, -10.0) // defining a gravity vector (arguments are x, y)
+    });
+ 
+    const sf = 25; // scale factor to scale metric unit system of planckjs to pixijs pixel system
+    // need to convert from planck.js coord sys to pixijs coord sys, and back
+    function convertPlanckYToPixiY(planckY) {
+        return (app.renderer.height - (planckY * sf));
+    }
+
+    function convertPlanckXtoPixiX(planckX) {
+        return (planckX * sf);
+    }
+
+    function convertPixiXtoPlanckX(pixiX) {
+        return pixiX / 25;
+    }
+
+    function convertPixiYToPlanckY(pixiY) {
+        return (app.renderer.height - pixiY) / sf;
+    }
+   
+    // create projectile rigid body in planck.js
+    const projectileUserBody = world.createBody({
+        position: Vec2(convertPixiXtoPlanckX(playerOne.getX()), convertPixiYToPlanckY(playerOne.getY())),
+        type: 'dynamic'
+    })
+
+    projectileUserBody.setLinearVelocity(Vec2(10, 10))
+
+    // create test projectile to visualise planck.js 
+    let testProjectile = new BulletProjectile(convertPlanckXtoPixiX(projectileUserBody.getPosition().x), convertPlanckYToPixiY(projectileUserBody.getPosition().y), app);
+    await testProjectile.initialiseBulletSprite();
+    app.stage.addChild(testProjectile.getSprite());
+
     // Gameloop
     app.ticker.add(() => {
+
+        // planck.js 
+        if (projectileUserBody.getPosition().y > 0) {
+            world.step(1/60);
+            console.log("\n");
+
+            let pixiX = convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
+            let pixiY = convertPlanckYToPixiY(projectileUserBody.getPosition().y) ;
+            console.log("x (planck.js enviro): ", pixiX);
+            console.log("y (planck.js enviro): ", pixiY);
+            testProjectile.updateBulletTest(pixiX, pixiY);
+        }
+
         playerOne.updateBullets();
         playerTwo.updateBullets();
         if (playerOne.checkSpaceBarInput() && playerTurn) {

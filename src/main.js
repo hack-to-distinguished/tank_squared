@@ -46,8 +46,8 @@ import { BulletProjectile } from "./core/bullet.js";
     // TODO: Re-Add the Sliders once they are working
     const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
     const sliderVelocity = new Slider(100, 100, app, 320, "Initial Velocity");
-    //sliderLaunchAngle.addGraphicsToStage();
-    //sliderVelocity.addGraphicsToStage();
+    sliderLaunchAngle.addGraphicsToStage();
+    sliderVelocity.addGraphicsToStage();
 
     // Checking ground collision
     activeGround.isThereCollision(playerOne);
@@ -85,19 +85,32 @@ import { BulletProjectile } from "./core/bullet.js";
         type: 'dynamic'
     })
 
-    projectileUserBody.setLinearVelocity(Vec2(10, 10))
 
     // create test projectile to visualise planck.js 
     let testProjectile = new BulletProjectile(convertPlanckXtoPixiX(projectileUserBody.getPosition().x), convertPlanckYToPixiY(projectileUserBody.getPosition().y), app);
     await testProjectile.initialiseBulletSprite();
     app.stage.addChild(testProjectile.getSprite());
 
+    function convertDegreesToRadians(degrees) {
+        return degrees * (Math.PI / 180); 
+    }
+
     // Gameloop
     app.ticker.add(() => {
+        const launchAngle = convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
+        const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
+        const velX = magnitudeVelocity * Math.cos(launchAngle);
+        const velY = magnitudeVelocity * Math.sin(launchAngle);
+        console.log("\n Angle (radians): ", launchAngle);
+        console.log("Magnitude Velocity (ms^(-1)): ", magnitudeVelocity);
+        console.log("Velx: ", velX);
+        console.log("VelY: ", velY);
+
+        projectileUserBody.setLinearVelocity(Vec2(velX, velY));
 
         // planck.js 
         if (projectileUserBody.getPosition().y > 0) {
-            world.step(1/60);
+            world.step(1/10);
             console.log("\n");
 
             let pixiX = convertPlanckXtoPixiX(projectileUserBody.getPosition().x);

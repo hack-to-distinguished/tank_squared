@@ -57,9 +57,10 @@ import { BulletProjectile } from "./core/bullet.js";
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
     // creating the 'world' object to do physics calculations
-    let world = new World({
-    });
+    let world = new World();
  
+    world.setGravity(Vec2(0, -9.8));
+
     const sf = 25; // scale factor to scale metric unit system of planckjs to pixijs pixel system
     // need to convert from planck.js coord sys to pixijs coord sys, and back
     function convertPlanckYToPixiY(planckY) {
@@ -77,28 +78,39 @@ import { BulletProjectile } from "./core/bullet.js";
     function convertPixiYToPlanckY(pixiY) {
         return (app.renderer.height - pixiY) / sf;
     }
-   
-    // create projectile rigid body in planck.js
-    const projectileUserBody = world.createBody({
-        position: Vec2(convertPixiXtoPlanckX(playerOne.getX()), convertPixiYToPlanckY(playerOne.getY())),
-        type: 'dynamic'
-    })
-
-
-    // create test projectile to visualise planck.js 
-    let testProjectile = new BulletProjectile(convertPlanckXtoPixiX(projectileUserBody.getPosition().x), convertPlanckYToPixiY(projectileUserBody.getPosition().y), app);
-    await testProjectile.initialiseBulletSprite();
-    app.stage.addChild(testProjectile.getSprite());
 
     function convertDegreesToRadians(degrees) {
         return degrees * (Math.PI / 180); 
     }
+
+    // this will keep track of the bullet sprite, as well as its corresponding 
+    let bodies = [];
+
+    // creates test bullet (bullet in this case is comprised of a body, and its corresponding sprite)
+    async function createPlanckJSTestBullet(bodies, player) {
+        // create projectile rigid body in planck.js
+        const projectileUserBody = world.createBody({
+            position: Vec2(convertPixiXtoPlanckX(player.getX()), convertPixiYToPlanckY(player.getY())),
+            type: 'dynamic'
+        })
+
+        bodies.push(projectileUserBody);
+
+        // create test projectile to visualise planck.js 
+        const testProjectile = new BulletProjectile(convertPlanckXtoPixiX(projectileUserBody.getPosition().x), convertPlanckYToPixiY(projectileUserBody.getPosition().y), app);
+        await testProjectile.initialiseBulletSprite();
+        app.stage.addChild(testProjectile.getSprite());
+
+        bodies.push(testProjectile);
+    }
+
 
     // Gameloop
     app.ticker.add(() => {
         // need to figure out how to shoot one bullet only, and also allow player to change slider values.
         // cannot be setting linear velocity constantly... it fucks with the physics engine 
         
+        // takes values from the sliders, and calculates the vertical, and horizontal motion
         const launchAngle = convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
         const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 100;
         const velX = magnitudeVelocity * Math.cos(launchAngle);
@@ -108,31 +120,51 @@ import { BulletProjectile } from "./core/bullet.js";
         console.log("Velx: ", velX);
         console.log("VelY: ", velY);
 
-
         // planck.js 
-        if (projectileUserBody.getPosition().y > 0) {
-            world.step(1/10);
-            console.log("\n");
+        // this only executes if the user has created a bullet
+        console.log("Bodies Length: ", bodies.length);
+        if (bodies.length == 2) {
+            const projectileUserBody = bodies[0];
+            const testProjectile = bodies[1];
+            console.log(projectileUserBody);
 
-            let pixiX = convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
-            let pixiY = convertPlanckYToPixiY(projectileUserBody.getPosition().y) ;
-            console.log("x (planck.js enviro): ", pixiX);
-            console.log("y (planck.js enviro): ", pixiY);
-            testProjectile.updateBulletTest(pixiX, pixiY);
+            // checks if the bullet's y position (on the cartesian planck.js coord sys) has gone below zero
+            // and empties arr as required.
+            // if it goes below zero, it is basically the same as saying it has gone below the bottom screen border
+            if (projectileUserBody.getPosition().y < 0) {
+                world.destroyBody(projectileUserBody);
+                bodies.splice(0, 1);
+                bodies.splice(0, 1);
+            }
+
+            if (projectileUserBody.getPosition().y > 0) {
+                // allowing the world to run the physics simulation, if the projectile is within the screen
+                world.step(1/10);
+                console.log("\n");
+
+                let pixiX = convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
+                let pixiY = convertPlanckYToPixiY(projectileUserBody.getPosition().y);
+                console.log("x (planck.js enviro): ", pixiX);
+                console.log("y (planck.js enviro): ", pixiY);
+                testProjectile.updateBulletTest(pixiX, pixiY);
+            } 
         }
 
-        if (projectileUserBody.getPosition().y < 0) {
-            world.setGravity(Vec2(0, 0));
-        }
-
-        playerOne.updateBullets();
-        playerTwo.updateBullets();
-        if (playerOne.checkSpaceBarInput() && playerTurn) {
+        // playerOne.updateBullets();
+        // playerTwo.updateBullets();
+        if (playerOne.checkSpaceBarInput() && playerTurn && bodies.length == 0) {
+            createPlanckJSTestBullet(bodies, playerOne);
+            const projectileUserBody = bodies[0];
             projectileUserBody.setLinearVelocity(Vec2(velX, velY));
-            world.setGravity(Vec2(0, -9.8));
-            playerOne.createBullet();
-        } else if (playerTwo.checkSpaceBarInput() && !playerTurn) {
-            playerTwo.createBullet();
+            playerTurn = false;
+            // playerOne.createBullet();
+
+        } else if (playerTwo.checkSpaceBarInput() && !playerTurn && bodies.length == 0) {
+            createPlanckJSTestBullet(bodies, playerTwo);
+            const projectileUserBody = bodies[0];
+            projectileUserBody.setLinearVelocity(Vec2(velX, velY));
+            playerTurn = true;
+            // playerTwo.createBullet();
         }
 
         // Ground collision and movement detection

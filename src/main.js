@@ -58,7 +58,6 @@ import { BulletProjectile } from "./core/bullet.js";
 
     // creating the 'world' object to do physics calculations
     let world = new World({
-        gravity: new Vec2(0.0, -10.0) // defining a gravity vector (arguments are x, y)
     });
  
     const sf = 25; // scale factor to scale metric unit system of planckjs to pixijs pixel system
@@ -97,16 +96,18 @@ import { BulletProjectile } from "./core/bullet.js";
 
     // Gameloop
     app.ticker.add(() => {
+        // need to figure out how to shoot one bullet only, and also allow player to change slider values.
+        // cannot be setting linear velocity constantly... it fucks with the physics engine 
+        
         const launchAngle = convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
-        const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
+        const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 100;
         const velX = magnitudeVelocity * Math.cos(launchAngle);
         const velY = magnitudeVelocity * Math.sin(launchAngle);
-        console.log("\n Angle (radians): ", launchAngle);
+        console.log("\n Angle (degrees): ", sliderLaunchAngle.getNormalisedSliderValue() * 180);
         console.log("Magnitude Velocity (ms^(-1)): ", magnitudeVelocity);
         console.log("Velx: ", velX);
         console.log("VelY: ", velY);
 
-        projectileUserBody.setLinearVelocity(Vec2(velX, velY));
 
         // planck.js 
         if (projectileUserBody.getPosition().y > 0) {
@@ -120,9 +121,15 @@ import { BulletProjectile } from "./core/bullet.js";
             testProjectile.updateBulletTest(pixiX, pixiY);
         }
 
+        if (projectileUserBody.getPosition().y < 0) {
+            world.setGravity(Vec2(0, 0));
+        }
+
         playerOne.updateBullets();
         playerTwo.updateBullets();
         if (playerOne.checkSpaceBarInput() && playerTurn) {
+            projectileUserBody.setLinearVelocity(Vec2(velX, velY));
+            world.setGravity(Vec2(0, -9.8));
             playerOne.createBullet();
         } else if (playerTwo.checkSpaceBarInput() && !playerTurn) {
             playerTwo.createBullet();

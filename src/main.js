@@ -13,12 +13,17 @@ import { BulletProjectile } from "./core/bullet.js";
         resizeTo: window
     });
 
+    // creating the 'world' object to do physics calculations
+    let world = new World({
+        gravity: new Vec2(0.0, -10.0) // defining a gravity vector (arguments are x, y)
+    });
+
     app.canvas.style.position = 'absolute';
     document.body.appendChild(app.canvas);
     const [appHeight, appWidth] = [app.renderer.height, app.renderer.width];
 
     // Adding ground
-    const activeGround = new Ground(app)
+    const activeGround = new Ground(app, world)
     await activeGround.initialiseGround();
     app.stage.addChild(activeGround.getGround());
 
@@ -56,10 +61,6 @@ import { BulletProjectile } from "./core/bullet.js";
     let playerTurn = true;
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
-    // creating the 'world' object to do physics calculations
-    let world = new World({
-        gravity: new Vec2(0.0, -10.0) // defining a gravity vector (arguments are x, y)
-    });
  
     const sf = 25; // scale factor to scale metric unit system of planckjs to pixijs pixel system
     // need to convert from planck.js coord sys to pixijs coord sys, and back

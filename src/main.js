@@ -61,7 +61,7 @@ import { BulletProjectile } from "./core/bullet.js";
  
     world.setGravity(Vec2(0, -9.8));
 
-    const sf = 25; // scale factor to scale metric unit system of planckjs to pixijs pixel system
+    const sf = 250; // scale factor to scale metric unit system of planckjs to pixijs pixel system
     // need to convert from planck.js coord sys to pixijs coord sys, and back
     function convertPlanckYToPixiY(planckY) {
         return (app.renderer.height - (planckY * sf));
@@ -72,7 +72,7 @@ import { BulletProjectile } from "./core/bullet.js";
     }
 
     function convertPixiXtoPlanckX(pixiX) {
-        return pixiX / 25;
+        return pixiX / sf;
     }
 
     function convertPixiYToPlanckY(pixiY) {
@@ -87,12 +87,14 @@ import { BulletProjectile } from "./core/bullet.js";
     let bodies = [];
 
     // creates test bullet (bullet in this case is comprised of a body, and its corresponding sprite)
-    async function createPlanckJSTestBullet(bodies, player) {
+    async function createPlanckJSTestBullet(bodies, player, velX, velY) {
         // create projectile rigid body in planck.js
         const projectileUserBody = world.createBody({
             position: Vec2(convertPixiXtoPlanckX(player.getX()), convertPixiYToPlanckY(player.getY())),
             type: 'dynamic'
         })
+
+        projectileUserBody.setLinearVelocity(Vec2(velX, velY));
 
         bodies.push(projectileUserBody);
 
@@ -104,6 +106,7 @@ import { BulletProjectile } from "./core/bullet.js";
         bodies.push(testProjectile);
     }
 
+    app.ticker.maxFPS = 60;
 
     // Gameloop
     app.ticker.add(() => {
@@ -112,21 +115,20 @@ import { BulletProjectile } from "./core/bullet.js";
         
         // takes values from the sliders, and calculates the vertical, and horizontal motion
         const launchAngle = convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
-        const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 100;
+        const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
         const velX = magnitudeVelocity * Math.cos(launchAngle);
         const velY = magnitudeVelocity * Math.sin(launchAngle);
-        console.log("\n Angle (degrees): ", sliderLaunchAngle.getNormalisedSliderValue() * 180);
-        console.log("Magnitude Velocity (ms^(-1)): ", magnitudeVelocity);
-        console.log("Velx: ", velX);
-        console.log("VelY: ", velY);
+        // console.log("\n Angle (degrees): ", sliderLaunchAngle.getNormalisedSliderValue() * 180);
+        // console.log("Magnitude Velocity (ms^(-1)): ", magnitudeVelocity);
+        // console.log("Velx: ", velX);
+        // console.log("VelY: ", velY);
 
         // planck.js 
         // this only executes if the user has created a bullet
-        console.log("Bodies Length: ", bodies.length);
+        // console.log("Bodies Length: ", bodies.length);
         if (bodies.length == 2) {
             const projectileUserBody = bodies[0];
             const testProjectile = bodies[1];
-            console.log(projectileUserBody);
 
             // checks if the bullet's y position (on the cartesian planck.js coord sys) has gone below zero
             // and empties arr as required.
@@ -139,13 +141,10 @@ import { BulletProjectile } from "./core/bullet.js";
 
             if (projectileUserBody.getPosition().y > 0) {
                 // allowing the world to run the physics simulation, if the projectile is within the screen
-                world.step(1/10);
-                console.log("\n");
+                world.step(1/60);
 
                 let pixiX = convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
                 let pixiY = convertPlanckYToPixiY(projectileUserBody.getPosition().y);
-                console.log("x (planck.js enviro): ", pixiX);
-                console.log("y (planck.js enviro): ", pixiY);
                 testProjectile.updateBulletTest(pixiX, pixiY);
             } 
         }
@@ -153,16 +152,12 @@ import { BulletProjectile } from "./core/bullet.js";
         // playerOne.updateBullets();
         // playerTwo.updateBullets();
         if (playerOne.checkSpaceBarInput() && playerTurn && bodies.length == 0) {
-            createPlanckJSTestBullet(bodies, playerOne);
-            const projectileUserBody = bodies[0];
-            projectileUserBody.setLinearVelocity(Vec2(velX, velY));
+            createPlanckJSTestBullet(bodies, playerOne, velX, velY);
             playerTurn = false;
             // playerOne.createBullet();
 
         } else if (playerTwo.checkSpaceBarInput() && !playerTurn && bodies.length == 0) {
-            createPlanckJSTestBullet(bodies, playerTwo);
-            const projectileUserBody = bodies[0];
-            projectileUserBody.setLinearVelocity(Vec2(velX, velY));
+            createPlanckJSTestBullet(bodies, playerTwo, velX, velY);
             playerTurn = true;
             // playerTwo.createBullet();
         }

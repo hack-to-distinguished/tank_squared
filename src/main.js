@@ -1,9 +1,9 @@
 import { Application, Assets } from "pixi.js";
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
-import { Ground } from "./core/ground";
+import { Ground } from "./core/ground.js";
 import { Background } from "./scenes/mapImage.js";
-import { World, Circle, Vec2 } from "planck";
+import { World, Circle, Vec2, Edge } from "planck";
 import { BulletProjectile } from "./core/bullet.js";
 
 (async () => {
@@ -25,7 +25,7 @@ import { BulletProjectile } from "./core/bullet.js";
     // Adding ground
     const activeGround = new Ground(app, world)
     await activeGround.initialiseGround();
-    app.stage.addChild(activeGround.getGround());
+    //app.stage.addChild(activeGround.getGround());
 
     // Adding background
     const background = new Background(appHeight - 150, appWidth);
@@ -102,10 +102,10 @@ import { BulletProjectile } from "./core/bullet.js";
         const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
         const velX = magnitudeVelocity * Math.cos(launchAngle);
         const velY = magnitudeVelocity * Math.sin(launchAngle);
-        console.log("\n Angle (radians): ", launchAngle);
-        console.log("Magnitude Velocity (ms^(-1)): ", magnitudeVelocity);
-        console.log("Velx: ", velX);
-        console.log("VelY: ", velY);
+        //console.log("\n Angle (radians): ", launchAngle);
+        //console.log("Magnitude Velocity (ms^(-1)): ", magnitudeVelocity);
+        //console.log("Velx: ", velX);
+        //console.log("VelY: ", velY);
 
         projectileUserBody.setLinearVelocity(Vec2(velX, velY));
 
@@ -116,8 +116,8 @@ import { BulletProjectile } from "./core/bullet.js";
 
             let pixiX = convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
             let pixiY = convertPlanckYToPixiY(projectileUserBody.getPosition().y) ;
-            console.log("x (planck.js enviro): ", pixiX);
-            console.log("y (planck.js enviro): ", pixiY);
+            //console.log("x (planck.js enviro): ", pixiX);
+            //console.log("y (planck.js enviro): ", pixiY);
             testProjectile.updateBulletTest(pixiX, pixiY);
         }
 

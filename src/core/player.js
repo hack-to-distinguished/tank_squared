@@ -22,10 +22,22 @@ export class TankPlayer {
     }
 
     async createBullet() {
-        const bullet = new BulletProjectile(this.playerX, this.playerY, this.app);
-        await bullet.initialiseBulletSprite();
-        this.app.stage.addChild(bullet.getSprite());
-        this.addBulletToBullets(bullet);
+        // create projectile rigid body in planck.js
+        const projectileUserBody = world.createBody({
+            position: Vec2(converter.convertPixiXtoPlanckX(player.getX()), converter.convertPixiYToPlanckY(app, player.getY())),
+            type: 'dynamic'
+        })
+
+        projectileUserBody.setLinearVelocity(Vec2(velX, velY));
+
+        bodies.push(projectileUserBody);
+
+        // create test projectile to visualise planck.js 
+        const testProjectile = new BulletProjectile(converter.convertPlanckXtoPixiX(projectileUserBody.getPosition().x), converter.convertPlanckYToPixiY(app, projectileUserBody.getPosition().y));
+        await testProjectile.initialiseBulletSprite();
+        app.stage.addChild(testProjectile.getSprite());
+
+        bodies.push(testProjectile);
     }
 
     updateBullets() {

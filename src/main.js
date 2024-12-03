@@ -3,8 +3,9 @@ import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { Ground } from "./core/ground";
 import { Background } from "./scenes/mapImage.js";
-import { World, Circle, Vec2 } from "planck";
+import { World, Vec2 } from "planck";
 import { BulletProjectile } from "./core/bullet.js";
+import { coordConverter } from "./core/coordConverter.js";
 
 (async () => {
 
@@ -43,7 +44,6 @@ import { BulletProjectile } from "./core/bullet.js";
 
 
     // Adding projectile mechanism
-    // TODO: Re-Add the Sliders once they are working
     const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
     const sliderVelocity = new Slider(100, 100, app, 320, "Initial Velocity");
     sliderLaunchAngle.addGraphicsToStage();
@@ -57,32 +57,13 @@ import { BulletProjectile } from "./core/bullet.js";
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
     // creating the 'world' object to do physics calculations
-    let world = new World();
- 
-    world.setGravity(Vec2(0, -9.8));
+    let world = new World({
+        gravity: Vec2(0, -9.8),
+    });
 
     const sf = 250; // scale factor to scale metric unit system of planckjs to pixijs pixel system
     // need to convert from planck.js coord sys to pixijs coord sys, and back
-    function convertPlanckYToPixiY(planckY) {
-        return (app.renderer.height - (planckY * sf));
-    }
-
-    function convertPlanckXtoPixiX(planckX) {
-        return (planckX * sf);
-    }
-
-    function convertPixiXtoPlanckX(pixiX) {
-        return pixiX / sf;
-    }
-
-    function convertPixiYToPlanckY(pixiY) {
-        return (app.renderer.height - pixiY) / sf;
-    }
-
-    function convertDegreesToRadians(degrees) {
-        return degrees * (Math.PI / 180); 
-    }
-
+    let converter = new coordConverter(sf); 
     // this will keep track of the bullet sprite, as well as its corresponding 
     let bodies = [];
 
@@ -90,7 +71,7 @@ import { BulletProjectile } from "./core/bullet.js";
     async function createPlanckJSTestBullet(bodies, player, velX, velY) {
         // create projectile rigid body in planck.js
         const projectileUserBody = world.createBody({
-            position: Vec2(convertPixiXtoPlanckX(player.getX()), convertPixiYToPlanckY(player.getY())),
+            position: Vec2(converter.convertPixiXtoPlanckX(player.getX()), converter.convertPixiYToPlanckY(app, player.getY())),
             type: 'dynamic'
         })
 
@@ -99,7 +80,7 @@ import { BulletProjectile } from "./core/bullet.js";
         bodies.push(projectileUserBody);
 
         // create test projectile to visualise planck.js 
-        const testProjectile = new BulletProjectile(convertPlanckXtoPixiX(projectileUserBody.getPosition().x), convertPlanckYToPixiY(projectileUserBody.getPosition().y), app);
+        const testProjectile = new BulletProjectile(converter.convertPlanckXtoPixiX(projectileUserBody.getPosition().x), converter.convertPlanckYToPixiY(app, projectileUserBody.getPosition().y));
         await testProjectile.initialiseBulletSprite();
         app.stage.addChild(testProjectile.getSprite());
 
@@ -114,7 +95,7 @@ import { BulletProjectile } from "./core/bullet.js";
         // cannot be setting linear velocity constantly... it fucks with the physics engine 
         
         // takes values from the sliders, and calculates the vertical, and horizontal motion
-        const launchAngle = convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
+        const launchAngle = converter.convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
         const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
         const velX = magnitudeVelocity * Math.cos(launchAngle);
         const velY = magnitudeVelocity * Math.sin(launchAngle);
@@ -143,8 +124,8 @@ import { BulletProjectile } from "./core/bullet.js";
                 // allowing the world to run the physics simulation, if the projectile is within the screen
                 world.step(1/60);
 
-                let pixiX = convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
-                let pixiY = convertPlanckYToPixiY(projectileUserBody.getPosition().y);
+                let pixiX = converter.convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
+                let pixiY = converter.convertPlanckYToPixiY(app, projectileUserBody.getPosition().y);
                 testProjectile.updateBulletTest(pixiX, pixiY);
             } 
         }

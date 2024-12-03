@@ -1,4 +1,5 @@
 import { Sprite, Assets } from "pixi.js";
+// refactor this, will need to combine both pixijs spirte plus body from planckjs
 
 export class BulletProjectile {
     constructor(bulletX, bulletY, app) {

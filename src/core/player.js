@@ -53,10 +53,42 @@ export class TankPlayer {
     addBulletToBullets(bullet) {
         this.bullets.push(bullet);
     }
+
+    // FIX: Remove test before push
+    async initialiseSpePlayer(){
+        // INFO: Applying Physics
+        this.playerBody = this.world.createBody({
+            type: "dynamic",
+            position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
+            gravityScale: 0
+        })
+        console.log(this.playerBody);
+        const playerWidth = 150 / this.scale;
+        const playerHeight = 105 / this.scale;
+
+        this.playerBody.createFixture({
+            shape: planck.Box(playerWidth / 2, playerHeight / 2),
+            density: 100,
+            friction: 0.6,
+            restitution: 0.1
+        })
+
+        // INFO: Applying Graphics
+        const playerSprite = Sprite.from(this.playerTexture);
+        playerSprite.anchor.set(0.5, 0.5);
+
+        const [desiredWidth, desiredHeight] = [150, 105];
+        playerSprite.scale.set(desiredWidth / this.playerTexture.width, desiredHeight / this.playerTexture.height); 
+
+        playerSprite.x = this.playerX;
+        playerSprite.y = this.playerY;
+        this.playerSprite = playerSprite;
+    }
+
     async initialisePlayer(){
         // INFO: Applying Physics
         this.playerBody = this.world.createBody({
-            type: 'dynamic',
+            type: "dynamic",
             position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
             gravityScale: 1
         })

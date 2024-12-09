@@ -46,6 +46,12 @@ import { BulletProjectile } from "./core/bullet.js";
     app.stage.addChild(playerTwo.getSprite());
     playerTwo.setupKeyboardControls();
 
+    // FIX: Testing code
+    const spePlayerTexture = await Assets.load('assets/images/tank.png');
+    const spePlayer = new TankPlayer(appWidth / 10, appHeight - 600, app, spePlayerTexture, world, sf);
+    await spePlayer.initialiseSpePlayer();
+    app.stage.addChild(spePlayer.getSprite());
+    // FIX: Remove above code
 
     // Adding projectile mechanism
     // TODO: Re-Add the Sliders once they are working
@@ -97,6 +103,8 @@ import { BulletProjectile } from "./core/bullet.js";
 
     // Gameloop
     app.ticker.add(() => {
+        world.step(1/30);
+
         const launchAngle = convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
         const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
         const velX = magnitudeVelocity * Math.cos(launchAngle);
@@ -110,7 +118,6 @@ import { BulletProjectile } from "./core/bullet.js";
 
         // planck.js 
         if (projectileUserBody.getPosition().y > 0) {
-            world.step(1/10);
             console.log("\n");
 
             let pixiX = convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
@@ -144,9 +151,11 @@ import { BulletProjectile } from "./core/bullet.js";
                 playerOne.resetMoveDist();
             }
         }
+        // TODO: Add Collision detection here
 
         // Update player sprite based on gravity
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
+        spePlayer.updatePlayer();
     })
 })();

@@ -17,15 +17,15 @@ import { BulletProjectile } from "./core/bullet.js";
     let world = new World({
         gravity: new Vec2(0.0, -10.0) // defining a gravity vector (arguments are x, y)
     });
+    const sf = 25; // scale factor to scale metric unit system of planckjs to pixijs pixel system
 
     app.canvas.style.position = 'absolute';
     document.body.appendChild(app.canvas);
     const [appHeight, appWidth] = [app.renderer.height, app.renderer.width];
 
     // Adding ground
-    const activeGround = new Ground(app, world)
+    const activeGround = new Ground(app, world, sf)
     await activeGround.initialiseGround();
-    //app.stage.addChild(activeGround.getGround());
 
     // Adding background
     const background = new Background(appHeight - 150, appWidth);
@@ -34,15 +34,15 @@ import { BulletProjectile } from "./core/bullet.js";
   
     // Adding player
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture);
-    await playerOne.initialisePlayerSprite();
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, world, sf);
+    await playerOne.initialisePlayer();
     app.stage.addChild(playerOne.getSprite());
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture);
-    await playerTwo.initialisePlayerSprite();
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, world, sf);
+    await playerTwo.initialisePlayer();
     app.stage.addChild(playerTwo.getSprite());
     playerTwo.setupKeyboardControls();
 
@@ -62,7 +62,6 @@ import { BulletProjectile } from "./core/bullet.js";
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
  
-    const sf = 25; // scale factor to scale metric unit system of planckjs to pixijs pixel system
     // need to convert from planck.js coord sys to pixijs coord sys, and back
     function convertPlanckYToPixiY(planckY) {
         return (app.renderer.height - (planckY * sf));
@@ -129,18 +128,7 @@ import { BulletProjectile } from "./core/bullet.js";
             playerTwo.createBullet();
         }
 
-        // Ground collision and movement detection
-        playerOne.updatePlayerPosition();
-        playerTwo.updatePlayerPosition();
-        activeGround.isThereCollision(playerOne);
-        if (isPlayerOneFalling){
-            playerOne.applyGravity();
-        }
-        activeGround.isThereCollision(playerTwo);
-        if (isPlayerTwoFalling){
-            playerTwo.applyGravity();
-        }
-
+        // Movement detection
         if (playerTurn){
             if (playerOne.moveDist > 0){
                 playerOne.movePlayer();
@@ -156,5 +144,9 @@ import { BulletProjectile } from "./core/bullet.js";
                 playerOne.resetMoveDist();
             }
         }
+
+        // Update player sprite based on gravity
+        playerOne.updatePlayer();
+        playerTwo.updatePlayer();
     })
 })();

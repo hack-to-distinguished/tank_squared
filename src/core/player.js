@@ -1,8 +1,9 @@
 import { Assets, Sprite } from "pixi.js";
 import { BulletProjectile } from "./bullet";
+import { World, Vec2 } from "planck";
 
 export class TankPlayer {
-    constructor(playerX, playerY, app, playerTexture) {
+    constructor(playerX, playerY, app, playerTexture, world, scale) {
         this.app = app;
         this.playerX = playerX;
         this.playerY = playerY;
@@ -11,6 +12,9 @@ export class TankPlayer {
         this.bullets = [];
         this.moveDist = 30;
         this.playerTexture = playerTexture;
+        this.world = world;
+        this.playerBody = null;
+        this.scale = scale;
     }
 
     getX() {
@@ -49,13 +53,29 @@ export class TankPlayer {
     addBulletToBullets(bullet) {
         this.bullets.push(bullet);
     }
+    async initialisePlayer(){
+        // INFO: Applying Physics
+        this.playerBody = this.world.createBody({
+            type: 'dynamic',
+            position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
+            gravityScale: 1
+        })
+        console.log(this.playerBody);
+        const playerWidth = 150 / this.scale;
+        const playerHeight = 105 / this.scale;
 
-    async initialisePlayerSprite() {
+        this.playerBody.createFixture({
+            shape: planck.Box(playerWidth / 2, playerHeight / 2),
+            density: 1,
+            friction: 0.6,
+            restitution: 0.1
+        })
+
+        // INFO: Applying Graphics
         const playerSprite = Sprite.from(this.playerTexture);
         playerSprite.anchor.set(0.5, 0.5);
 
-        const desiredWidth = 150;
-        const desiredHeight = 105;
+        const [desiredWidth, desiredHeight] = [150, 105];
         playerSprite.scale.set(desiredWidth / this.playerTexture.width, desiredHeight / this.playerTexture.height); 
 
         playerSprite.x = this.playerX;
@@ -63,14 +83,18 @@ export class TankPlayer {
         this.playerSprite = playerSprite;
     }
 
+    updatePlayer(){
+        const bodyPosition = this.playerBody.getPosition();
+
+        this.playerSprite.x = bodyPosition.x * this.scale;
+        this.playerSprite.y = this.app.renderer.height - (bodyPosition.y * this.scale);
+        this.playerSprite.rotation = -this.playerBody.getAngle();
+    }
+
     getSprite() {
         if (this.playerSprite) {
             return this.playerSprite;
         }
-    }
-
-    applyGravity() {
-        this.playerY += 3;
     }
 
     checkSpaceBarInput() {

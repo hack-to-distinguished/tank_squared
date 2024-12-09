@@ -2,13 +2,14 @@ import { Graphics } from "pixi.js";
 import { World, Circle, Vec2, Edge } from "planck";
 
 export class Ground {
-    constructor(app, world){
+    constructor(app, world, scale){
         this.app = app;
         this.world = world;
         this.appHeight = this.app.renderer.height;
         this.appWidth = this.app.renderer.width;
         this.groundGraphics = new Graphics();
         this.groundPoints = [];
+        this.scale = scale;
     };
 
     async initialiseGround() {
@@ -33,8 +34,7 @@ export class Ground {
         ];
 
         // INFO: Applying Physics
-        const scale = 25;
-        const screenWidth = this.appWidth / scale;
+        const screenWidth = this.appWidth / this.scale;
 
         var ground = this.world.createBody({
             type: 'static',
@@ -44,10 +44,9 @@ export class Ground {
 
         ground.createFixture(new Edge(new Vec2(-screenWidth / 2, 0), new Vec2(screenWidth / 2, 0)), groundFD);
         for (let i = 1; i < this.groundPoints.length; i++){
-            const vec1 = new Vec2(this.groundPoints[i - 1].x / scale, -(this.groundPoints[i - 1].y / scale));
-            const vec2 = new Vec2(this.groundPoints[i].x / scale, -(this.groundPoints[i].y / scale));
+            const vec1 = new Vec2(this.groundPoints[i - 1].x / this.scale, -(this.groundPoints[i - 1].y / this.scale));
+            const vec2 = new Vec2(this.groundPoints[i].x / this.scale, -(this.groundPoints[i].y / this.scale));
 
-            console.log("Vec1:", vec1, "Vec2:", vec2);
             ground.createFixture(new Edge(vec1, vec2), groundFD);
         }
 

@@ -131,7 +131,7 @@ export class TankPlayer {
             this.keys[e.keyCode] = true;
         } else if (e.keyCode == 65) {
             this.keys[e.keyCode] = true;
-        } else if (e.keyCode == 32) {
+        } else if (e.keyCode == 32 && (this.keys["68"] == false || this.keys["65"] == false)) {
             this.keys[e.keyCode] = true;
         }
     }

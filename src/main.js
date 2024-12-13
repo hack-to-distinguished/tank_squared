@@ -71,23 +71,45 @@ import { coordConverter } from "./core/coordConverter.js";
         const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
         const velX = magnitudeVelocity * Math.cos(launchAngle);
         const velY = magnitudeVelocity * Math.sin(launchAngle);
-        console.log("\n Angle (degrees): ", sliderLaunchAngle.getNormalisedSliderValue() * 180);
-        console.log("Magnitude Velocity (ms^(-1)): ", magnitudeVelocity);
-        console.log("Velx: ", velX);
-        console.log("VelY: ", velY);
+        // console.log("\n Angle (degrees): ", sliderLaunchAngle.getNormalisedSliderValue() * 180);
+        // console.log("Magnitude Velocity (ms^(-1)): ", magnitudeVelocity);
+        // console.log("Velx: ", velX);
+        // console.log("VelY: ", velY);
+
+        // check if no bullet is present on the screen 
+        if (!(playerOne.checkIfBulletIsPresent() || playerTwo.checkIfBulletIsPresent())) {
+            // console.log("Player Turn: ", playerTurn);
+            if (playerTurn) {
+                if (playerOne.checkSpaceBarInput()) {
+                    playerOne.createBullet(velX, velY);
+                    playerTurn = false
+                    playerTwo.resetMoveDist();
+                } else {
+                    if (playerOne.moveDist > 0) {
+                        playerOne.movePlayer()
+                    } else {
+                        playerTurn = false;
+                        playerTwo.resetMoveDist();
+                    }
+                }
+            } else {
+                if (playerTwo.checkSpaceBarInput()) {
+                    playerTwo.createBullet(velX, velY);
+                    playerTurn = true;
+                    playerOne.resetMoveDist();
+                } else {
+                    if (playerTwo.moveDist > 0) {
+                        playerTwo.movePlayer();
+                    } else {
+                        playerTurn = true;
+                        playerOne.resetMoveDist();
+                    }
+                }
+            }
+        }
 
         playerOne.updateBullets();
         playerTwo.updateBullets();
-        if (playerOne.checkSpaceBarInput() && playerTurn && !(playerTwo.checkIfBulletIsPresent())) {
-            console.log("Player One has shot!");
-            playerOne.createBullet(velX, velY);
-            playerTurn = false;
-
-        } else if (playerTwo.checkSpaceBarInput() && !playerTurn && !(playerOne.checkIfBulletIsPresent())) {
-            console.log("Player Two has shot!");
-            playerTwo.createBullet(velX, velY);
-            playerTurn = true;
-        }
 
         // Ground collision and movement detection
         playerOne.updatePlayerPosition();
@@ -99,22 +121,6 @@ import { coordConverter } from "./core/coordConverter.js";
         activeGround.isThereCollision(playerTwo);
         if (isPlayerTwoFalling){
             playerTwo.applyGravity();
-        }
-
-        if (playerTurn){
-            if (playerOne.moveDist > 0){
-                playerOne.movePlayer();
-            } else {
-                playerTurn = false;
-                playerTwo.resetMoveDist();
-            }
-        } else {
-            if (playerTwo.moveDist > 0){
-                playerTwo.movePlayer();
-            } else {
-                playerTurn = true;
-                playerOne.resetMoveDist();
-            }
         }
     })
 })();

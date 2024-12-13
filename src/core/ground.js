@@ -8,6 +8,7 @@ export class Ground {
         this.appHeight = this.app.renderer.height;
         this.appWidth = this.app.renderer.width;
         this.groundGraphics = new Graphics();
+        this.groundBody = null;
         this.groundPoints = [];
         this.scale = scale;
     };
@@ -36,49 +37,49 @@ export class Ground {
         // INFO: Applying Physics
         const screenWidth = this.appWidth / this.scale;
 
-        var ground = this.world.createBody({
+        this.groundBody = this.world.createBody({
             type: "static",
-            position: new Vec2(0.0, -10.0),
+            position: new Vec2(0.0, 0),
         });
-        const groundFD = {density: 10, friction: 10.6} // FD stands for friction density
+        const groundFD = {density: 1, friction: 0.6} // FD stands for friction density
 
-        //ground.createFixture(new Edge(new Vec2(-screenWidth / 2, 0), new Vec2(screenWidth / 2, 0)), groundFD);
-        //for (let i = 1; i < this.groundPoints.length; i++){
-        //    const vec1 = new Vec2(this.groundPoints[i - 1].x / this.scale, -(this.groundPoints[i - 1].y / this.scale));
-        //    const vec2 = new Vec2(this.groundPoints[i].x / this.scale, -(this.groundPoints[i].y / this.scale));
-        //
-        //    ground.createFixture(new Edge(vec1, vec2), groundFD);
-        //}
+        this.groundBody.createFixture(new Edge(new Vec2(-screenWidth / 2, 8), new Vec2(screenWidth, 5)), groundFD);
+        for (let i = 1; i < this.groundPoints.length; i++){
+            const vec1 = new Vec2(this.groundPoints[i - 1].x / this.scale, -(this.groundPoints[i - 1].y / this.scale));
+            const vec2 = new Vec2(this.groundPoints[i].x / this.scale, -(this.groundPoints[i].y / this.scale));
+
+            this.groundBody.createFixture(new Edge(vec1, vec2), groundFD);
+        }
 
 
         // INFO: Applying Graphics
-        //this.groundGraphics.beginFill(0x654321);
-        //this.groundGraphics.moveTo(this.groundPoints[0].x, this.groundPoints[0].y);
-        //for (let i = 1; i < this.groundPoints.length; i++) {
-        //    this.groundGraphics.lineTo(this.groundPoints[i].x, this.groundPoints[i].y);
-        //}
-        //
-        //this.groundGraphics // Used to close off the ground
-        //    .lineTo(this.appWidth, this.appHeight)
-        //    .lineTo(0, this.appHeight)
-        //    .closePath()
-        //    .endFill();
-        //
-        //this.app.stage.addChild(this.groundGraphics);
+        this.groundGraphics.beginFill(0x654321);
+        this.groundGraphics.moveTo(this.groundPoints[0].x, this.groundPoints[0].y);
+        for (let i = 1; i < this.groundPoints.length; i++) {
+            this.groundGraphics.lineTo(this.groundPoints[i].x, this.groundPoints[i].y);
+        }
 
-        // INFO: Testing on flat ground
-        ground.createFixture(new Edge(new Vec2(-screenWidth / 2, 0), new Vec2(screenWidth / 2, 0)), groundFD)
-        this.groundGraphics.rect(
-            -(this.appWidth / 2), // Center horizontally
-            100, // Height above the baseline
-            this.appWidth, // Full screen width
-            10 // Thickness
-        );
-        this.groundGraphics.fill(0xFFFFFF);
+        this.groundGraphics // Used to close off the ground
+            .lineTo(this.appWidth, this.appHeight)
+            .lineTo(0, this.appHeight)
+            .closePath()
+            .endFill();
 
-        this.groundGraphics.x = this.appWidth / 2; 
-        this.groundGraphics.y = this.appHeight - (10 * this.scale);
         this.app.stage.addChild(this.groundGraphics);
+
+
+        // FIX: Testing purposes
+        //this.groundGraphics.rect(
+        //    -(this.appWidth / 2), // Center horizontally
+        //    100, // Height above the baseline
+        //    this.appWidth, // Full screen width
+        //    10 // Thickness
+        //);
+        //this.groundGraphics.fill(0xFFFFFF);
+        //
+        //this.groundGraphics.x = this.appWidth / 2; 
+        //this.groundGraphics.y = this.appHeight - (10 * this.scale);
+        //this.app.stage.addChild(this.groundGraphics);
     }
 
     getGround(){

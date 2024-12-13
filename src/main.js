@@ -5,6 +5,7 @@ import { Ground } from "./core/ground.js";
 import { Background } from "./scenes/mapImage.js";
 import { World, Circle, Vec2, Edge } from "planck";
 import { BulletProjectile } from "./core/bullet.js";
+import { DebugRenderer } from "./core/debugOutlines.js";
 
 (async () => {
 
@@ -45,13 +46,6 @@ import { BulletProjectile } from "./core/bullet.js";
     await playerTwo.initialisePlayer();
     app.stage.addChild(playerTwo.getSprite());
     playerTwo.setupKeyboardControls();
-
-    // FIX: Testing code
-    const spePlayerTexture = await Assets.load('assets/images/tank.png');
-    const spePlayer = new TankPlayer(appWidth / 10, appHeight - 600, app, spePlayerTexture, world, sf);
-    await spePlayer.initialiseSpePlayer();
-    app.stage.addChild(spePlayer.getSprite());
-    // FIX: Remove above code
 
     // Adding projectile mechanism
     // TODO: Re-Add the Sliders once they are working
@@ -101,6 +95,7 @@ import { BulletProjectile } from "./core/bullet.js";
         return degrees * (Math.PI / 180); 
     }
 
+    const debugRenderer = new DebugRenderer(world, app, sf);
     // Gameloop
     app.ticker.add(() => {
         world.step(1/30);
@@ -151,11 +146,12 @@ import { BulletProjectile } from "./core/bullet.js";
                 playerOne.resetMoveDist();
             }
         }
-        // TODO: Add Collision detection here
 
         // Update player sprite based on gravity
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
-        spePlayer.updatePlayer();
+
+        debugRenderer.render();
+
     })
 })();

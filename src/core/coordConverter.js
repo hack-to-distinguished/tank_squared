@@ -3,6 +3,10 @@ export class coordConverter {
         this.scaleFactor = scaleFactor;
     }
 
+    getSF() {
+        return this.scaleFactor;
+    }
+
     convertPlanckYToPixiY(app, planckY) {
         return (app.renderer.height - (planckY * this.scaleFactor));
     }

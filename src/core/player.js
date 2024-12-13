@@ -61,8 +61,7 @@ export class TankPlayer {
             }
 
             if (projectileUserBody.getPosition().y > 0) {
-                // allowing the world to run the physics simulation, if the projectile is within the screen
-                this.world.step(1/60);
+
 
                 let pixiX = this.coordConverter.convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
                 let pixiY = this.coordConverter.convertPlanckYToPixiY(this.app, projectileUserBody.getPosition().y);

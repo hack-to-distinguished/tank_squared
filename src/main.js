@@ -64,18 +64,28 @@ import { coordConverter } from "./core/coordConverter.js";
 
     app.ticker.maxFPS = 60;
 
+    let magnitudeVelocity = 0;
+    let launchAngle = 0;
+
     // Gameloop
     app.ticker.add(() => {
         // takes values from the sliders, and calculates the vertical, and horizontal motion
-        const launchAngle = converter.convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
-        const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
+        if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {
+            launchAngle = converter.convertDegreesToRadians(90);
+        } else {
+            launchAngle = converter.convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
+        }
+        if (sliderVelocity.getNormalisedSliderValue() == 0) {
+            magnitudeVelocity = 5;
+        } else {
+            magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
+        } 
+
         const velX = magnitudeVelocity * Math.cos(launchAngle);
         const velY = magnitudeVelocity * Math.sin(launchAngle);
-        // console.log("\n Angle (degrees): ", sliderLaunchAngle.getNormalisedSliderValue() * 180);
-        // console.log("Magnitude Velocity (ms^(-1)): ", magnitudeVelocity);
-        // console.log("Velx: ", velX);
-        // console.log("VelY: ", velY);
 
+        // allowing the world to run the physics simulation, if the projectile is within the screen
+        world.step(1/60);
         // check if no bullet is present on the screen 
         if (!(playerOne.checkIfBulletIsPresent() || playerTwo.checkIfBulletIsPresent())) {
             // console.log("Player Turn: ", playerTurn);

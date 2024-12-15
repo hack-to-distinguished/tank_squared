@@ -14,7 +14,6 @@ export class Ground {
     };
 
     async initialiseGround() {
-
         this.groundPoints = [
             { x: 0, y: this.appHeight - 200 },
             { x: this.appWidth / 20, y: this.appHeight - 180 },
@@ -34,7 +33,6 @@ export class Ground {
             { x: this.appWidth, y: this.appHeight - 250 }
         ];
 
-        // INFO: Applying Physics
         const screenWidth = this.appWidth / this.scale;
 
         this.groundBody = this.world.createBody({
@@ -52,7 +50,6 @@ export class Ground {
         }
 
 
-        // INFO: Applying Graphics
         this.groundGraphics.beginFill(0x654321);
         this.groundGraphics.moveTo(this.groundPoints[0].x, this.groundPoints[0].y);
         for (let i = 1; i < this.groundPoints.length; i++) {
@@ -66,33 +63,9 @@ export class Ground {
             .endFill();
 
         this.app.stage.addChild(this.groundGraphics);
-
-
-        // FIX: Testing purposes
-        //this.groundGraphics.rect(
-        //    -(this.appWidth / 2), // Center horizontally
-        //    100, // Height above the baseline
-        //    this.appWidth, // Full screen width
-        //    10 // Thickness
-        //);
-        //this.groundGraphics.fill(0xFFFFFF);
-        //
-        //this.groundGraphics.x = this.appWidth / 2; 
-        //this.groundGraphics.y = this.appHeight - (10 * this.scale);
-        //this.app.stage.addChild(this.groundGraphics);
     }
 
     getGround(){
         return this.groundGraphics;
-    }
-
-    isThereCollision(collidingSprite) {
-        //const groundHeightAtSprite = this.getGroundHeightAtX(collidingSprite.playerX);
-        const groundHeightAtSprite = 500;
-        const spriteBottomY = collidingSprite.playerY + 50;
-
-        if (spriteBottomY > groundHeightAtSprite) {
-            collidingSprite.playerY = groundHeightAtSprite - 50;
-        }
     }
 }

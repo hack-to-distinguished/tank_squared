@@ -3,7 +3,7 @@ export class coordConverter {
         this.scaleFactor = scaleFactor;
     }
 
-    getSF() {
+    getScaleFactor() {
         return this.scaleFactor;
     }
 

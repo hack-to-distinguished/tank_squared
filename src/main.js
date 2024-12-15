@@ -57,18 +57,12 @@ import { coordConverter } from "./core/coordConverter.js";
     let magnitudeVelocity = 0;
     let launchAngle = 0;
 
-    // Checking ground collision
-    activeGround.isThereCollision(playerOne);
-    activeGround.isThereCollision(playerTwo);
     let [isPlayerOneFalling, isPlayerTwoFalling] = [true, true];
     let playerTurn = true;
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
     app.ticker.maxFPS = 60;
     const debugRenderer = new DebugRenderer(world, app, sf);
-
-    let magnitudeVelocity = 0;
-    let launchAngle = 0;
 
     app.ticker.add(() => {
         // takes values from the sliders, and calculates the vertical, and horizontal motion
@@ -88,7 +82,6 @@ import { coordConverter } from "./core/coordConverter.js";
 
         world.step(1/60);
         if (!(playerOne.checkIfBulletIsPresent() || playerTwo.checkIfBulletIsPresent())) {
-            console.log("Player Turn: ", playerTurn);
             if (playerTurn) {
                 if (playerOne.checkSpaceBarInput()) {
                     playerOne.createBullet(velX, velY);

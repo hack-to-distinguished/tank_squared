@@ -3,9 +3,15 @@ import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { Ground } from "./core/ground";
 import { Background } from "./scenes/mapImage.js";
-import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
+import { World, Vec2 } from "planck";
+import { coordConverter } from "./core/coordConverter.js";
 
 (async () => {
+
+    // creating the 'world' object to do physics calculations
+    let world = new World({
+        gravity: Vec2(0, -9.8),
+    });
 
     const app = new Application();
     await app.init({
@@ -25,28 +31,29 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     const background = new Background(appHeight - 150, appWidth);
     await background.initialiseBackground();
     //app.stage.addChild(background.getBackground());
+
+    let converter = new coordConverter(250); 
   
     // Adding player
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture);
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, converter, world); 
     await playerOne.initialisePlayerSprite();
     app.stage.addChild(playerOne.getSprite());
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture);
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, converter, world);
     await playerTwo.initialisePlayerSprite();
     app.stage.addChild(playerTwo.getSprite());
     playerTwo.setupKeyboardControls();
 
 
     // Adding projectile mechanism
-    // TODO: Re-Add the Sliders once they are working
     const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
     const sliderVelocity = new Slider(100, 100, app, 320, "Initial Velocity");
-    //sliderLaunchAngle.addGraphicsToStage();
-    //sliderVelocity.addGraphicsToStage();
+    sliderLaunchAngle.addGraphicsToStage();
+    sliderVelocity.addGraphicsToStage();
 
     // Checking ground collision
     activeGround.isThereCollision(playerOne);
@@ -55,15 +62,64 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
     let playerTurn = true;
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
+    app.ticker.maxFPS = 60;
+
+    let magnitudeVelocity = 0;
+    let launchAngle = 0;
+
     // Gameloop
     app.ticker.add(() => {
+        // takes values from the sliders, and calculates the vertical, and horizontal motion
+        if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {
+            launchAngle = converter.convertDegreesToRadians(90);
+        } else {
+            launchAngle = converter.convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
+        }
+        if (sliderVelocity.getNormalisedSliderValue() == 0) {
+            magnitudeVelocity = 5;
+        } else {
+            magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
+        } 
+
+        const velX = magnitudeVelocity * Math.cos(launchAngle);
+        const velY = magnitudeVelocity * Math.sin(launchAngle);
+
+        // allowing the world to run the physics simulation, if the projectile is within the screen
+        world.step(1/60);
+        // check if no bullet is present on the screen 
+        if (!(playerOne.checkIfBulletIsPresent() || playerTwo.checkIfBulletIsPresent())) {
+            // console.log("Player Turn: ", playerTurn);
+            if (playerTurn) {
+                if (playerOne.checkSpaceBarInput()) {
+                    playerOne.createBullet(velX, velY);
+                    playerTurn = false
+                    playerTwo.resetMoveDist();
+                } else {
+                    if (playerOne.moveDist > 0) {
+                        playerOne.movePlayer()
+                    } else {
+                        playerTurn = false;
+                        playerTwo.resetMoveDist();
+                    }
+                }
+            } else {
+                if (playerTwo.checkSpaceBarInput()) {
+                    playerTwo.createBullet(velX, velY);
+                    playerTurn = true;
+                    playerOne.resetMoveDist();
+                } else {
+                    if (playerTwo.moveDist > 0) {
+                        playerTwo.movePlayer();
+                    } else {
+                        playerTurn = true;
+                        playerOne.resetMoveDist();
+                    }
+                }
+            }
+        }
+
         playerOne.updateBullets();
         playerTwo.updateBullets();
-        if (playerOne.checkSpaceBarInput() && playerTurn) {
-            playerOne.createBullet();
-        } else if (playerTwo.checkSpaceBarInput() && !playerTurn) {
-            playerTwo.createBullet();
-        }
 
         // Ground collision and movement detection
         playerOne.updatePlayerPosition();
@@ -75,22 +131,6 @@ import { TrajectoryCalculator } from "./core/trajectoryCalculator.js";
         activeGround.isThereCollision(playerTwo);
         if (isPlayerTwoFalling){
             playerTwo.applyGravity();
-        }
-
-        if (playerTurn){
-            if (playerOne.moveDist > 0){
-                playerOne.movePlayer();
-            } else {
-                playerTurn = false;
-                playerTwo.resetMoveDist();
-            }
-        } else {
-            if (playerTwo.moveDist > 0){
-                playerTwo.movePlayer();
-            } else {
-                playerTurn = true;
-                playerOne.resetMoveDist();
-            }
         }
     })
 })();

@@ -86,7 +86,7 @@ import { coordConverter } from "./core/coordConverter.js";
 
         world.step(1/60);
         if (!(playerOne.checkIfBulletIsPresent() || playerTwo.checkIfBulletIsPresent())) {
-            // console.log("Player Turn: ", playerTurn);
+            console.log("Player Turn: ", playerTurn);
             if (playerTurn) {
                 if (playerOne.checkSpaceBarInput()) {
                     playerOne.createBullet(velX, velY);
@@ -118,10 +118,6 @@ import { coordConverter } from "./core/coordConverter.js";
 
         playerOne.updateBullets();
         playerTwo.updateBullets();
-
-        // Ground collision and movement detection
-        playerOne.updatePlayerPosition();
-        playerTwo.updatePlayerPosition();
 
         playerOne.updatePlayer();
         playerTwo.updatePlayer();

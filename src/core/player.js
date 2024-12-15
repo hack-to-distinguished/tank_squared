@@ -35,7 +35,6 @@ export class TankPlayer {
     }
 
     async createBullet(velX, velY) {
-        // create projectile rigid body in planck.js
         const projectileUserBody = this.world.createBody({
             position: Vec2(this.coordConverter.convertPixiXtoPlanckX(this.getX()), this.coordConverter.convertPixiYToPlanckY(this.app, this.getY())),
             type: 'dynamic'
@@ -87,7 +86,7 @@ export class TankPlayer {
         this.playerBody = this.world.createBody({
             type: "dynamic",
             position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
-            gravityScale: 1
+            gravityScale: 3
         })
         const playerWidth = 150 / this.scale;
         const playerHeight = 105 / this.scale;
@@ -135,6 +134,7 @@ export class TankPlayer {
     }
 
     movePlayer() {
+        // TODO: Function to be changed to use planckjs movemement
         if (this.moveDist > 0){
             if (this.keys['68']) {
                 this.playerX += this.playerSpeed;

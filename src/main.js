@@ -3,9 +3,9 @@ import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { Ground } from "./core/ground.js";
 import { Background } from "./scenes/mapImage.js";
-import { World, Circle, Vec2, Edge } from "planck";
-import { BulletProjectile } from "./core/bullet.js";
 import { DebugRenderer } from "./core/debugOutlines.js";
+import { World, Vec2 } from "planck";
+import { coordConverter } from "./core/coordConverter.js";
 
 (async () => {
 
@@ -14,11 +14,10 @@ import { DebugRenderer } from "./core/debugOutlines.js";
         resizeTo: window
     });
 
-    // creating the 'world' object to do physics calculations
     let world = new World({
-        gravity: new Vec2(0.0, -10.0) // defining a gravity vector (arguments are x, y)
+        gravity: Vec2(0, -9.8),
     });
-    const sf = 25; // scale factor to scale metric unit system of planckjs to pixijs pixel system
+    const sf = 25;
 
     app.canvas.style.position = 'absolute';
     document.body.appendChild(app.canvas);
@@ -32,27 +31,31 @@ import { DebugRenderer } from "./core/debugOutlines.js";
     const background = new Background(appHeight - 150, appWidth);
     await background.initialiseBackground();
     //app.stage.addChild(background.getBackground());
+
+    let converter = new coordConverter(250); 
   
     // Adding player
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, world, sf);
-    await playerOne.initialisePlayer();
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, sf, converter, world); 
+    await playerOne.initialisePlayerSprite();
     app.stage.addChild(playerOne.getSprite());
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, world, sf);
-    await playerTwo.initialisePlayer();
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, sf, converter, world);
+    await playerTwo.initialisePlayerSprite();
     app.stage.addChild(playerTwo.getSprite());
     playerTwo.setupKeyboardControls();
 
     // Adding projectile mechanism
-    // TODO: Re-Add the Sliders once they are working
     const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
     const sliderVelocity = new Slider(100, 100, app, 320, "Initial Velocity");
     sliderLaunchAngle.addGraphicsToStage();
     sliderVelocity.addGraphicsToStage();
+
+    let magnitudeVelocity = 0;
+    let launchAngle = 0;
 
     // Checking ground collision
     activeGround.isThereCollision(playerOne);
@@ -61,97 +64,66 @@ import { DebugRenderer } from "./core/debugOutlines.js";
     let playerTurn = true;
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
- 
-    // need to convert from planck.js coord sys to pixijs coord sys, and back
-    function convertPlanckYToPixiY(planckY) {
-        return (app.renderer.height - (planckY * sf));
-    }
-
-    function convertPlanckXtoPixiX(planckX) {
-        return (planckX * sf);
-    }
-
-    function convertPixiXtoPlanckX(pixiX) {
-        return pixiX / 25;
-    }
-
-    function convertPixiYToPlanckY(pixiY) {
-        return (app.renderer.height - pixiY) / sf;
-    }
-   
-    // create projectile rigid body in planck.js
-    const projectileUserBody = world.createBody({
-        position: Vec2(convertPixiXtoPlanckX(playerOne.getX()), convertPixiYToPlanckY(playerOne.getY())),
-        type: 'dynamic'
-    })
-
-
-    // create test projectile to visualise planck.js 
-    let testProjectile = new BulletProjectile(convertPlanckXtoPixiX(projectileUserBody.getPosition().x), convertPlanckYToPixiY(projectileUserBody.getPosition().y), app);
-    await testProjectile.initialiseBulletSprite();
-    app.stage.addChild(testProjectile.getSprite());
-
-    function convertDegreesToRadians(degrees) {
-        return degrees * (Math.PI / 180); 
-    }
-
+    app.ticker.maxFPS = 60;
     const debugRenderer = new DebugRenderer(world, app, sf);
-    // Gameloop
-    app.ticker.add(() => {
-        world.step(1/30);
 
-        const launchAngle = convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
-        const magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
+    app.ticker.add(() => {
+        // takes values from the sliders, and calculates the vertical, and horizontal motion
+        if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {
+            launchAngle = converter.convertDegreesToRadians(90);
+        } else {
+            launchAngle = converter.convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
+        }
+
+        if (sliderVelocity.getNormalisedSliderValue() == 0) {
+            magnitudeVelocity = 5;
+        } else {
+            magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
+        } 
+
         const velX = magnitudeVelocity * Math.cos(launchAngle);
         const velY = magnitudeVelocity * Math.sin(launchAngle);
-        //console.log("\n Angle (radians): ", launchAngle);
-        //console.log("Magnitude Velocity (ms^(-1)): ", magnitudeVelocity);
-        //console.log("Velx: ", velX);
-        //console.log("VelY: ", velY);
 
-        projectileUserBody.setLinearVelocity(Vec2(velX, velY));
-
-        // planck.js 
-        if (projectileUserBody.getPosition().y > 0) {
-            console.log("\n");
-
-            let pixiX = convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
-            let pixiY = convertPlanckYToPixiY(projectileUserBody.getPosition().y) ;
-            //console.log("x (planck.js enviro): ", pixiX);
-            //console.log("y (planck.js enviro): ", pixiY);
-            testProjectile.updateBulletTest(pixiX, pixiY);
+        world.step(1/60);
+        if (!(playerOne.checkIfBulletIsPresent() || playerTwo.checkIfBulletIsPresent())) {
+            // console.log("Player Turn: ", playerTurn);
+            if (playerTurn) {
+                if (playerOne.checkSpaceBarInput()) {
+                    playerOne.createBullet(velX, velY);
+                    playerTurn = false
+                    playerTwo.resetMoveDist();
+                } else {
+                    if (playerOne.moveDist > 0) {
+                        playerOne.movePlayer()
+                    } else {
+                        playerTurn = false;
+                        playerTwo.resetMoveDist();
+                    }
+                }
+            } else {
+                if (playerTwo.checkSpaceBarInput()) {
+                    playerTwo.createBullet(velX, velY);
+                    playerTurn = true;
+                    playerOne.resetMoveDist();
+                } else {
+                    if (playerTwo.moveDist > 0) {
+                        playerTwo.movePlayer();
+                    } else {
+                        playerTurn = true;
+                        playerOne.resetMoveDist();
+                    }
+                }
+            }
         }
 
         playerOne.updateBullets();
         playerTwo.updateBullets();
-        if (playerOne.checkSpaceBarInput() && playerTurn) {
-            playerOne.createBullet();
-        } else if (playerTwo.checkSpaceBarInput() && !playerTurn) {
-            playerTwo.createBullet();
-        }
 
-        // Movement detection
-        if (playerTurn){
-            if (playerOne.moveDist > 0){
-                playerOne.movePlayer();
-            } else {
-                playerTurn = false;
-                playerTwo.resetMoveDist();
-            }
-        } else {
-            if (playerTwo.moveDist > 0){
-                playerTwo.movePlayer();
-            } else {
-                playerTurn = true;
-                playerOne.resetMoveDist();
-            }
-        }
+        // Ground collision and movement detection
+        playerOne.updatePlayerPosition();
+        playerTwo.updatePlayerPosition();
 
-        // Update player sprite based on gravity
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
-
-        debugRenderer.render();
-
     })
 })();

@@ -1,9 +1,11 @@
-import { Assets, Sprite } from "pixi.js";
+import { Sprite } from "pixi.js";
 import { BulletProjectile } from "./bullet";
 import { World, Vec2 } from "planck";
 
 export class TankPlayer {
-    constructor(playerX, playerY, app, playerTexture, world, scale) {
+    constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world) {
+        this.world = world;
+        this.coordConverter = coordConverter;
         this.app = app;
         this.playerX = playerX;
         this.playerY = playerY;
@@ -25,24 +27,50 @@ export class TankPlayer {
         return this.playerY;
     }
 
-    async createBullet() {
-        const bullet = new BulletProjectile(this.playerX, this.playerY, this.app);
-        await bullet.initialiseBulletSprite();
-        this.app.stage.addChild(bullet.getSprite());
-        this.addBulletToBullets(bullet);
+    checkIfBulletIsPresent() {
+        if (this.bullets.length == 1) {
+            return true;
+        } 
+        return false;
+    }
+
+    async createBullet(velX, velY) {
+        // create projectile rigid body in planck.js
+        const projectileUserBody = this.world.createBody({
+            position: Vec2(this.coordConverter.convertPixiXtoPlanckX(this.getX()), this.coordConverter.convertPixiYToPlanckY(this.app, this.getY())),
+            type: 'dynamic'
+        })
+        projectileUserBody.setLinearVelocity(Vec2(velX, velY));
+
+        // create the projecilte 
+        const bulletProjectile = new BulletProjectile(this.coordConverter.convertPlanckXtoPixiX(projectileUserBody.getPosition().x), this.coordConverter.convertPlanckYToPixiY(this.app, projectileUserBody.getPosition().y), this.app, projectileUserBody);
+        await bulletProjectile.initialiseBulletSprite();
+        this.app.stage.addChild(bulletProjectile.getSprite());
+
+        this.bullets.push(bulletProjectile);
     }
 
     updateBullets() {
-        for (let i = 0; i < this.getBulletsList().length; i++) {
-            const projectile = this.getBulletsList()[i];
-            projectile.applyGravityToVerticalMotion();
-            projectile.updateBullet();
+        if (this.checkIfBulletIsPresent()) {
+            const bulletProjectile = this.bullets[0];
+            const projectileUserBody = bulletProjectile.getProjectileUserBody();
 
-            // check if bullet has gone off the screen, if it has, then it will be deleted. 
-            if (projectile.getX() > (this.app.canvas.width + 20) || projectile.getX() < 0) {
-                this.app.stage.removeChild(projectile);
-                this.getBulletsList().splice(i, 1);
+            // checks if the bullet's y position (on the cartesian planck.js coord sys) has gone below zero
+            // and empties arr as required.
+            // if it goes below zero, it is basically the same as saying it has gone below the bottom screen border
+            if (projectileUserBody.getPosition().y < 0) {
+                this.world.destroyBody(projectileUserBody);
+                this.bullets.splice(0, 1);
             }
+
+            if (projectileUserBody.getPosition().y > 0) {
+                // allowing the world to run the physics simulation, if the projectile is within the screen
+                this.world.step(1/60);
+
+                let pixiX = this.coordConverter.convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
+                let pixiY = this.coordConverter.convertPlanckYToPixiY(this.app, projectileUserBody.getPosition().y);
+                bulletProjectile.updateBullet(pixiX, pixiY);
+            } 
         }
     }
 
@@ -54,7 +82,7 @@ export class TankPlayer {
         this.bullets.push(bullet);
     }
 
-    async initialisePlayer(){
+    async initialisePlayerSprite(){
         // INFO: Applying Physics
         this.playerBody = this.world.createBody({
             type: "dynamic",
@@ -134,7 +162,7 @@ export class TankPlayer {
             this.keys[e.keyCode] = true;
         } else if (e.keyCode == 65) {
             this.keys[e.keyCode] = true;
-        } else if (e.keyCode == 32) {
+        } else if (e.keyCode == 32 && (this.keys["68"] == false || this.keys["65"] == false)) {
             this.keys[e.keyCode] = true;
         }
     }

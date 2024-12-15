@@ -1,7 +1,9 @@
 import { Sprite, Assets } from "pixi.js";
+// refactor this, will need to combine both pixijs spirte plus body from planckjs
 
 export class BulletProjectile {
-    constructor(bulletX, bulletY, app) {
+    constructor(bulletX, bulletY, app, projectileUserBody) {
+        this.projectileUserBody = projectileUserBody;
         this.bulletX = bulletX;
         this.bulletY = bulletY;
         this.app = app;
@@ -10,6 +12,10 @@ export class BulletProjectile {
         this.bulletSpeedX = 100;
         this.bulletSpeedY = 50;
         this.gravity = 5;
+    }
+
+    getProjectileUserBody() {
+        return this.projectileUserBody;
     }
 
     getX() {
@@ -40,20 +46,9 @@ export class BulletProjectile {
         }
     }
 
-    updateBullet() {
-        this.bulletX += this.bulletSpeedX;
-        this.bulletSprite.x = this.bulletX;
-
-        this.bulletY -= this.bulletSpeedY;
-        this.bulletSprite.y = this.bulletY;
-    }
-
-    updateBulletTest(newBulletX, newBulletY) {
+    updateBullet(newBulletX, newBulletY) {
         this.bulletSprite.x = newBulletX;
         this.bulletSprite.y = newBulletY;
     }
     
-    applyGravityToVerticalMotion() {
-        this.bulletSpeedY -= this.gravity;
-    }
 }

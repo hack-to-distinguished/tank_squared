@@ -19,14 +19,6 @@ export class TankPlayer {
         this.scale = scale;
     }
 
-    getX() {
-        return this.playerX;
-    }
-
-    getY() {
-        return this.playerY;
-    }
-
     checkIfBulletIsPresent() {
         if (this.bullets.length == 1) {
             return true;
@@ -36,7 +28,10 @@ export class TankPlayer {
 
     async createBullet(velX, velY) {
         const projectileUserBody = this.world.createBody({
-            position: Vec2(this.coordConverter.convertPixiXtoPlanckX(this.getX()), this.coordConverter.convertPixiYToPlanckY(this.app, this.getY())),
+            position: Vec2(
+                this.coordConverter.convertPixiXtoPlanckX(this.playerX), 
+                this.coordConverter.convertPixiYToPlanckY(this.app, this.playerY)
+            ),
             type: 'dynamic'
         })
         projectileUserBody.setLinearVelocity(Vec2(velX, velY));
@@ -72,16 +67,7 @@ export class TankPlayer {
         }
     }
 
-    getBulletsList() {
-        return this.bullets;
-    }
-
-    addBulletToBullets(bullet) {
-        this.bullets.push(bullet);
-    }
-
     async initialisePlayerSprite(){
-        // INFO: Applying Physics
         this.playerBody = this.world.createBody({
             type: "dynamic",
             position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
@@ -97,7 +83,6 @@ export class TankPlayer {
             restitution: 0.1
         })
 
-        // INFO: Applying Graphics
         const playerSprite = Sprite.from(this.playerTexture);
         playerSprite.anchor.set(0.5, 0.5);
 
@@ -107,6 +92,8 @@ export class TankPlayer {
         playerSprite.x = this.playerX;
         playerSprite.y = this.playerY;
         this.playerSprite = playerSprite;
+
+        this.app.stage.addChild(this.playerSprite);
     }
 
     updatePlayer(){
@@ -127,13 +114,9 @@ export class TankPlayer {
         return this.keys['32'] === true;
     }
 
-    updatePlayerPosition(){
-        this.playerSprite.x = this.playerX;
-        this.playerSprite.y = this.playerY;
-    }
-
     movePlayer() {
         // TODO: Function to be changed to use planckjs movemement
+        // Approach: 1. Create a standalone rolling wheel 2.Attach that wheel to the tank
         if (this.moveDist > 0){
             if (this.keys['68']) {
                 this.playerX += this.playerSpeed;

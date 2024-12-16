@@ -38,14 +38,12 @@ import { coordConverter } from "./core/coordConverter.js";
     const playerOneTexture = await Assets.load('assets/images/tank.png');
     const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, sf, converter, world); 
     await playerOne.initialisePlayerSprite();
-    app.stage.addChild(playerOne.getSprite());
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
     const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, sf, converter, world);
     await playerTwo.initialisePlayerSprite();
-    app.stage.addChild(playerTwo.getSprite());
     playerTwo.setupKeyboardControls();
 
     // Adding projectile mechanism

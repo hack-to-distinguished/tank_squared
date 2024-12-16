@@ -1,31 +1,31 @@
 import { Application, Assets } from "pixi.js";
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
-import { Ground } from "./core/ground";
+import { Ground } from "./core/ground.js";
 import { Background } from "./scenes/mapImage.js";
+import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
 import { coordConverter } from "./core/coordConverter.js";
 
 (async () => {
-
-    // creating the 'world' object to do physics calculations
-    let world = new World({
-        gravity: Vec2(0, -9.8),
-    });
 
     const app = new Application();
     await app.init({
         resizeTo: window
     });
 
+    let world = new World({
+        gravity: Vec2(0, -9.8),
+    });
+    const sf = 25;
+
     app.canvas.style.position = 'absolute';
     document.body.appendChild(app.canvas);
     const [appHeight, appWidth] = [app.renderer.height, app.renderer.width];
 
     // Adding ground
-    const activeGround = new Ground(app)
+    const activeGround = new Ground(app, world, sf)
     await activeGround.initialiseGround();
-    app.stage.addChild(activeGround.getGround());
 
     // Adding background
     const background = new Background(appHeight - 150, appWidth);
@@ -36,18 +36,17 @@ import { coordConverter } from "./core/coordConverter.js";
   
     // Adding player
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, converter, world); 
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, sf, converter, world); 
     await playerOne.initialisePlayerSprite();
     app.stage.addChild(playerOne.getSprite());
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, converter, world);
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, sf, converter, world);
     await playerTwo.initialisePlayerSprite();
     app.stage.addChild(playerTwo.getSprite());
     playerTwo.setupKeyboardControls();
-
 
     // Adding projectile mechanism
     const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
@@ -55,19 +54,16 @@ import { coordConverter } from "./core/coordConverter.js";
     sliderLaunchAngle.addGraphicsToStage();
     sliderVelocity.addGraphicsToStage();
 
-    // Checking ground collision
-    activeGround.isThereCollision(playerOne);
-    activeGround.isThereCollision(playerTwo);
+    let magnitudeVelocity = 0;
+    let launchAngle = 0;
+
     let [isPlayerOneFalling, isPlayerTwoFalling] = [true, true];
     let playerTurn = true;
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
     app.ticker.maxFPS = 60;
+    const debugRenderer = new DebugRenderer(world, app, sf);
 
-    let magnitudeVelocity = 0;
-    let launchAngle = 0;
-
-    // Gameloop
     app.ticker.add(() => {
         // takes values from the sliders, and calculates the vertical, and horizontal motion
         if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {
@@ -84,11 +80,8 @@ import { coordConverter } from "./core/coordConverter.js";
         const velX = magnitudeVelocity * Math.cos(launchAngle);
         const velY = magnitudeVelocity * Math.sin(launchAngle);
 
-        // allowing the world to run the physics simulation, if the projectile is within the screen
         world.step(1/60);
-        // check if no bullet is present on the screen 
         if (!(playerOne.checkIfBulletIsPresent() || playerTwo.checkIfBulletIsPresent())) {
-            // console.log("Player Turn: ", playerTurn);
             if (playerTurn) {
                 if (playerOne.checkSpaceBarInput()) {
                     playerOne.createBullet(velX, velY);
@@ -121,16 +114,7 @@ import { coordConverter } from "./core/coordConverter.js";
         playerOne.updateBullets();
         playerTwo.updateBullets();
 
-        // Ground collision and movement detection
-        playerOne.updatePlayerPosition();
-        playerTwo.updatePlayerPosition();
-        activeGround.isThereCollision(playerOne);
-        if (isPlayerOneFalling){
-            playerOne.applyGravity();
-        }
-        activeGround.isThereCollision(playerTwo);
-        if (isPlayerTwoFalling){
-            playerTwo.applyGravity();
-        }
+        playerOne.updatePlayer();
+        playerTwo.updatePlayer();
     })
 })();

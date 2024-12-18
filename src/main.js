@@ -6,6 +6,9 @@ import { Background } from "./scenes/mapImage.js";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
 import { coordConverter } from "./core/coordConverter.js";
+import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
+import { Cell } from "./core/terrainGeneration/cell.js";
+import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
 
 (async () => {
 
@@ -63,6 +66,16 @@ import { coordConverter } from "./core/coordConverter.js";
 
     app.ticker.maxFPS = 60;
     const debugRenderer = new DebugRenderer(world, app, sf);
+
+    // adding mapgenerator
+    const mapGenerator = new MapGenerator(app);
+    let terrain = mapGenerator.generateBitMapTerrain(100, 200, 20);
+    console.log(terrain);
+    mapGenerator.drawMap();
+    // const testCell = new TerrainCell(app);
+    // testCell.initialiseCellGraphics();
+    // app.stage.addChild(testCell.getGraphic());
+
 
     app.ticker.add(() => {
         // takes values from the sliders, and calculates the vertical, and horizontal motion

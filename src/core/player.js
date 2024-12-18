@@ -1,6 +1,6 @@
 import { Sprite } from "pixi.js";
 import { BulletProjectile } from "./bullet";
-import { World, Vec2 } from "planck";
+import { World, Vec2, WheelJoint, Circle} from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world) {
@@ -73,8 +73,8 @@ export class TankPlayer {
             position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
             gravityScale: 3
         })
-        const playerWidth = 150 / this.scale;
-        const playerHeight = 105 / this.scale;
+        const playerWidth = 100 / this.scale;
+        const playerHeight = 70 / this.scale;
 
         this.playerBody.createFixture({
             shape: planck.Box(playerWidth / 2, playerHeight / 2),
@@ -83,11 +83,39 @@ export class TankPlayer {
             restitution: 0.1
         })
 
+        // TODO: 1. Create a standalone rolling wheel 2.Attach that wheel to the tank
+        const wheelFD = {density: 1, friction: 0.9}
+
+        let wheel = this.world.createBody({
+            type: "dynamic",
+            position: Vec2(-1, 0.35)
+        })
+        wheel.createFixture(new Circle(0.4), wheelFD)
+
+        // wheel spring settings
+        let [HZ, ZETA, SPEED] = [4.0, 0.7, 50];
+        let spring = this.world.createJoint(
+            new WheelJoint(
+                {
+                    motorSpeed: 0.0,
+                    maxMotorTorque: 20,
+                    enableMotor: true,
+                    frequencyHz: HZ,
+                    dampingRatio: ZETA
+                },
+                this.playerBody,
+                wheel,
+                wheel.getPosition(),
+                new Vec2(0.0, 1)
+            ),
+        );
+
+
         const playerSprite = Sprite.from(this.playerTexture);
         playerSprite.anchor.set(0.5, 0.5);
 
-        const [desiredWidth, desiredHeight] = [150, 105];
-        playerSprite.scale.set(desiredWidth / this.playerTexture.width, desiredHeight / this.playerTexture.height); 
+        const [spriteWidth, spriteHeight] = [100, 70];
+        playerSprite.scale.set(spriteWidth / this.playerTexture.width, spriteHeight / this.playerTexture.height); 
 
         playerSprite.x = this.playerX;
         playerSprite.y = this.playerY;
@@ -104,11 +132,6 @@ export class TankPlayer {
         this.playerSprite.rotation = -this.playerBody.getAngle();
     }
 
-    getSprite() {
-        if (this.playerSprite) {
-            return this.playerSprite;
-        }
-    }
 
     checkSpaceBarInput() {
         return this.keys['32'] === true;
@@ -116,7 +139,6 @@ export class TankPlayer {
 
     movePlayer() {
         // TODO: Function to be changed to use planckjs movemement
-        // Approach: 1. Create a standalone rolling wheel 2.Attach that wheel to the tank
         if (this.moveDist > 0){
             if (this.keys['68']) {
                 this.playerX += this.playerSpeed;

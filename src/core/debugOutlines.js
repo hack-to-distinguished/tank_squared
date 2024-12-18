@@ -22,10 +22,13 @@ export class DebugRenderer {
             for (let fixture = body.getFixtureList(); fixture; fixture = fixture.getNext()) {
                 const shape = fixture.getShape();
                 if (shape.getType() === "circle") {
+                    console.log("Circle Detected");
                     this.drawCircle(shape, position, angle);
                 } else if (shape.getType() === "polygon") {
+                    console.log("Poly Detected");
                     this.drawPolygon(shape, position, angle);
                 } else if (shape.getType() === "edge") {
+                    console.log("Edge Detected");
                     this.drawEdge(shape, position, angle);
                 }
             }
@@ -40,7 +43,7 @@ export class DebugRenderer {
             y: this.app.renderer.height - (position.y + center.y) * this.scale,
         };
 
-        this.graphics.beginFill(0xff0000, 0.2); // Transparent red fill
+        this.graphics.beginFill(0xff0000, 0.2);
         this.graphics.drawCircle(worldCenter.x, worldCenter.y, radius);
         this.graphics.endFill();
 

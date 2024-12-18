@@ -1,4 +1,4 @@
-import { Application, Assets } from "pixi.js";
+import { Application, Assets, Graphics } from "pixi.js";
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { Ground } from "./core/ground.js";
@@ -69,9 +69,21 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
 
     // adding mapgenerator
     const mapGenerator = new MapGenerator(app);
-    let terrain = mapGenerator.generateBitMapTerrain(100, 200, 20);
-    console.log(terrain);
-    mapGenerator.drawMap();
+    let terrain = mapGenerator.generateBitMapTerrain(app);
+    // let testGraphic = new Graphics();
+    // testGraphic.lineStyle(2, 0xffffff);
+    // testGraphic.moveTo(50, 50);
+    // testGraphic.lineTo(100, 100);
+    // testGraphic.endFill();
+    // const graphics = new Graphics();
+    //
+    // // Rectangle
+    // graphics.rect(50, 50, 100, 100);
+    // graphics.fill(0xde3249);
+    // app.stage.addChild(graphics);
+    // app.stage.addChild(testGraphic);
+    // console.log(terrain);
+    // mapGenerator.drawMap();
     // const testCell = new TerrainCell(app);
     // testCell.initialiseCellGraphics();
     // app.stage.addChild(testCell.getGraphic());

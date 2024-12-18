@@ -1,11 +1,12 @@
 import { TerrainCell } from "./terrainCell";
 import { LCG } from "./LCG";
+import { Graphics } from "pixi.js";
 
 export class MapGenerator {
     constructor(app) {
         this.app = app;
         this.terrain = [];
-        this.LCG = new LCG(234235252);
+        this.LCG = new LCG(1232);
         
     }
 
@@ -30,7 +31,7 @@ export class MapGenerator {
                 pointB = pseudoRandomNumberGenerator.next();
                 verticalDisplacementValues.push(pointA * amplitude);
             } else {
-                let interpolationPosition  = (x % wavelength) / wavelength;
+                let interpolationPosition  = ((x % wavelength) / wavelength) * amplitude;
                 let interpolatedValue = this.interpolatePoints(pointA, pointB, interpolationPosition);
                 verticalDisplacementValues.push(interpolatedValue);
             }
@@ -40,7 +41,7 @@ export class MapGenerator {
         return verticalDisplacementValues;
     }
 
-    generatePerlinOctaves(amplitude, wavelength, numberOfOctaves, reductionFactor, canvasWidth) {
+    generatePerlinNoiseOctaves(amplitude, wavelength, numberOfOctaves, reductionFactor, canvasWidth) {
         var perlinOctaveLayers = [];
         for (let i = 0; i < numberOfOctaves; i++) {
             // generate multiple perlin noise octave layers 
@@ -54,50 +55,68 @@ export class MapGenerator {
 
     combinePerlin(perlinOctaveLayers) {
         let combinedPerlin = [];
-
+        for (let i = 0; i < perlinOctaveLayers[0].length; i++) {
+            let totalCombinedValue = 0;
+            for (let j = 0; j < perlinOctaveLayers.length; j ++) {
+                totalCombinedValue += perlinOctaveLayers[j][i];
+            }
+            combinedPerlin.push(totalCombinedValue);
+        }
+        return combinedPerlin;
     }
 
     // smooth interpolation function
     interpolatePoints(pointA, pointB, interpolationPos) {
         var scaledInterpolationPos  = interpolationPos * Math.PI;
         var interpolationFactor = (1 - Math.cos(scaledInterpolationPos )) * 0.5;
-        return pointA * (1 - interpolationFactor) + pointB * interpolationFactor;
+        return (pointA * (1 - interpolationFactor)) + (pointB * interpolationFactor);
+    }
+
+    scalePerlinNoiseValuesToPixi(perlinNoise, canvasHeight) {
+        let scaledPixiValues = [];
+        const yMin = Math.min(...perlinNoise);
+        const yMax = Math.max(...perlinNoise);
+        for (let i = 0; i < perlinNoise.length; i++) {
+            let normalisedYValue = (perlinNoise[i] - yMin) / (yMax - yMin);
+            let scaledYValue = normalisedYValue * canvasHeight;
+            scaledPixiValues.push(scaledYValue);
+        }
+        return scaledPixiValues;
     }
 
     // need to find a better algorithm to implement either MPD or Perlin Noise for 1D terrain generation
-    generateBitMapTerrain(width, height, roughness) {
-        for (let i = 0; i < height; i++) {
-            let row = [];  
-            for (let j = 0; j < width; j++) {
-                row.push(0);  
-            }
-            this.terrain.push(row);  
-        }
+    generateBitMapTerrain(app) {
+        const perlinNoise = this.combinePerlin(this.generatePerlinNoiseOctaves(256, 256, 16, 4, 600));
+        console.log("Perlin Noise 1D: ", perlinNoise);
+        console.log("First element: ", perlinNoise[0] + " Last element: ", perlinNoise[perlinNoise.length - 1]);
+        const scaledValues = this.scalePerlinNoiseValuesToPixi(perlinNoise, 600);
+        console.log("Scaled Values: ", scaledValues);
 
-        for (let x = 0; x < width; x++) {
-            const heightOfTerrain = this.getRandomInteger(1, roughness + 1);
-            for (let y = 0; y < heightOfTerrain; y++) {
-                this.terrain[y][x] = 1;
-            }
+        let graphic = new Graphics();
+        graphic.lineStyle(2, 0xffffff);
+        graphic.moveTo(0, scaledValues[0]);
+        for (let x = 1; x < scaledValues.length; x++) {
+            graphic.lineTo(x, scaledValues[x]);
         }
-        
-        return this.terrain.reverse();
+        graphic.endFill();
+
+        app.stage.addChild(graphic);
     }
 
     drawMap() {
-        let startX = 50;
-        let startY = 50;
-        for (let x = 0; x < this.terrain[0].length; x++) {
-                for (let y = 0; y < this.terrain.length; y++) {
-                    if (this.terrain[y][x] == 1) {
-                        console.log("Dean");
-                        const cellWidth = 2;
-                        const cellHeight = 2;
-                        let terrainCell = new TerrainCell(this.app, (startX + (x * cellWidth)), (startY + (y * cellHeight)), cellWidth, cellHeight);
-                        terrainCell.drawCell();
-                    }
-                }
-            } 
+        // let startX = 50;
+        // let startY = 50;
+        // for (let x = 0; x < this.terrain[0].length; x++) {
+        //         for (let y = 0; y < this.terrain.length; y++) {
+        //             if (this.terrain[y][x] == 1) {
+        //                 console.log("Dean");
+        //                 const cellWidth = 2;
+        //                 const cellHeight = 2;
+        //                 let terrainCell = new TerrainCell(this.app, (startX + (x * cellWidth)), (startY + (y * cellHeight)), cellWidth, cellHeight);
+        //                 terrainCell.drawCell();
+        //             }
+        //         }
+        //     } 
     }
 
     getRandomInteger(min, max) {

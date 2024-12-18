@@ -11,13 +11,13 @@ export class LCG {
         // a how the current state X_n influences the next state in the sequence X_n+1
         this.m = 2 ** 32;         // Modulus (determines the range of numbers that can be generated) 
         this.a = 1664525;         // Multiplier
-        this.c = 1013904223;      // Increment
+        this.c = 1;      // Increment
         this.state = seed;        // Initial seed
     }
 
     // Generate the next pseudo-random number
     next() {
         this.state = (this.a * this.state + this.c) % this.m;
-        return this.state / this.m; // Normalize to range [0, 1]
+        return (this.state / this.m - 0.5); // Normalize to range [0, 1]
     }
 }

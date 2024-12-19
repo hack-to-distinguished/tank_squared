@@ -22,13 +22,10 @@ export class DebugRenderer {
             for (let fixture = body.getFixtureList(); fixture; fixture = fixture.getNext()) {
                 const shape = fixture.getShape();
                 if (shape.getType() === "circle") {
-                    console.log("Circle Detected");
                     this.drawCircle(shape, position, angle);
                 } else if (shape.getType() === "polygon") {
-                    console.log("Poly Detected");
                     this.drawPolygon(shape, position, angle);
                 } else if (shape.getType() === "edge") {
-                    console.log("Edge Detected");
                     this.drawEdge(shape, position, angle);
                 }
             }

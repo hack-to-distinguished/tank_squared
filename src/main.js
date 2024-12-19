@@ -114,5 +114,6 @@ import { coordConverter } from "./core/coordConverter.js";
 
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
+        debugRenderer.render();
     })
 })();

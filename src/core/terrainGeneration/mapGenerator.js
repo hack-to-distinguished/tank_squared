@@ -2,10 +2,15 @@ import { LCG } from "./LCG";
 import { Graphics } from "pixi.js";
 
 export class MapGenerator {
-    constructor(app) {
+    constructor(app, seed) {
         this.app = app;
         this.terrain = [];
-        this.LCG = new LCG(12345);
+        // if no argument is passed into mapgenerator then it will just create a random terrain
+        if (seed == undefined) {
+            this.LCG = new LCG();
+        } else {
+            this.LCG = new LCG(seed);
+        }
     }
 
     generatePerlinNoiseLayer(amplitude, wavelength, canvasWidth) {

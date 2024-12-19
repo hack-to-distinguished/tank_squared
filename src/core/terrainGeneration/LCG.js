@@ -2,7 +2,7 @@
 // that will be used for 1D perline noise terrain generation
 // pseudo-random numbers are numbers that may seem random, but aren't
 export class LCG {
-    constructor(seed) {
+    constructor(seed = Math.floor(Math.random() * this.m)) {
         // using the same seed will always produce the same output
         // a, c, and m are all constants
         // m needs to be large so that the period of the function is also large
@@ -12,7 +12,7 @@ export class LCG {
         this.m = 2 ** 32;         // Modulus (determines the range of numbers that can be generated) 
         this.a = 1664525;         // Multiplier
         this.c = 1;      // Increment
-        this.state = Math.floor(Math.random() * this.m);        // Initial seed
+        this.state = seed;        // Initial seed
     }
 
     // Generate the next pseudo-random number

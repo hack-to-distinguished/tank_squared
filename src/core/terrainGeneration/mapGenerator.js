@@ -80,7 +80,7 @@ export class MapGenerator {
         const yMax = Math.max(...perlinNoise);
         for (let i = 0; i < perlinNoise.length; i++) {
             let normalisedYValue = (perlinNoise[i] - yMin) / (yMax - yMin);
-            let scaledYValue = ((normalisedYValue * canvasHeight) /(100 / Math.sqrt(amplitude))) + (canvasHeight / 2);
+            let scaledYValue = ((normalisedYValue * canvasHeight) /(100 / Math.sqrt(amplitude))) + (canvasHeight / 1.4);
             scaledPixiValues.push(scaledYValue);
         }
         return scaledPixiValues;
@@ -98,7 +98,11 @@ export class MapGenerator {
         for (let x = 1; x < terrainPoints.length; x++) {
             graphic.lineTo(x, terrainPoints[x]);
         }
+        graphic.lineTo(app.canvas.width, app.canvas.height);
+        graphic.lineTo(0, app.canvas.height);
+        graphic.lineTo(0, terrainPoints[0]);
         graphic.stroke({ width: 2, color: 0xffffff });
+        graphic.fill(0x4d1a00);
         app.stage.addChild(graphic);
     }
 }

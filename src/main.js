@@ -69,7 +69,7 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
 
     // adding mapgenerator
     const mapGenerator = new MapGenerator(app);
-    const terrain = mapGenerator.generateTerrain(app, 128, 128, 2, 2);
+const terrain = mapGenerator.generateTerrain(app, 128, 256, 2, 2);
     mapGenerator.drawTerrain(app, terrain);
 
     app.ticker.add(() => {

@@ -12,9 +12,7 @@ export class MapGenerator {
         // amplitude tells us how high the peaks should be
         // wavelength tells us how far adjacent troughs should be to one another
         // this will be used to dictate the size of a single Perlin segment betweeen points A and points B
-        // frequency tells us how often the entire wave should repeat
         let x = 0;
-        let frequency = 1 / wavelength;
         let pseudoRandomNumberGenerator = this.LCG;
         let pointA = pseudoRandomNumberGenerator.next();
         let pointB = pseudoRandomNumberGenerator.next();
@@ -43,6 +41,7 @@ export class MapGenerator {
         var perlinOctaveLayers = [];
         for (let i = 0; i < numberOfOctaves; i++) {
             // generate multiple perlin noise octave layers 
+            // the more octaves, the more detailed the terrain will be
             perlinOctaveLayers.push(this.generatePerlinNoiseLayer(amplitude, wavelength, canvasWidth));
             amplitude = amplitude / reductionFactor;
             wavelength /= reductionFactor;
@@ -82,40 +81,20 @@ export class MapGenerator {
         return scaledPixiValues;
     }
 
-    // need to find a better algorithm to implement either MPD or Perlin Noise for 1D terrain generation
-    generateBitMapTerrain(app) {
-        const amplitude = 128;
-        const perlinNoise = this.combinePerlin(this.generatePerlinNoiseOctaves(amplitude, 128, 2, 2, this.app.canvas.width));
+    generateTerrain(app, amplitude, wavelength, numberOfOctaves, reductionFactor) {
+        const perlinNoise = this.combinePerlin(this.generatePerlinNoiseOctaves(amplitude, wavelength, numberOfOctaves, reductionFactor, this.app.canvas.width));
         const scaledValues = this.scalePerlinNoiseValuesToPixi(perlinNoise, this.app.canvas.height, amplitude);
+        return scaledValues;
 
+    }
+
+    drawTerrain(app, terrainPoints) {
         let graphic = new Graphics();
-        graphic.moveTo(0, scaledValues[0]);
-        for (let x = 1; x < scaledValues.length; x++) {
-            graphic.lineTo(x, scaledValues[x]);
+        graphic.moveTo(0, terrainPoints[0]);
+        for (let x = 1; x < terrainPoints.length; x++) {
+            graphic.lineTo(x, terrainPoints[x]);
         }
-
         graphic.stroke({ width: 2, color: 0xffffff });
-
         app.stage.addChild(graphic);
-    }
-
-    drawMap() {
-        // let startX = 50;
-        // let startY = 50;
-        // for (let x = 0; x < this.terrain[0].length; x++) {
-        //         for (let y = 0; y < this.terrain.length; y++) {
-        //             if (this.terrain[y][x] == 1) {
-        //                 console.log("Dean");
-        //                 const cellWidth = 2;
-        //                 const cellHeight = 2;
-        //                 let terrainCell = new TerrainCell(this.app, (startX + (x * cellWidth)), (startY + (y * cellHeight)), cellWidth, cellHeight);
-        //                 terrainCell.drawCell();
-        //             }
-        //         }
-        //     } 
-    }
-
-    getRandomInteger(min, max) {
-        return Math.floor(Math.random() * (max-min)) + min;
     }
 }

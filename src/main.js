@@ -17,8 +17,6 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
         resizeTo: window
     });
 
-    console.log("Width: ", app.canvas.width);
-
     let world = new World({
         gravity: Vec2(0, -9.8),
     });
@@ -71,24 +69,8 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
 
     // adding mapgenerator
     const mapGenerator = new MapGenerator(app);
-    let terrain = mapGenerator.generateBitMapTerrain(app);
-    // let testGraphic = new Graphics();
-    // testGraphic.lineStyle(2, 0xffffff);
-    // testGraphic.moveTo(50, 50);
-    // testGraphic.lineTo(100, 100);
-    // testGraphic.endFill();
-    // const graphics = new Graphics();
-    //
-    // // Rectangle
-    // graphics.rect(50, 50, 100, 100);
-    // graphics.fill(0xde3249);
-    // app.stage.addChild(graphics);
-    // app.stage.addChild(testGraphic);
-    // console.log(terrain);
-    // mapGenerator.drawMap();
-    // const testCell = new TerrainCell(app);
-    // testCell.initialiseCellGraphics();
-    // app.stage.addChild(testCell.getGraphic());
+    const terrain = mapGenerator.generateTerrain(app, 128, 128, 8, 2);
+    mapGenerator.drawTerrain(app, terrain);
 
 
     app.ticker.add(() => {

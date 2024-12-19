@@ -17,6 +17,8 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
         resizeTo: window
     });
 
+    console.log("Width: ", app.canvas.width);
+
     let world = new World({
         gravity: Vec2(0, -9.8),
     });

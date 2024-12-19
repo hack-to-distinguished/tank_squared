@@ -1,4 +1,3 @@
-import { TerrainCell } from "./terrainCell";
 import { LCG } from "./LCG";
 import { Graphics } from "pixi.js";
 
@@ -6,8 +5,7 @@ export class MapGenerator {
     constructor(app) {
         this.app = app;
         this.terrain = [];
-        this.LCG = new LCG(1232);
-        
+        this.LCG = new LCG(12345);
     }
 
     generatePerlinNoiseLayer(amplitude, wavelength, canvasWidth) {
@@ -31,8 +29,8 @@ export class MapGenerator {
                 pointB = pseudoRandomNumberGenerator.next();
                 verticalDisplacementValues.push(pointA * amplitude);
             } else {
-                let interpolationPosition  = ((x % wavelength) / wavelength) * amplitude;
-                let interpolatedValue = this.interpolatePoints(pointA, pointB, interpolationPosition);
+                let interpolationPosition  = ((x % wavelength) / wavelength);
+                let interpolatedValue = this.interpolatePoints(pointA, pointB, interpolationPosition) * amplitude;
                 verticalDisplacementValues.push(interpolatedValue);
             }
             x++; // go to the next x position
@@ -46,7 +44,7 @@ export class MapGenerator {
         for (let i = 0; i < numberOfOctaves; i++) {
             // generate multiple perlin noise octave layers 
             perlinOctaveLayers.push(this.generatePerlinNoiseLayer(amplitude, wavelength, canvasWidth));
-            amplitude /= reductionFactor;
+            amplitude = amplitude / reductionFactor;
             wavelength /= reductionFactor;
         }
 
@@ -72,13 +70,13 @@ export class MapGenerator {
         return (pointA * (1 - interpolationFactor)) + (pointB * interpolationFactor);
     }
 
-    scalePerlinNoiseValuesToPixi(perlinNoise, canvasHeight) {
+    scalePerlinNoiseValuesToPixi(perlinNoise, canvasHeight, amplitude) {
         let scaledPixiValues = [];
         const yMin = Math.min(...perlinNoise);
         const yMax = Math.max(...perlinNoise);
         for (let i = 0; i < perlinNoise.length; i++) {
             let normalisedYValue = (perlinNoise[i] - yMin) / (yMax - yMin);
-            let scaledYValue = normalisedYValue * canvasHeight;
+            let scaledYValue = ((normalisedYValue * canvasHeight) /(100 / Math.sqrt(amplitude))) + (canvasHeight / 2);
             scaledPixiValues.push(scaledYValue);
         }
         return scaledPixiValues;
@@ -86,19 +84,17 @@ export class MapGenerator {
 
     // need to find a better algorithm to implement either MPD or Perlin Noise for 1D terrain generation
     generateBitMapTerrain(app) {
-        const perlinNoise = this.combinePerlin(this.generatePerlinNoiseOctaves(256, 256, 16, 4, 600));
-        console.log("Perlin Noise 1D: ", perlinNoise);
-        console.log("First element: ", perlinNoise[0] + " Last element: ", perlinNoise[perlinNoise.length - 1]);
-        const scaledValues = this.scalePerlinNoiseValuesToPixi(perlinNoise, 600);
-        console.log("Scaled Values: ", scaledValues);
+        const amplitude = 128;
+        const perlinNoise = this.combinePerlin(this.generatePerlinNoiseOctaves(amplitude, 128, 2, 2, this.app.canvas.width));
+        const scaledValues = this.scalePerlinNoiseValuesToPixi(perlinNoise, this.app.canvas.height, amplitude);
 
         let graphic = new Graphics();
-        graphic.lineStyle(2, 0xffffff);
         graphic.moveTo(0, scaledValues[0]);
         for (let x = 1; x < scaledValues.length; x++) {
             graphic.lineTo(x, scaledValues[x]);
         }
-        graphic.endFill();
+
+        graphic.stroke({ width: 2, color: 0xffffff });
 
         app.stage.addChild(graphic);
     }

@@ -1,6 +1,6 @@
 import { Sprite } from "pixi.js";
 import { BulletProjectile } from "./bullet";
-import { World, Vec2, WheelJoint, Circle} from "planck";
+import { World, Vec2, WheelJoint, Circle, RevoluteJoint } from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world) {
@@ -24,16 +24,17 @@ export class TankPlayer {
     // INFO: Player Code
     async initialisePlayerSprite(){
         //INFO: Player physical body
+        //TODO: 1.Use revolut joint to place wheels properly 2.Resize the cannon balls and make them shoot from proper point
         this.playerBody = this.world.createBody({
             type: "dynamic",
             position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
             gravityScale: 3
         })
-        const playerWidth = 100 / this.scale;
-        const playerHeight = 70 / this.scale;
+        const [playerWidth, playerHeight] = [100 / this.scale, 70 / this.scale];
 
+        const vertices = [Vec2(-1.7,-1), Vec2(1,-1), Vec2(2,-0.25), Vec2(1,1), Vec2(-1.7,1)];
         this.playerBody.createFixture({
-            shape: planck.Box(playerWidth / 2, playerHeight / 2),
+            shape: planck.Polygon(vertices),
             density: 1,
             friction: 0.6,
             restitution: 0.1
@@ -42,17 +43,22 @@ export class TankPlayer {
         let [px, py] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
         const wheelFD = {density: 1, friction: 0.9}
 
-        let wheelBack = this.world.createBody({type: "dynamic", position: Vec2(px - 2, py - 2)})
-        wheelBack.createFixture(new Circle(0.4), wheelFD)
-        let wheelFront = this.world.createBody({type: "dynamic", position: Vec2(px + 2, py - 2)})
-        wheelFront.createFixture(new Circle(0.4), wheelFD)
+        let wheelBack = this.world.createBody({type: "dynamic", position: Vec2(px - 1.4, py - 1.2)})
+        wheelBack.createFixture(new Circle(0.2), wheelFD)
+        let wheelFront = this.world.createBody({type: "dynamic", position: Vec2(px + 1, py - 1.2)})
+        wheelFront.createFixture(new Circle(0.2), wheelFD)
+
 
         this.springBack = this.world.createJoint(
-            new WheelJoint({motorSpeed: 0.0, maxMotorTorque: 20, enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
+            new RevoluteJoint({
+                motorSpeed: 0.0, maxMotorTorque: 20, 
+                enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
             }, this.playerBody, wheelBack, wheelBack.getPosition(), new Vec2(0.0, 1)));
 
         this.springFront = this.world.createJoint(
-            new WheelJoint({motorSpeed: 0.0, maxMotorTorque: 20, enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
+            new RevoluteJoint({
+                motorSpeed: 0.0, maxMotorTorque: 20, 
+                enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
             }, this.playerBody, wheelFront, wheelFront.getPosition(),new Vec2(0.0, 1)));
 
         // INFO: Player Sprite
@@ -78,24 +84,26 @@ export class TankPlayer {
 
 
     movePlayer() {
-        // TODO: Function to be changed to use planckjs movemement
         if (this.moveDist > 0){
             if (this.keys['68']) {
                 this.springFront.setMotorSpeed(-this.playerSpeed);
-                this.springBack.setMotorSpeed(-this.playerSpeed);
                 this.springFront.enableMotor(true);
+                this.springBack.setMotorSpeed(-this.playerSpeed);
                 this.springBack.enableMotor(true);
 
                 this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
-                //this.moveDist -= 1;
             } else if (this.keys['65']) {
                 this.springFront.setMotorSpeed(+this.playerSpeed);
-                this.springBack.setMotorSpeed(+this.playerSpeed);
                 this.springFront.enableMotor(true);
+                this.springBack.setMotorSpeed(+this.playerSpeed);
                 this.springBack.enableMotor(true);
 
                 this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
-                //this.moveDist -= 1;
+            } else if (!this.keys["65"] || !this.keys["68"]) {
+                this.springFront.setMotorSpeed(0);
+                this.springFront.enableMotor(false);
+                this.springBack.setMotorSpeed(0);
+                this.springBack.enableMotor(false);
             }
         }
     }

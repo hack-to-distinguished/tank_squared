@@ -113,6 +113,23 @@ export class TankPlayer {
     }
 
 
+    // TODO: Create a function that spawns the above ball on-click
+    openFire(velX, velY) {
+        const bodyPos = this.playerBody.getPosition();
+        let cannonBall = this.world.createBody({
+            type: "kinematic", 
+            position: Vec2(bodyPos.x, bodyPos.y + 1),
+            fixedRotation: false,
+            gravityScale: 0.5,
+            bullet: true
+        });
+        cannonBall.createFixture(new Circle(0.2));
+        // TODO: upon creation, add velocity and movement
+       
+
+        return cannonBall;
+    }
+
     // INFO: Projectile Code
     checkIfBulletIsPresent() {
         if (this.bullets.length == 1) {

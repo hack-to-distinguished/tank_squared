@@ -82,7 +82,10 @@ import { coordConverter } from "./core/coordConverter.js";
         if (!(playerOne.checkIfBulletIsPresent() || playerTwo.checkIfBulletIsPresent())) {
             if (playerTurn) {
                 if (playerOne.checkSpaceBarInput()) {
-                    playerOne.createBullet(velX, velY);
+                    //playerOne.createBullet(velX, velY);
+                    // FIX: Here
+                    playerTwo.openFire(velX, velY);
+                    // FIX: Here
                     playerTurn = false
                     playerTwo.resetMoveDist();
                 } else {
@@ -95,7 +98,10 @@ import { coordConverter } from "./core/coordConverter.js";
                 }
             } else {
                 if (playerTwo.checkSpaceBarInput()) {
-                    playerTwo.createBullet(velX, velY);
+                    //playerTwo.createBullet(velX, velY);
+                    // FIX: Here
+                    playerTwo.openFire(velX, velY);
+                    // FIX: Here
                     playerTurn = true;
                     playerOne.resetMoveDist();
                 } else {

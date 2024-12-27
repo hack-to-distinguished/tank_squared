@@ -24,7 +24,7 @@ export class TankPlayer {
     // INFO: Player Code
     async initialisePlayerSprite(){
         //INFO: Player physical body
-        //TODO: 1.Use revolut joint to place wheels properly 2.Resize the cannon balls and make them shoot from proper point
+        //TODO: 1.Resize the cannon balls and make them shoot from proper point 2.Move bullet code to bullet.js instead of player.js 3.Re-Apply the turn by turn
         this.playerBody = this.world.createBody({
             type: "dynamic",
             position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
@@ -132,7 +132,10 @@ export class TankPlayer {
         projectileUserBody.setLinearVelocity(Vec2(velX, velY));
 
         // create the projecilte 
-        const bulletProjectile = new BulletProjectile(this.coordConverter.convertPlanckXtoPixiX(projectileUserBody.getPosition().x), this.coordConverter.convertPlanckYToPixiY(this.app, projectileUserBody.getPosition().y), this.app, projectileUserBody);
+        const bulletProjectile = new BulletProjectile(
+            this.coordConverter.convertPlanckXtoPixiX(projectileUserBody.getPosition().x), 
+            this.coordConverter.convertPlanckYToPixiY(this.app, projectileUserBody.getPosition().y), 
+            this.app, projectileUserBody);
         await bulletProjectile.initialiseBulletSprite();
         this.app.stage.addChild(bulletProjectile.getSprite());
 

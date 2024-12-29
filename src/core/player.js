@@ -113,21 +113,20 @@ export class TankPlayer {
     }
 
 
-    // TODO: Create a function that spawns the above ball on-click
+    // TODO: Make the cannonball dissappear when it touches something
     openFire(velX, velY) {
         const bodyPos = this.playerBody.getPosition();
         let cannonBall = this.world.createBody({
-            type: "kinematic", 
+            type: "dynamic", 
             position: Vec2(bodyPos.x, bodyPos.y + 1),
-            fixedRotation: false,
+            fixedRotation: true,
             gravityScale: 0.5,
-            bullet: true
+            bullet: true,
+            linearVelocity: Vec2(velX, velY * 2),
         });
-        cannonBall.createFixture(new Circle(0.2));
-        // TODO: upon creation, add velocity and movement
-       
 
-        return cannonBall;
+        const ballVFD = {initialVelocity: 10, friction: 0.3, density: 1};
+        cannonBall.createFixture(new Circle(0.2), ballVFD);
     }
 
     // INFO: Projectile Code

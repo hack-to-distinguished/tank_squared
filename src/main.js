@@ -62,6 +62,9 @@ import { coordConverter } from "./core/coordConverter.js";
     app.ticker.maxFPS = 60;
     const debugRenderer = new DebugRenderer(world, app, sf);
 
+    const fireCooldown = 1000;
+    let lastFireTime = 0;
+
     app.ticker.add(() => {
         // takes values from the sliders, and calculates the vertical, and horizontal motion
         if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {
@@ -79,38 +82,33 @@ import { coordConverter } from "./core/coordConverter.js";
         const velY = magnitudeVelocity * Math.sin(launchAngle);
 
         world.step(1/60);
-        if (!(playerOne.checkIfBulletIsPresent() || playerTwo.checkIfBulletIsPresent())) {
-            if (playerTurn) {
-                if (playerOne.checkSpaceBarInput()) {
-                    //playerOne.createBullet(velX, velY);
-                    // FIX: Here
-                    playerTwo.openFire(velX, velY);
-                    // FIX: Here
-                    playerTurn = false
-                    playerTwo.resetMoveDist();
-                } else {
-                    if (playerOne.moveDist > 0) {
-                        playerOne.movePlayer()
-                    } else {
-                        playerTurn = false;
-                        playerTwo.resetMoveDist();
-                    }
-                }
+        const currentTime = Date.now();
+        if (playerTurn) {
+            if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
+                playerOne.openFire(velX, velY);
+                lastFireTime = currentTime;
+                playerTurn = false
+                playerTwo.resetMoveDist();
             } else {
-                if (playerTwo.checkSpaceBarInput()) {
-                    //playerTwo.createBullet(velX, velY);
-                    // FIX: Here
-                    playerTwo.openFire(velX, velY);
-                    // FIX: Here
+                if (playerOne.moveDist > 0) {
+                    playerOne.movePlayer()
+                } else {
+                    playerTurn = false;
+                    playerTwo.resetMoveDist();
+                }
+            }
+        } else {
+            if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
+                playerTwo.openFire(velX, velY);
+                lastFireTime = currentTime;
+                playerTurn = true;
+                playerOne.resetMoveDist();
+            } else {
+                if (playerTwo.moveDist > 0) {
+                    playerTwo.movePlayer();
+                } else {
                     playerTurn = true;
                     playerOne.resetMoveDist();
-                } else {
-                    if (playerTwo.moveDist > 0) {
-                        playerTwo.movePlayer();
-                    } else {
-                        playerTurn = true;
-                        playerOne.resetMoveDist();
-                    }
                 }
             }
         }

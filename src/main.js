@@ -33,17 +33,21 @@ import { coordConverter } from "./core/coordConverter.js";
     //app.stage.addChild(background.getBackground());
 
     let converter = new coordConverter(250); 
+
   
     // Adding player
+    const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, sf, converter, world); 
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, sf, converter, world, shellTexture); 
     await playerOne.initialisePlayerSprite();
+    await playerOne.initialiseShellSprite();
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, sf, converter, world);
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, sf, converter, world, shellTexture);
     await playerTwo.initialisePlayerSprite();
+    await playerTwo.initialiseShellSprite();
     playerTwo.setupKeyboardControls();
 
     // Adding projectile mechanism
@@ -64,6 +68,7 @@ import { coordConverter } from "./core/coordConverter.js";
 
     const fireCooldown = 1000;
     let lastFireTime = 0;
+    let shellVisible = false;
 
     app.ticker.add(() => {
         // takes values from the sliders, and calculates the vertical, and horizontal motion
@@ -86,6 +91,7 @@ import { coordConverter } from "./core/coordConverter.js";
         if (playerTurn) {
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
                 playerOne.openFire(velX, velY);
+                shellVisible = true;
                 lastFireTime = currentTime;
                 playerTurn = false
                 playerTwo.resetMoveDist();
@@ -100,6 +106,7 @@ import { coordConverter } from "./core/coordConverter.js";
         } else {
             if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
                 playerTwo.openFire(velX, velY);
+                shellVisible = true;
                 lastFireTime = currentTime;
                 playerTurn = true;
                 playerOne.resetMoveDist();
@@ -113,11 +120,17 @@ import { coordConverter } from "./core/coordConverter.js";
             }
         }
 
-        playerOne.updateBullets();
-        playerTwo.updateBullets();
+        // TODO: While visible, run the action
+        if (shellVisible) {
+            const shellActive = playerOne.updateShell() || playerTwo.updateShell();
+            if (shellActive == 0) {
+                shellVisible = false;
+            }
+            console.log("shell still active", shellActive);
+        }
 
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
-        debugRenderer.render();
+        //debugRenderer.render();
     })
 })();

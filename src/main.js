@@ -123,6 +123,7 @@ import { coordConverter } from "./core/coordConverter.js";
         // TODO: While visible, run the action
         if (shellVisible) {
             const shellActive = playerOne.updateShell() || playerTwo.updateShell();
+            // TODO: Change from a visible flag to a collided with flag
             if (shellActive == 0) {
                 shellVisible = false;
             }

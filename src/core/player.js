@@ -44,12 +44,12 @@ export class TankPlayer {
             restitution: 0.1
         })
 
-        let [px, py] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
+        let [planckX, planckY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
         const wheelFD = {density: 1, friction: 0.9}
 
-        let wheelBack = this.world.createBody({type: "dynamic", position: Vec2(px - 1.4, py - 1.2)})
+        let wheelBack = this.world.createBody({type: "dynamic", position: Vec2(planckX - 1.4, planckY - 1.2)})
         wheelBack.createFixture(new Circle(0.2), wheelFD)
-        let wheelFront = this.world.createBody({type: "dynamic", position: Vec2(px + 1, py - 1.2)})
+        let wheelFront = this.world.createBody({type: "dynamic", position: Vec2(planckX + 1, planckY - 1.2)})
         wheelFront.createFixture(new Circle(0.2), wheelFD)
         this.wheelFront = wheelFront;
 
@@ -128,7 +128,7 @@ export class TankPlayer {
             bullet: true,
             linearVelocity: Vec2(velX, velY * 2),
         });
-        const ballVFD = {initialVelocity: 10, friction: 0.3, density: 1};
+        const shellFD = {friction: 0.3, density: 1};
 
         // INFO: Creating the shell sprite
         const shellSprite = Sprite.from(this.shellTexture);
@@ -156,14 +156,12 @@ export class TankPlayer {
             linearVelocity: Vec2(velX, velY * 2),
         });
 
-        const ballVFD = { friction: 0.3, density: 1 };
-        this.physicalShell.createFixture(new Circle(0.2), ballVFD);
+        const shellFD = {friction: 0.3, density: 1 };
+        this.physicalShell.createFixture(new Circle(0.2), shellFD);
 
         this.shellSprite.x = bodyPos.x * this.scale;
         this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
         this.shellSprite.visible = true;
-
-        console.log("Shell fired:", this.physicalShell);
     }
 
 

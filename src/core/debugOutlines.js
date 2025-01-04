@@ -40,7 +40,7 @@ export class DebugRenderer {
             y: this.app.renderer.height - (position.y + center.y) * this.scale,
         };
 
-        this.graphics.beginFill(0xff0000, 0.2); // Transparent red fill
+        this.graphics.beginFill(0xff0000, 0.2);
         this.graphics.drawCircle(worldCenter.x, worldCenter.y, radius);
         this.graphics.endFill();
 

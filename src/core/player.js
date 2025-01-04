@@ -1,15 +1,15 @@
-import { Sprite } from "pixi.js";
+import { Sprite, Assets } from "pixi.js";
 import { BulletProjectile } from "./bullet";
-import { World, Vec2 } from "planck";
+import { World, Vec2, WheelJoint, Circle, RevoluteJoint } from "planck";
 
 export class TankPlayer {
-    constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world) {
+    constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
         this.world = world;
         this.coordConverter = coordConverter;
         this.app = app;
         this.playerX = playerX;
         this.playerY = playerY;
-        this.playerSpeed = 5;
+        this.playerSpeed = 20;
         this.keys = {};
         this.bullets = [];
         this.moveDist = 30;
@@ -17,96 +17,66 @@ export class TankPlayer {
         this.world = world;
         this.playerBody = null;
         this.scale = scale;
+        this.wheelFront = null;
+        this.springFront = null;
+        this.springBack = null;
+        this.physicalShell = null;
+        this.shellTexture = shellTexture;
+        this.shellSprite = null;
     }
 
-    getX() {
-        return this.playerX;
-    }
-
-    getY() {
-        return this.playerY;
-    }
-
-    checkIfBulletIsPresent() {
-        if (this.bullets.length == 1) {
-            return true;
-        } 
-        return false;
-    }
-
-    async createBullet(velX, velY) {
-        const projectileUserBody = this.world.createBody({
-            position: Vec2(this.coordConverter.convertPixiXtoPlanckX(this.getX()), this.coordConverter.convertPixiYToPlanckY(this.app, this.getY())),
-            type: 'dynamic'
-        })
-        projectileUserBody.setLinearVelocity(Vec2(velX, velY));
-
-        // create the projecilte 
-        const bulletProjectile = new BulletProjectile(this.coordConverter.convertPlanckXtoPixiX(projectileUserBody.getPosition().x), this.coordConverter.convertPlanckYToPixiY(this.app, projectileUserBody.getPosition().y), this.app, projectileUserBody);
-        await bulletProjectile.initialiseBulletSprite();
-        this.app.stage.addChild(bulletProjectile.getSprite());
-
-        this.bullets.push(bulletProjectile);
-    }
-
-    updateBullets() {
-        if (this.checkIfBulletIsPresent()) {
-            const bulletProjectile = this.bullets[0];
-            const projectileUserBody = bulletProjectile.getProjectileUserBody();
-
-            // checks if the bullet's y position (on the cartesian planck.js coord sys) has gone below zero
-            // and empties arr as required.
-            // if it goes below zero, it is basically the same as saying it has gone below the bottom screen border
-            if (projectileUserBody.getPosition().y < 0) {
-                this.world.destroyBody(projectileUserBody);
-                this.bullets.splice(0, 1);
-            }
-
-            if (projectileUserBody.getPosition().y > 0) {
-
-
-                let pixiX = this.coordConverter.convertPlanckXtoPixiX(projectileUserBody.getPosition().x);
-                let pixiY = this.coordConverter.convertPlanckYToPixiY(this.app, projectileUserBody.getPosition().y);
-                bulletProjectile.updateBullet(pixiX, pixiY);
-            } 
-        }
-    }
-
-    getBulletsList() {
-        return this.bullets;
-    }
-
-    addBulletToBullets(bullet) {
-        this.bullets.push(bullet);
-    }
-
+    // INFO: Player Code
     async initialisePlayerSprite(){
-        // INFO: Applying Physics
+        //INFO: Player physical body
+        //TODO: 1.Resize the cannon balls and make them shoot from proper point 2.Move bullet code to bullet.js instead of player.js 3.Re-Apply the turn by turn
         this.playerBody = this.world.createBody({
             type: "dynamic",
             position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
             gravityScale: 3
         })
-        const playerWidth = 150 / this.scale;
-        const playerHeight = 105 / this.scale;
+        const [playerWidth, playerHeight] = [100 / this.scale, 70 / this.scale];
 
+        const vertices = [Vec2(-1.7,-1), Vec2(1,-1), Vec2(2,-0.25), Vec2(1,1), Vec2(-1.7,1)];
         this.playerBody.createFixture({
-            shape: planck.Box(playerWidth / 2, playerHeight / 2),
+            shape: planck.Polygon(vertices),
             density: 1,
             friction: 0.6,
             restitution: 0.1
         })
 
-        // INFO: Applying Graphics
+        let [planckX, planckY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
+        const wheelFD = {density: 1, friction: 0.9}
+
+        let wheelBack = this.world.createBody({type: "dynamic", position: Vec2(planckX - 1.4, planckY - 1.2)})
+        wheelBack.createFixture(new Circle(0.2), wheelFD)
+        let wheelFront = this.world.createBody({type: "dynamic", position: Vec2(planckX + 1, planckY - 1.2)})
+        wheelFront.createFixture(new Circle(0.2), wheelFD)
+        this.wheelFront = wheelFront;
+
+
+        this.springBack = this.world.createJoint(
+            new RevoluteJoint({
+                motorSpeed: 0.0, maxMotorTorque: 20, 
+                enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
+            }, this.playerBody, wheelBack, wheelBack.getPosition(), new Vec2(0.0, 1)));
+
+        this.springFront = this.world.createJoint(
+            new RevoluteJoint({
+                motorSpeed: 0.0, maxMotorTorque: 20, 
+                enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
+            }, this.playerBody, wheelFront, wheelFront.getPosition(),new Vec2(0.0, 1)));
+
+        // INFO: Player Sprite
         const playerSprite = Sprite.from(this.playerTexture);
         playerSprite.anchor.set(0.5, 0.5);
 
-        const [desiredWidth, desiredHeight] = [150, 105];
-        playerSprite.scale.set(desiredWidth / this.playerTexture.width, desiredHeight / this.playerTexture.height); 
-
+        const [spriteWidth, spriteHeight] = [100, 70];
+        playerSprite.scale.set(spriteWidth / this.playerTexture.width, spriteHeight / this.playerTexture.height); 
         playerSprite.x = this.playerX;
         playerSprite.y = this.playerY;
         this.playerSprite = playerSprite;
+
+        this.app.stage.addChild(this.playerSprite);
     }
 
     updatePlayer(){
@@ -117,32 +87,28 @@ export class TankPlayer {
         this.playerSprite.rotation = -this.playerBody.getAngle();
     }
 
-    getSprite() {
-        if (this.playerSprite) {
-            return this.playerSprite;
-        }
-    }
-
-    checkSpaceBarInput() {
-        return this.keys['32'] === true;
-    }
-
-    updatePlayerPosition(){
-        this.playerSprite.x = this.playerX;
-        this.playerSprite.y = this.playerY;
-    }
 
     movePlayer() {
-        // TODO: Function to be changed to use planckjs movemement
         if (this.moveDist > 0){
             if (this.keys['68']) {
-                this.playerX += this.playerSpeed;
+                this.springFront.setMotorSpeed(-this.playerSpeed);
+                this.springFront.enableMotor(true);
+                this.springBack.setMotorSpeed(-this.playerSpeed);
+                this.springBack.enableMotor(true);
+
                 this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
-                this.moveDist -= 1;
             } else if (this.keys['65']) {
-                this.playerX -= this.playerSpeed;
+                this.springFront.setMotorSpeed(+this.playerSpeed);
+                this.springFront.enableMotor(true);
+                this.springBack.setMotorSpeed(+this.playerSpeed);
+                this.springBack.enableMotor(true);
+
                 this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
-                this.moveDist -= 1;
+            } else if (!this.keys["65"] || !this.keys["68"]) {
+                this.springFront.setMotorSpeed(0);
+                this.springFront.enableMotor(false);
+                this.springBack.setMotorSpeed(0);
+                this.springBack.enableMotor(false);
             }
         }
     }
@@ -151,6 +117,78 @@ export class TankPlayer {
         this.moveDist = 30;
     }
 
+
+    async initialiseShellSprite(velX, velY) {
+        const bodyPos = this.playerBody.getPosition();
+        this.physicalShell = this.world.createBody({
+            type: "dynamic", 
+            position: Vec2(bodyPos.x, bodyPos.y + 1),
+            fixedRotation: true,
+            gravityScale: 0.5,
+            bullet: true,
+            linearVelocity: Vec2(velX, velY * 2),
+        });
+        const shellFD = {friction: 0.3, density: 1};
+
+        // INFO: Creating the shell sprite
+        const shellSprite = Sprite.from(this.shellTexture);
+        shellSprite.anchor.set(0.5, 0.5);
+
+        const [spriteWidth, spriteHeight] = [10, 10];
+        shellSprite.scale.set(spriteWidth / this.shellTexture.width, spriteHeight / this.shellTexture.height); 
+        shellSprite.x = bodyPos.x * this.scale;
+        shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale) + 1;
+
+        this.shellSprite = shellSprite;
+        this.app.stage.addChild(this.shellSprite);
+        this.shellSprite.visible = false;
+    }
+
+    async openFire(velX, velY) {
+        const bodyPos = this.playerBody.getPosition();
+
+        this.physicalShell = this.world.createBody({
+            type: "dynamic",
+            position: Vec2(bodyPos.x, bodyPos.y + 1),
+            fixedRotation: true,
+            gravityScale: 0.5,
+            bullet: true,
+            linearVelocity: Vec2(velX, velY * 2),
+        });
+
+        const shellFD = {friction: 0.3, density: 1 };
+        this.physicalShell.createFixture(new Circle(0.2), shellFD);
+
+        this.shellSprite.x = bodyPos.x * this.scale;
+        this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
+        this.shellSprite.visible = true;
+    }
+
+
+    updateShell() {
+        if (this.physicalShell) {
+            const bodyPos = this.physicalShell.getPosition();
+            this.shellSprite.x = bodyPos.x * this.scale;
+            this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
+
+            // TODO: replace this with dissapear if collision with something
+            //console.log("Check collision", this.physicalShell.getContactList());
+            const isOutOfBounds = bodyPos.y < -10 || bodyPos.x < -10;
+            if (isOutOfBounds) {
+                this.shellSprite.visible = false;
+                this.world.destroyBody(this.physicalShell);
+                this.physicalShell = null; // Reset the shell
+                return 0;
+            }
+        }
+    }
+
+
+    checkSpaceBarInput() {
+        return this.keys['32'] === true;
+    }
+
+    // INFO: Keyboard control
     setupKeyboardControls() {
         window.addEventListener("keydown", this.keysDown.bind(this));
         window.addEventListener("keyup", this.keysUp.bind(this));

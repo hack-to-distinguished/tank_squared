@@ -32,7 +32,7 @@ export class MapGenerator {
                 pointB = pseudoRandomNumberGenerator.next();
                 verticalDisplacementValues.push(pointA * amplitude);
             } else {
-                let interpolationPosition  = ((x % wavelength) / wavelength);
+                let interpolationPosition = ((x % wavelength) / wavelength);
                 let interpolatedValue = this.interpolatePoints(pointA, pointB, interpolationPosition) * amplitude;
                 verticalDisplacementValues.push(interpolatedValue);
             }
@@ -59,7 +59,7 @@ export class MapGenerator {
         let combinedPerlin = [];
         for (let i = 0; i < perlinOctaveLayers[0].length; i++) {
             let totalCombinedValue = 0;
-            for (let j = 0; j < perlinOctaveLayers.length; j ++) {
+            for (let j = 0; j < perlinOctaveLayers.length; j++) {
                 totalCombinedValue += perlinOctaveLayers[j][i];
             }
             combinedPerlin.push(totalCombinedValue);
@@ -69,8 +69,8 @@ export class MapGenerator {
 
     // smooth interpolation function
     interpolatePoints(pointA, pointB, interpolationPos) {
-        var scaledInterpolationPos  = interpolationPos * Math.PI;
-        var interpolationFactor = (1 - Math.cos(scaledInterpolationPos )) * 0.5;
+        var scaledInterpolationPos = interpolationPos * Math.PI;
+        var interpolationFactor = (1 - Math.cos(scaledInterpolationPos)) * 0.5;
         return (pointA * (1 - interpolationFactor)) + (pointB * interpolationFactor);
     }
 
@@ -80,7 +80,7 @@ export class MapGenerator {
         const yMax = Math.max(...perlinNoise);
         for (let i = 0; i < perlinNoise.length; i++) {
             let normalisedYValue = (perlinNoise[i] - yMin) / (yMax - yMin);
-            let scaledYValue = ((normalisedYValue * canvasHeight) /(100 / Math.sqrt(amplitude))) + (canvasHeight / 1.4);
+            let scaledYValue = ((normalisedYValue * canvasHeight) / (100 / Math.sqrt(amplitude))) + (canvasHeight / 1.4);
             scaledPixiValues.push(scaledYValue);
         }
         return scaledPixiValues;
@@ -93,16 +93,20 @@ export class MapGenerator {
     }
 
     drawTerrain(app, terrainPoints) {
-        let graphic = new Graphics();
-        graphic.moveTo(0, terrainPoints[0]);
+        // Drawing the terrain
+        let terrainGraphic = new Graphics();
+        terrainGraphic.moveTo(0, terrainPoints[0]);
         for (let x = 1; x < terrainPoints.length; x++) {
-            graphic.lineTo(x, terrainPoints[x]);
+            terrainGraphic.lineTo(x, terrainPoints[x]);
         }
-        graphic.lineTo(app.canvas.width, app.canvas.height);
-        graphic.lineTo(0, app.canvas.height);
-        graphic.lineTo(0, terrainPoints[0]);
-        graphic.stroke({ width: 2, color: 0xffffff });
-        graphic.fill(0x4d1a00);
-        app.stage.addChild(graphic);
+        terrainGraphic.lineTo(app.canvas.width, app.canvas.height);
+        terrainGraphic.lineTo(0, app.canvas.height);
+        terrainGraphic.lineTo(0, terrainPoints[0]);
+        terrainGraphic.stroke({ width: 2, color: 0xffffff });
+        terrainGraphic.fill(0x4d1a00);
+        app.stage.addChild(terrainGraphic);
+
+        // implement the planckjs logic now 
+
     }
 }

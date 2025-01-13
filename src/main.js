@@ -1,4 +1,5 @@
 import { Application, Assets } from "pixi.js";
+import { createMainMenu } from './menu.js';
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { Ground } from "./core/ground.js";
@@ -7,7 +8,7 @@ import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
 import { coordConverter } from "./core/coordConverter.js";
 
-(async () => {
+export async function startGame() {
 
     const app = new Application();
     await app.init({
@@ -134,4 +135,6 @@ import { coordConverter } from "./core/coordConverter.js";
         playerTwo.updatePlayer();
         //debugRenderer.render();
     })
-})();
+}
+
+createMainMenu();

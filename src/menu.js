@@ -2,60 +2,55 @@ export function createMainMenu() {
     // INFO: Main menu container
     const menu = document.createElement("div");
     menu.id = "main-menu";
-    menu.style.position = "absolute";
-    menu.style.width = "100%"; // for some reason the 100% does more than the screen width/height
-    menu.style.height = "100%";
-    menu.style.display = "flex";
-    menu.style.flexDirection = "column";
-    menu.style.justifyContent = "space-between"; 
-    menu.style.alignItems = "center";
-    menu.style.background = "rgba(0, 0, 0, 0.8)";
-    menu.style.padding = "20px 0"; 
 
     // INFO: Welcome text container
     const title = document.createElement("div");
     title.id = "menu-title";
-    title.style.width = "100%";
-    title.style.textAlign = "center";
 
     // INFO: Welcome text
     const welcomeText = document.createElement("p");
     welcomeText.innerText = "Welcome to Tank Squared!";
-    welcomeText.style.margin = "0";
-    welcomeText.style.padding = "10px 20px";
-    welcomeText.style.fontSize = "40px";
-    welcomeText.style.color = "white";
     title.appendChild(welcomeText);
     menu.appendChild(title);
 
+    // INFO: Character selector screen
+    const characterCardsContainer = document.createElement("div");
+    characterCardsContainer.id = "character-cards-container";
 
-    // INFO: Charactor selector screen
-    const charactorCardsContainer = document.createElement("div");
-    const charactorCard1 = document.createElement("div");
-    charactorCard1.innerText = "Inside the card";
-    const charactorCard2 = document.createElement("div");
-    charactorCard2.innerText = "Inside the card";
+    const characterCard1 = document.createElement("div");
+    characterCard1.id = "cCard1";
 
-    charactorCardsContainer.appendChild(charactorCard1);
-    charactorCardsContainer.appendChild(charactorCard2);
-    menu.appendChild(charactorCardsContainer);
+    const character1Image = document.createElement("img");
+    character1Image.id = "c1img";
+    character1Image.src = "https://i.pinimg.com/736x/0e/99/52/0e995213e1685b6a92adc68256a4c4e4.jpg";
+    characterCard1.appendChild(character1Image);
 
+    characterCardsContainer.appendChild(characterCard1);
+
+    const characterCard2 = document.createElement("div");
+    characterCard2.id = "cCard2";
+
+    const character2Image = document.createElement("img");
+    character2Image.id = "c2img";
+    character2Image.src = "https://i.pinimg.com/736x/88/95/c1/8895c11d00eb702bde5fde7d7567c3e2.jpg";
+    characterCard2.appendChild(character2Image);
+
+    characterCardsContainer.appendChild(characterCard2);
+
+
+    menu.appendChild(characterCardsContainer);
 
     // INFO: Start game button container
     const buttonContainer = document.createElement("div");
-    buttonContainer.style.display = "flex";
-    buttonContainer.style.justifyContent = "center";
-    buttonContainer.style.alignItems = "center";
-    buttonContainer.style.flexGrow = "1";
+    buttonContainer.id = "button-container";
 
     // INFO: Start game button
     const startButton = document.createElement("button");
+    startButton.id = "start-button";
     startButton.innerText = "Start Game";
-    startButton.style.padding = "10px 20px";
-    startButton.style.fontSize = "20px";
     startButton.onclick = () => {
         document.body.removeChild(menu);
-        import("./main.js").then(module => module.startGame());
+        import("./main.js").then((module) => module.startGame());
     };
     buttonContainer.appendChild(startButton);
 

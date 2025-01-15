@@ -1,6 +1,6 @@
 import { LCG } from "./LCG";
 import { Graphics } from "pixi.js";
-import { Edge, Vec2, Chain } from "planck";
+import { Vec2, Chain } from "planck";
 
 export class MapGenerator {
     constructor(app, seed) {
@@ -118,8 +118,6 @@ export class MapGenerator {
 
         let vs = [];
 
-        const divisions = Math.floor(this.app.renderer.width / sf);
-        console.log("Divisions: ", divisions);
         for (let i = 0; i < terrainPoints.length; i++) {
             vs.push(Vec2(i * (1 / sf), (this.app.renderer.height - terrainPoints[i]) / sf));
         }

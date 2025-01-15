@@ -5,8 +5,8 @@ import { Ground } from "./core/ground.js";
 import { Background } from "./scenes/mapImage.js";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
-import { coordConverter } from "./core/coordConverter.js";
 import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
+import { Converter } from "./core/Converter.js";
 
 (async () => {
 
@@ -19,7 +19,7 @@ import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
         gravity: Vec2(0, -9.8),
     });
 
-    const sf = 25;
+    const scaleFactor = 25;
 
     app.canvas.style.position = 'absolute';
     document.body.appendChild(app.canvas);
@@ -30,19 +30,20 @@ import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
     // await background.initialiseBackground();
     //app.stage.addChild(background.getBackground());
 
-    let converter = new coordConverter(250);
+    // Creating the converter
+    let converter = new Converter(scaleFactor);
 
     // Adding player
     const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, sf, converter, world, shellTexture);
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, sf, converter, world, shellTexture);
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();
     playerTwo.setupKeyboardControls();
@@ -61,12 +62,12 @@ import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
     app.ticker.maxFPS = 60;
-    const debugRenderer = new DebugRenderer(world, app, sf);
+    const debugRenderer = new DebugRenderer(world, app, scaleFactor);
 
-    // adding mapgenerator
+    // adding mapgenerator, and drawing the terrain
     const mapGenerator = new MapGenerator(app);
     const terrain = mapGenerator.generateTerrain(app, 128, 256, 1, 2);
-    mapGenerator.drawTerrain(app, terrain, world, sf);
+    mapGenerator.drawTerrain(app, terrain, world, scaleFactor);
 
     const fireCooldown = 1000;
     let lastFireTime = 0;

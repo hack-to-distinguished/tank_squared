@@ -1,5 +1,6 @@
 # TANK SQUARED
 ![Bron the goat](./assets/images/TANK_SQUARED(1).png)
+
 Bron's army vs the Russians! Who will win? 
 
 ### File Structure
@@ -51,7 +52,7 @@ my-pixi-game/\
 
 ## Version 1.0.1: Enhancing Mechanics
 - [ ] Terrain destruction
-- [ ] Terrain generation
+- [x] Terrain generation
 - [ ] Improved Physics simulation (e.g., increased motor speed, friction, etc)
 - [ ] Better tank properties 
 - [ ] Health Bars, and Death

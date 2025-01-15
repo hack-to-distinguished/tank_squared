@@ -101,10 +101,11 @@ export class MapGenerator {
         // Drawing the terrain
         let terrainGraphic = new Graphics();
         terrainGraphic.moveTo(0, terrainPoints[0]);
-        console.log(0, terrainPoints[0]);
+
         for (let x = 1; x < terrainPoints.length; x++) {
             terrainGraphic.lineTo(x, terrainPoints[x]);
         }
+
         terrainGraphic.lineTo(app.canvas.width, app.canvas.height);
         terrainGraphic.lineTo(0, app.canvas.height);
         terrainGraphic.lineTo(0, terrainPoints[0]);

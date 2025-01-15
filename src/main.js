@@ -27,19 +27,19 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
     const [appHeight, appWidth] = [app.renderer.height, app.renderer.width];
 
     // Adding ground
-    const activeGround = new Ground(app, world, sf)
-    await activeGround.initialiseGround();
+    // const activeGround = new Ground(app, world, sf)
+    // await activeGround.initialiseGround();
 
     // Adding background
     const background = new Background(appHeight - 150, appWidth);
     await background.initialiseBackground();
     //app.stage.addChild(background.getBackground());
 
-    let converter = new coordConverter(250); 
-  
+    let converter = new coordConverter(250);
+
     // Adding player
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, sf, converter, world); 
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, sf, converter, world);
     await playerOne.initialisePlayerSprite();
     app.stage.addChild(playerOne.getSprite());
     playerOne.setupKeyboardControls();
@@ -69,8 +69,8 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
 
     // adding mapgenerator
     const mapGenerator = new MapGenerator(app);
-const terrain = mapGenerator.generateTerrain(app, 128, 256, 2, 2);
-    mapGenerator.drawTerrain(app, terrain);
+    const terrain = mapGenerator.generateTerrain(app, 128, 256, 1, 2);
+    mapGenerator.drawTerrain(app, terrain, world, sf);
 
     app.ticker.add(() => {
         // takes values from the sliders, and calculates the vertical, and horizontal motion
@@ -83,12 +83,12 @@ const terrain = mapGenerator.generateTerrain(app, 128, 256, 2, 2);
             magnitudeVelocity = 5;
         } else {
             magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
-        } 
+        }
 
         const velX = magnitudeVelocity * Math.cos(launchAngle);
         const velY = magnitudeVelocity * Math.sin(launchAngle);
 
-        world.step(1/60);
+        world.step(1 / 60);
         if (!(playerOne.checkIfBulletIsPresent() || playerTwo.checkIfBulletIsPresent())) {
             if (playerTurn) {
                 if (playerOne.checkSpaceBarInput()) {

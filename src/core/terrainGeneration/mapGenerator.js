@@ -1,5 +1,6 @@
 import { LCG } from "./LCG";
 import { Graphics } from "pixi.js";
+import { Edge, Vec2, Chain } from "planck";
 
 export class MapGenerator {
     constructor(app, seed) {
@@ -92,10 +93,15 @@ export class MapGenerator {
         return scaledValues;
     }
 
-    drawTerrain(app, terrainPoints) {
+    drawTerrain(app, terrainPoints, world, sf) {
+
+        const pixelsPerMetre = 100;
+        const metresPerPixel = 1 / pixelsPerMetre;
+
         // Drawing the terrain
         let terrainGraphic = new Graphics();
         terrainGraphic.moveTo(0, terrainPoints[0]);
+        console.log(0, terrainPoints[0]);
         for (let x = 1; x < terrainPoints.length; x++) {
             terrainGraphic.lineTo(x, terrainPoints[x]);
         }
@@ -106,7 +112,42 @@ export class MapGenerator {
         terrainGraphic.fill(0x4d1a00);
         app.stage.addChild(terrainGraphic);
 
-        // implement the planckjs logic now 
+        // implement the planckjs logic now
+        let body = world.createBody({ type: "static", position: new Vec2(0, 0) });
+        const groundFD = { density: 1, friction: 0.6 } // FD stands for friction density
+        // this.groundBody.createFixture(new Edge(new Vec2(-screenWidth / 2, 8), new Vec2(screenWidth, 5)), groundFD);
+
+        let vs = [
+        ];
+
+        const divisions = Math.floor(this.app.renderer.width / sf);
+        console.log("Divisions: ", divisions);
+        for (let i = 0; i < terrainPoints.length; i++) {
+            vs.push(Vec2(i * (1 / sf), (this.app.renderer.width - terrainPoints[i]) / 15));
+            console.log(vs[i]);
+        }
+
+        // for (let x = 0; x < divisions; x++) {
+        //     let xCoord = x * (this.app.renderer.width / sf) / 21;
+        //     console.log("Index pos: ", Math.floor(x * (this.app.renderer.width / divisions)), "Corresponding Y Point: ", terrainPoints[Math.floor(x * (this.app.renderer.width / divisions))]);
+        //     let yCoord = (this.app.renderer.height - terrainPoints[Math.floor(x * (this.app.renderer.width / divisions))]) / 30;
+        //     console.log("xCoord: ", xCoord, "yCoord: ", yCoord);
+        //     vs.push(Vec2(xCoord, yCoord));
+        // }
+        // console.log("Number of Vec2s: ", vs.length);
+
+        // for (let x = 1; x < terrainPoints.length; x++) {
+        //     vs.push(Vec2(x * (100 / 536), terrainPoints[x] / pixelsPerMetre));
+        //     console.log(x * (25 / 536));
+        // }
+
+
+        // console.log(vs);
+
+        let chain = new Chain(vs, false);
+
+        // let edge = new Edge(new Vec2(0, 20), new Vec2(10, 20));
+        body.createFixture(chain, groundFD);
 
     }
 }

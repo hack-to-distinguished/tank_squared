@@ -112,42 +112,19 @@ export class MapGenerator {
         terrainGraphic.fill(0x4d1a00);
         app.stage.addChild(terrainGraphic);
 
-        // implement the planckjs logic now
+        // applying planckjs logic 
         let body = world.createBody({ type: "static", position: new Vec2(0, 0) });
         const groundFD = { density: 1, friction: 0.6 } // FD stands for friction density
-        // this.groundBody.createFixture(new Edge(new Vec2(-screenWidth / 2, 8), new Vec2(screenWidth, 5)), groundFD);
 
-        let vs = [
-        ];
+        let vs = [];
 
         const divisions = Math.floor(this.app.renderer.width / sf);
         console.log("Divisions: ", divisions);
         for (let i = 0; i < terrainPoints.length; i++) {
-            vs.push(Vec2(i * (1 / sf), (this.app.renderer.width - terrainPoints[i]) / 15));
-            console.log(vs[i]);
+            vs.push(Vec2(i * (1 / sf), (this.app.renderer.height - terrainPoints[i]) / sf));
         }
 
-        // for (let x = 0; x < divisions; x++) {
-        //     let xCoord = x * (this.app.renderer.width / sf) / 21;
-        //     console.log("Index pos: ", Math.floor(x * (this.app.renderer.width / divisions)), "Corresponding Y Point: ", terrainPoints[Math.floor(x * (this.app.renderer.width / divisions))]);
-        //     let yCoord = (this.app.renderer.height - terrainPoints[Math.floor(x * (this.app.renderer.width / divisions))]) / 30;
-        //     console.log("xCoord: ", xCoord, "yCoord: ", yCoord);
-        //     vs.push(Vec2(xCoord, yCoord));
-        // }
-        // console.log("Number of Vec2s: ", vs.length);
-
-        // for (let x = 1; x < terrainPoints.length; x++) {
-        //     vs.push(Vec2(x * (100 / 536), terrainPoints[x] / pixelsPerMetre));
-        //     console.log(x * (25 / 536));
-        // }
-
-
-        // console.log(vs);
-
         let chain = new Chain(vs, false);
-
-        // let edge = new Edge(new Vec2(0, 20), new Vec2(10, 20));
         body.createFixture(chain, groundFD);
-
     }
 }

@@ -25,13 +25,9 @@ import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
     document.body.appendChild(app.canvas);
     const [appHeight, appWidth] = [app.renderer.height, app.renderer.width];
 
-    // Adding ground
-    const activeGround = new Ground(app, world, sf)
-    await activeGround.initialiseGround();
-
     // Adding background
-    const background = new Background(appHeight - 150, appWidth);
-    await background.initialiseBackground();
+    // const background = new Background(appHeight - 150, appWidth);
+    // await background.initialiseBackground();
     //app.stage.addChild(background.getBackground());
 
     let converter = new coordConverter(250);
@@ -77,8 +73,6 @@ import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
     let shellVisible = false;
 
     app.ticker.add(() => {
-        // add debugger renderer
-        debugRenderer.render();
 
         // takes values from the sliders, and calculates the vertical, and horizontal motion
         if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {

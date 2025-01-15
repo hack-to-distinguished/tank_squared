@@ -38,19 +38,20 @@ my-pixi-game/\
 └── package.json          # Project metadata and dependencies\
 
 ### Development Timeline
-- [x] Implementing Bullet Trajectory (Alejandro)
-- [x] Collisions between players and the ground
+- [x] Implementing Bullet Trajectory
+- [ ] Collisions between players and the ground (NJ)
 - [x] Main game loop and turn by turn play
 - [x] Enemy tank
 - [x] Movement detection in planckjs
 - [ ] Refine player edges in planckjs
 - [ ] Health and death
-- [ ] Game screens (start -> select tank -> death)
-- [x] Complex terrain (hills and cliff) (chris)
+- [ ] Game screens (start -> select tank -> death) (Christian)
+- [ ] Aiming and Cannon movement (Christian)
+- [ ] Complex terrain (hills and cliff) (NJ)
 - [ ] Terrain destruction (NJ)
 - [ ] Multiplayer
 
 ### Possible features:
-- [ ] Larger and more varied set of maps
+- [ ] Larger and more varied set of maps - Map generation (NJ)
 - [ ] Different tank options
 - [ ] Play against AI

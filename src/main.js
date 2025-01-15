@@ -1,7 +1,6 @@
 import { Application, Assets, Graphics } from "pixi.js";
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
-import { Ground } from "./core/ground.js";
 import { Background } from "./scenes/mapImage.js";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
@@ -24,11 +23,6 @@ import { Converter } from "./core/Converter.js";
     app.canvas.style.position = 'absolute';
     document.body.appendChild(app.canvas);
     const [appHeight, appWidth] = [app.renderer.height, app.renderer.width];
-
-    // Adding background
-    // const background = new Background(appHeight - 150, appWidth);
-    // await background.initialiseBackground();
-    //app.stage.addChild(background.getBackground());
 
     // Creating the converter
     let converter = new Converter(scaleFactor);

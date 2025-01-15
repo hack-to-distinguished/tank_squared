@@ -41,7 +41,7 @@ export class TankPlayer {
             shape: planck.Polygon(vertices),
             density: 1,
             friction: 0.6,
-            restitution: 0.1
+            restitution: 0.01
         })
 
         let [planckX, planckY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
@@ -56,13 +56,13 @@ export class TankPlayer {
 
         this.springBack = this.world.createJoint(
             new RevoluteJoint({
-                motorSpeed: 0.0, maxMotorTorque: 20, 
+                motorSpeed: 0.0, maxMotorTorque: 20, restitution: 0.1,
                 enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
             }, this.playerBody, wheelBack, wheelBack.getPosition(), new Vec2(0.0, 1)));
 
         this.springFront = this.world.createJoint(
             new RevoluteJoint({
-                motorSpeed: 0.0, maxMotorTorque: 20, 
+                motorSpeed: 0.0, maxMotorTorque: 20,  restitution: 0.1,
                 enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
             }, this.playerBody, wheelFront, wheelFront.getPosition(),new Vec2(0.0, 1)));
 

@@ -1,5 +1,7 @@
 # TANK SQUARED
-![Bron the goat](./assets/images/TANK_SQUARED(1).png)
+<p align="center">
+  <img src="./assets/images/TANK_SQUARED(1).png" alt="Bron the goat">
+</p>
 
 Bron's army vs the Russians! Who will win? 
 

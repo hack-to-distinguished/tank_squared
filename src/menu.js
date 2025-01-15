@@ -67,8 +67,15 @@ export function createMainMenu() {
 
     document.body.appendChild(menu);
 
-    // TODO: make it a button that switches
-    document.querySelector("#cCard1").addEventListener("click", () => {
-      document.querySelector("#cCard1").classList.add("cCard2-clicked");
-    }); 
+    // INFO: Team selector
+    const card1 = document.querySelector("#cCard1");
+    const card2 = document.querySelector("#cCard2");
+    card1.addEventListener("click", () => {
+        card2.classList.remove("cCard2-clicked");
+        card1.classList.add("cCard1-clicked");
+    });
+    card2.addEventListener("click", () => {
+        card1.classList.remove("cCard1-clicked");
+        card2.classList.add("cCard2-clicked");
+    });
 }

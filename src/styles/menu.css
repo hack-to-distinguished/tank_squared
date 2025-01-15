@@ -45,20 +45,22 @@
     background-color: #444;
     color: white;
     border: 0.5px solid white;
-    border-radius: 10px;
+    border-radius: 5px;
     text-align: center;
 }
 
 .cCard1-clicked, .cCard2-clicked {
-    border: 2px solid white;
-    border-radius: 10px;
-    border-radius: 1px;
-    bodx-shadow: 0 0 30px 0;
+    padding: 20px;
+    background-color: #444;
+    color: white;
+    border: 3px solid white;
+    border-radius: 5px;
+    text-align: center;
+    box-shadow: 0px 2px 10px #aaaaaa;
 }
 
 .cCard1:hover, .cCard2:hover {
-    border: 1px solid white;
-    border-radius: 1px;
+    border: 2px solid white;
     bodx-shadow: 0 0 30px 0;
 }
 

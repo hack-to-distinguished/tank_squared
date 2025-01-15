@@ -63,7 +63,7 @@ my-pixi-game/\
 - [ ] Redundant object deletion, and clean up
 - [ ] Improved game loop
 
-## Current Bugs to be fixed:
+### Current Bugs to be fixed:
 - [ ] Projectile firing working weirdly with the new generated terrain...
 
 ### Features to be added:

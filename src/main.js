@@ -7,8 +7,6 @@ import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
 import { coordConverter } from "./core/coordConverter.js";
 import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
-import { Cell } from "./core/terrainGeneration/cell.js";
-import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
 
 (async () => {
 
@@ -20,6 +18,7 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
     let world = new World({
         gravity: Vec2(0, -9.8),
     });
+
     const sf = 25;
 
     app.canvas.style.position = 'absolute';
@@ -36,7 +35,6 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
     //app.stage.addChild(background.getBackground());
 
     let converter = new coordConverter(250);
-
 
     // Adding player
     const shellTexture = await Assets.load("assets/images/bullet.png");
@@ -72,13 +70,16 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
     // adding mapgenerator
     const mapGenerator = new MapGenerator(app);
     const terrain = mapGenerator.generateTerrain(app, 128, 256, 1, 2);
-    // mapGenerator.drawTerrain(app, terrain, world, sf);
+    mapGenerator.drawTerrain(app, terrain, world, sf);
 
     const fireCooldown = 1000;
     let lastFireTime = 0;
     let shellVisible = false;
 
     app.ticker.add(() => {
+        // add debugger renderer
+        debugRenderer.render();
+
         // takes values from the sliders, and calculates the vertical, and horizontal motion
         if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {
             launchAngle = converter.convertDegreesToRadians(90);

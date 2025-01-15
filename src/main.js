@@ -27,8 +27,8 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
     const [appHeight, appWidth] = [app.renderer.height, app.renderer.width];
 
     // Adding ground
-    // const activeGround = new Ground(app, world, sf)
-    // await activeGround.initialiseGround();
+    const activeGround = new Ground(app, world, sf)
+    await activeGround.initialiseGround();
 
     // Adding background
     const background = new Background(appHeight - 150, appWidth);
@@ -37,18 +37,20 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
 
     let converter = new coordConverter(250);
 
+
     // Adding player
+    const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, sf, converter, world);
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, sf, converter, world, shellTexture);
     await playerOne.initialisePlayerSprite();
-    app.stage.addChild(playerOne.getSprite());
+    await playerOne.initialiseShellSprite();
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, sf, converter, world);
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, sf, converter, world, shellTexture);
     await playerTwo.initialisePlayerSprite();
-    app.stage.addChild(playerTwo.getSprite());
+    await playerTwo.initialiseShellSprite();
     playerTwo.setupKeyboardControls();
 
     // Adding projectile mechanism
@@ -70,7 +72,11 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
     // adding mapgenerator
     const mapGenerator = new MapGenerator(app);
     const terrain = mapGenerator.generateTerrain(app, 128, 256, 1, 2);
-    mapGenerator.drawTerrain(app, terrain, world, sf);
+    // mapGenerator.drawTerrain(app, terrain, world, sf);
+
+    const fireCooldown = 1000;
+    let lastFireTime = 0;
+    let shellVisible = false;
 
     app.ticker.add(() => {
         // takes values from the sliders, and calculates the vertical, and horizontal motion
@@ -89,40 +95,51 @@ import { TerrainCell } from "./core/terrainGeneration/terrainCell.js";
         const velY = magnitudeVelocity * Math.sin(launchAngle);
 
         world.step(1 / 60);
-        if (!(playerOne.checkIfBulletIsPresent() || playerTwo.checkIfBulletIsPresent())) {
-            if (playerTurn) {
-                if (playerOne.checkSpaceBarInput()) {
-                    playerOne.createBullet(velX, velY);
-                    playerTurn = false
-                    playerTwo.resetMoveDist();
-                } else {
-                    if (playerOne.moveDist > 0) {
-                        playerOne.movePlayer()
-                    } else {
-                        playerTurn = false;
-                        playerTwo.resetMoveDist();
-                    }
-                }
+        const currentTime = Date.now();
+        if (playerTurn) {
+            if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
+                playerOne.openFire(velX, velY);
+                shellVisible = true;
+                lastFireTime = currentTime;
+                playerTurn = false
+                playerTwo.resetMoveDist();
             } else {
-                if (playerTwo.checkSpaceBarInput()) {
-                    playerTwo.createBullet(velX, velY);
+                if (playerOne.moveDist > 0) {
+                    playerOne.movePlayer()
+                } else {
+                    playerTurn = false;
+                    playerTwo.resetMoveDist();
+                }
+            }
+        } else {
+            if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
+                playerTwo.openFire(velX, velY);
+                shellVisible = true;
+                lastFireTime = currentTime;
+                playerTurn = true;
+                playerOne.resetMoveDist();
+            } else {
+                if (playerTwo.moveDist > 0) {
+                    playerTwo.movePlayer();
+                } else {
                     playerTurn = true;
                     playerOne.resetMoveDist();
-                } else {
-                    if (playerTwo.moveDist > 0) {
-                        playerTwo.movePlayer();
-                    } else {
-                        playerTurn = true;
-                        playerOne.resetMoveDist();
-                    }
                 }
             }
         }
 
-        playerOne.updateBullets();
-        playerTwo.updateBullets();
+        // TODO: While visible, run the action
+        if (shellVisible) {
+            const shellActive = playerOne.updateShell() || playerTwo.updateShell();
+            // TODO: Change from a visible flag to a collided with flag
+            if (shellActive == 0) {
+                shellVisible = false;
+            }
+            console.log("shell still active", shellActive);
+        }
 
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
+        //debugRenderer.render();
     })
 })();

@@ -42,11 +42,12 @@ my-pixi-game/\
 - [x] Collisions between players and the ground
 - [x] Main game loop and turn by turn play
 - [x] Enemy tank
-- [ ] Movement detection in planckjs
+- [x] Movement detection in planckjs
+- [ ] Refine player edges in planckjs
 - [ ] Health and death
 - [ ] Game screens (start -> select tank -> death)
 - [x] Complex terrain (hills and cliff) (chris)
-- [ ] Terrain destruction (NJ & Chris)
+- [ ] Terrain destruction (NJ)
 - [ ] Multiplayer
 
 ### Possible features:

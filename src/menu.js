@@ -17,8 +17,15 @@ export function createMainMenu() {
     const characterCardsContainer = document.createElement("div");
     characterCardsContainer.id = "character-cards-container";
 
+    const characterTitle = document.createElement("p");
+    characterTitle.id = "ctitle";
+    characterTitle.innerText = "Select your team";
+    menu.appendChild(characterTitle);
+
     const characterCard1 = document.createElement("div");
     characterCard1.id = "cCard1";
+    characterCard1.classList.add("cCard1");
+    
 
     const character1Image = document.createElement("img");
     character1Image.id = "c1img";
@@ -29,6 +36,8 @@ export function createMainMenu() {
 
     const characterCard2 = document.createElement("div");
     characterCard2.id = "cCard2";
+    characterCard2.classList.add("cCard2");
+    
 
     const character2Image = document.createElement("img");
     character2Image.id = "c2img";
@@ -57,4 +66,9 @@ export function createMainMenu() {
     menu.appendChild(buttonContainer);
 
     document.body.appendChild(menu);
+
+    // TODO: make it a button that switches
+    document.querySelector("#cCard1").addEventListener("click", () => {
+      document.querySelector("#cCard1").classList.add("cCard2-clicked");
+    }); 
 }

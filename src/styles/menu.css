@@ -25,6 +25,13 @@
     color: white;
 }
 
+#ctitle {
+    margin: 0;
+    padding: 10px 20px;
+    font-size: 20px;
+    color: white;
+}
+
 /* Character selector screen */
 #character-cards-container {
     display: flex;
@@ -33,14 +40,28 @@
 }
 
 /* Individual character card styles */
-#cCard1, #cCard2 {
+.cCard1, .cCard2 {
     padding: 20px;
     background-color: #444;
     color: white;
-    border: 1px solid white;
-    border-radius: 5px;
+    border: 0.5px solid white;
+    border-radius: 10px;
     text-align: center;
 }
+
+.cCard1-clicked, .cCard2-clicked {
+    border: 2px solid white;
+    border-radius: 10px;
+    border-radius: 1px;
+    bodx-shadow: 0 0 30px 0;
+}
+
+.cCard1:hover, .cCard2:hover {
+    border: 1px solid white;
+    border-radius: 1px;
+    bodx-shadow: 0 0 30px 0;
+}
+
 
 #c2img, #c1img {
     height: 60vh;

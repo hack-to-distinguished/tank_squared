@@ -8,7 +8,9 @@
 *Bron's army vs the Russians! Who will win?*  
 (This is a turn-based tank game that is currently in development)
 
-</div>### File Structure
+</div>
+
+### File Structure
 
 my-pixi-game/\
 │\

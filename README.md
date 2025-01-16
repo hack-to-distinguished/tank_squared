@@ -3,9 +3,12 @@
   <img src="./assets/images/TANK_SQUARED(1).png" alt="Bron the goat">
 </p>
 
-Bron's army vs the Russians! Who will win? 
+<div align="center">
 
-### File Structure
+*Bron's army vs the Russians! Who will win?*  
+(This is a turn-based tank game that is currently in development)
+
+</div>### File Structure
 
 my-pixi-game/\
 │\

@@ -1,12 +1,12 @@
-import { Application, Assets } from "pixi.js";
-import { createMainMenu } from './menu.js';
+import { Application, Assets, Graphics } from "pixi.js";
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
-import { Ground } from "./core/ground.js";
 import { Background } from "./scenes/mapImage.js";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
-import { coordConverter } from "./core/coordConverter.js";
+import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
+import { Converter } from "./core/Converter.js";
+import { createMainMenu } from './menu.js';
 
 export async function startGame() {
 
@@ -18,35 +18,27 @@ export async function startGame() {
     let world = new World({
         gravity: Vec2(0, -9.8),
     });
-    const sf = 25;
+
+    const scaleFactor = 25;
 
     app.canvas.style.position = 'absolute';
     document.body.appendChild(app.canvas);
     const [appHeight, appWidth] = [app.renderer.height, app.renderer.width];
 
-    // Adding ground
-    const activeGround = new Ground(app, world, sf)
-    await activeGround.initialiseGround();
+    // Creating the converter
+    let converter = new Converter(scaleFactor);
 
-    // Adding background
-    const background = new Background(appHeight - 150, appWidth);
-    await background.initialiseBackground();
-    //app.stage.addChild(background.getBackground());
-
-    let converter = new coordConverter(250); 
-
-  
     // Adding player
     const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, sf, converter, world, shellTexture); 
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, sf, converter, world, shellTexture);
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();
     playerTwo.setupKeyboardControls();
@@ -65,13 +57,19 @@ export async function startGame() {
     let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
     app.ticker.maxFPS = 60;
-    const debugRenderer = new DebugRenderer(world, app, sf);
+    const debugRenderer = new DebugRenderer(world, app, scaleFactor);
+
+    // adding mapgenerator, and drawing the terrain
+    const mapGenerator = new MapGenerator(app);
+    const terrain = mapGenerator.generateTerrain(app, 128, 256, 1, 2);
+    mapGenerator.drawTerrain(app, terrain, world, scaleFactor);
 
     const fireCooldown = 1000;
     let lastFireTime = 0;
     let shellVisible = false;
 
     app.ticker.add(() => {
+
         // takes values from the sliders, and calculates the vertical, and horizontal motion
         if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {
             launchAngle = converter.convertDegreesToRadians(90);
@@ -82,12 +80,12 @@ export async function startGame() {
             magnitudeVelocity = 5;
         } else {
             magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
-        } 
+        }
 
         const velX = magnitudeVelocity * Math.cos(launchAngle);
         const velY = magnitudeVelocity * Math.sin(launchAngle);
 
-        world.step(1/60);
+        world.step(1 / 60);
         const currentTime = Date.now();
         if (playerTurn) {
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {

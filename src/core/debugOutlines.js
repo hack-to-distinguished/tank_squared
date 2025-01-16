@@ -21,14 +21,26 @@ export class DebugRenderer {
             // Loop through each fixture of the body
             for (let fixture = body.getFixtureList(); fixture; fixture = fixture.getNext()) {
                 const shape = fixture.getShape();
+                // console.log("Shape: ", shape.getType());
                 if (shape.getType() === "circle") {
                     this.drawCircle(shape, position, angle);
                 } else if (shape.getType() === "polygon") {
                     this.drawPolygon(shape, position, angle);
                 } else if (shape.getType() === "edge") {
                     this.drawEdge(shape, position, angle);
+                } else if (shape.getType() == "chain") {
+                    this.drawChain(shape, position, angle);
                 }
             }
+        }
+    }
+
+    drawChain(shape, position, angle) {
+
+        for (let i = 0; i < shape.m_vertices.length - 1; i++) {
+            console.log(shape.m_vertices[i].x);
+            this.graphics.moveTo((shape.m_vertices[i].x + position.x) * this.scale, this.app.renderer.height - (shape.m_vertices[i].y + position.y) * this.scale);
+            this.graphics.lineTo((shape.m_vertices[i + 1].x + position.x) * this.scale, this.app.renderer.height - (shape.m_vertices[i + 1].y + position.y) * this.scale);
         }
     }
 

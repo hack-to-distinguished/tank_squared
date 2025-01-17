@@ -1,3 +1,15 @@
+# TANK SQUARED
+<p align="center">
+  <img src="./assets/images/TANK_SQUARED(1).png" alt="Bron the goat">
+</p>
+
+<div align="center">
+
+*Bron's army vs the Russians! Who will win?*  
+(This is a turn-based tank game that is currently in development)
+
+</div>
+
 ### File Structure
 
 my-pixi-game/\
@@ -37,19 +49,32 @@ my-pixi-game/\
 ├── styles.css            # Optional: CSS for the game's HTML container\
 └── package.json          # Project metadata and dependencies\
 
-### Development Timeline
-- [x] Implementing Bullet Trajectory
-- [ ] Collisions between players and the ground (NJ)
+## Version 1.0: Core Mechanics
+- [x] Implementing projectile motion mechanic 
+- [x] Collisions between ground, and player
 - [x] Main game loop and turn by turn play
-- [x] Enemy tank
+- [x] Enemy tank 
 - [x] Movement detection in planckjs
-- [ ] Refine player edges in planckjs
-- [ ] Health and death
-- [ ] Game screens (start -> select tank -> death) (Christian)
-- [ ] Aiming and Cannon movement (Christian)
-- [ ] Complex terrain (hills and cliff) (NJ)
-- [ ] Terrain destruction (NJ)
-- [ ] Multiplayer
+- [x] Start Screen 
+
+## Version 1.0.1: Enhancing Mechanics
+- [ ] Terrain destruction
+- [x] Terrain generation
+- [ ] Improved Physics simulation (e.g., increased motor speed, friction, etc)
+- [ ] Better tank properties 
+- [ ] Health Bars, and Death
+- [ ] Damage detection
+- [ ] Different types of screens: Pause screen, settings screen, etc
+- [ ] Refined player edges in planckjs
+- [ ] Revamped shooting controls
+- [ ] Redundant object deletion, and clean up
+- [ ] Improved game loop
+
+### Current Bugs to be fixed:
+- [ ] Projectile firing working weirdly with the new generated terrain...
+
+### Features to be added:
+- [ ] Online multiplayer 
 
 ### Possible features:
 - [ ] Larger and more varied set of maps - Map generation (NJ)

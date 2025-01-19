@@ -29,7 +29,7 @@ export class DebugRenderer {
                 } else if (shape.getType() === "edge") {
                     this.drawEdge(shape, position, angle);
                 } else if (shape.getType() == "chain") {
-                    this.drawChain(shape, position, angle);
+                    // this.drawChain(shape, position, angle);
                 }
             }
         }

@@ -1,7 +1,7 @@
 import { Application, Assets, Graphics } from "pixi.js";
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
-import { Background } from "./scenes/mapImage.js";
+// import { Background } from "./scenes/mapImage.js";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
 import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
@@ -130,6 +130,6 @@ import { Converter } from "./core/Converter.js";
 
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
-        //debugRenderer.render();
+        debugRenderer.render();
     })
 })();

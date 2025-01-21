@@ -1,5 +1,5 @@
 import { Sprite } from "pixi.js";
-import { Vec2, Circle, RevoluteJoint } from "planck";
+import { Vec2, Circle, RevoluteJoint, Manifold, getPointStates } from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
@@ -22,6 +22,8 @@ export class TankPlayer {
         this.physicalShell = null;
         this.shellTexture = shellTexture;
         this.shellSprite = null;
+
+        this.manifold = new Manifold();
     }
 
     // INFO: Player Code
@@ -184,17 +186,32 @@ export class TankPlayer {
     updateShell() {
         if (this.physicalShell) {
             const bodyPos = this.physicalShell.getPosition();
+            let contactType = this.checkCollisions();
             this.shellSprite.x = bodyPos.x * this.scale;
             this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
 
             // TODO: replace this with dissapear if collision with something
-            //console.log("Check collision", this.physicalShell.getContactList());
             const isOutOfBounds = bodyPos.y < -10 || bodyPos.x < -10;
             if (isOutOfBounds) {
                 this.shellSprite.visible = false;
                 this.world.destroyBody(this.physicalShell);
                 this.physicalShell = null; // Reset the shell
                 return 0;
+            }
+            if (contactType == "ChainCircleContact") {
+                console.log("Bullet has hit the ground!");
+            } else if (contactType == "PolygonCircleContact") {
+                console.log("Bullet has collided with the body of a tank!");
+            }
+        }
+    }
+
+    checkCollisions() {
+        if (this.physicalShell) {
+            for (let ce = this.physicalShell.getContactList(); ce; ce = ce.next) {
+                let c = ce.contact;
+                let contactType = c.m_evaluateFcn.name;
+                return contactType;
             }
         }
     }

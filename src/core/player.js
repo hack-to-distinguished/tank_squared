@@ -39,7 +39,7 @@ export class TankPlayer {
         this.playerBody.createFixture({
             shape: planck.Polygon(vertices),
             density: 0.75,
-            friction: 0.6,
+            friction: 0.1,
             restitution: 0.01
         })
 
@@ -55,7 +55,7 @@ export class TankPlayer {
         const restitutionValue = 0.05;
         const maxMotorTorque = 50;
         const initialMotorSpeed = 0.0;
-        const frequencyHz = 4;
+        const frequencyHz = 100;
         const dampingRatio = 1;
         this.springBack = this.world.createJoint(
             new RevoluteJoint({

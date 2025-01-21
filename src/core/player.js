@@ -92,6 +92,18 @@ export class TankPlayer {
     }
 
 
+    getPlayerMotorSpeed() {
+        return this.springFront.getMotorSpeed();
+    }
+
+    resetPlayerMotorSpeed() {
+        this.springFront.setMotorSpeed(0);
+        this.springFront.enableMotor(false);
+        this.springBack.setMotorSpeed(0);
+        this.springBack.enableMotor(false);
+    }
+
+
     movePlayer() {
         if (this.moveDist > 0) {
             if (this.keys['68']) {

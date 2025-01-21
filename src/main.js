@@ -93,6 +93,7 @@ import { Converter } from "./core/Converter.js";
                 lastFireTime = currentTime;
                 playerTurn = false
                 playerTwo.resetMoveDist();
+                playerOne.resetPlayerMotorSpeed();
             } else {
                 if (playerOne.moveDist > 0) {
                     playerOne.movePlayer()
@@ -108,6 +109,7 @@ import { Converter } from "./core/Converter.js";
                 lastFireTime = currentTime;
                 playerTurn = true;
                 playerOne.resetMoveDist();
+                playerTwo.resetPlayerMotorSpeed();
             } else {
                 if (playerTwo.moveDist > 0) {
                     playerTwo.movePlayer();
@@ -127,8 +129,10 @@ import { Converter } from "./core/Converter.js";
             }
         }
 
+        console.log("Motor speed P1: ", playerOne.getPlayerMotorSpeed(), "Motor speed P2: ", playerTwo.getPlayerMotorSpeed());
+
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
-        //debugRenderer.render();
+        // debugRenderer.render();
     })
 })();

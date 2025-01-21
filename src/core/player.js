@@ -56,7 +56,7 @@ export class TankPlayer {
         const maxMotorTorque = 50;
         const initialMotorSpeed = 0.0;
         const frequencyHz = 100;
-        const dampingRatio = 0;
+        const dampingRatio = 1;
         this.springBack = this.world.createJoint(
             new RevoluteJoint({
                 motorSpeed: initialMotorSpeed, maxMotorTorque: maxMotorTorque, restitution: restitutionValue,

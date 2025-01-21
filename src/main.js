@@ -6,8 +6,9 @@ import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
 import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
 import { Converter } from "./core/Converter.js";
+import { createMainMenu } from './menu.js';
 
-(async () => {
+export async function startGame() {
 
     const app = new Application();
     await app.init({
@@ -135,4 +136,6 @@ import { Converter } from "./core/Converter.js";
         playerTwo.updatePlayer();
         // debugRenderer.render();
     })
-})();
+}
+
+createMainMenu();

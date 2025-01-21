@@ -125,11 +125,10 @@ import { Converter } from "./core/Converter.js";
             if (shellActive == 0) {
                 shellVisible = false;
             }
-            console.log("shell still active", shellActive);
         }
 
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
-        debugRenderer.render();
+        //debugRenderer.render();
     })
 })();

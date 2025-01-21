@@ -8,7 +8,7 @@ export class TankPlayer {
         this.app = app;
         this.playerX = playerX;
         this.playerY = playerY;
-        this.playerSpeed = 35;
+        this.playerSpeed = 25;
         this.keys = {};
         this.bullets = [];
         this.moveDist = 30;
@@ -38,13 +38,13 @@ export class TankPlayer {
         const vertices = [Vec2(-1.7, -1), Vec2(1, -1), Vec2(2, -0.25), Vec2(1, 1), Vec2(-1.7, 1)];
         this.playerBody.createFixture({
             shape: planck.Polygon(vertices),
-            density: 0.75,
-            friction: 0.1,
+            density: 0.5,
+            friction: 0.5,
             restitution: 0.01
         })
 
         let [planckX, planckY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
-        const wheelFD = { density: 1, friction: 0.9 }
+        const wheelFD = { density: 1, friction: 1 }
 
         let wheelBack = this.world.createBody({ type: "dynamic", position: Vec2(planckX - 1.4, planckY - 1.2) })
         wheelBack.createFixture(new Circle(0.2), wheelFD)
@@ -56,7 +56,7 @@ export class TankPlayer {
         const maxMotorTorque = 50;
         const initialMotorSpeed = 0.0;
         const frequencyHz = 100;
-        const dampingRatio = 1;
+        const dampingRatio = 0;
         this.springBack = this.world.createJoint(
             new RevoluteJoint({
                 motorSpeed: initialMotorSpeed, maxMotorTorque: maxMotorTorque, restitution: restitutionValue,
@@ -85,7 +85,6 @@ export class TankPlayer {
 
     updatePlayer() {
         const bodyPosition = this.playerBody.getPosition();
-        console.log("SB Joint Speed: ", this.springBack.getJointSpeed(), "SF Joint Speed: ", this.springFront.getJointSpeed());
 
         this.playerSprite.x = bodyPosition.x * this.scale;
         this.playerSprite.y = this.app.renderer.height - (bodyPosition.y * this.scale);
@@ -111,9 +110,9 @@ export class TankPlayer {
                 this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
             } else if (!this.keys["65"] || !this.keys["68"]) {
                 this.springFront.setMotorSpeed(0);
-                this.springFront.enableMotor(false);
+                this.springFront.enableMotor(true);
                 this.springBack.setMotorSpeed(0);
-                this.springBack.enableMotor(false);
+                this.springBack.enableMotor(true);
             }
         }
     }

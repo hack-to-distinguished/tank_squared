@@ -1,6 +1,5 @@
-import { Sprite, Assets } from "pixi.js";
-import { BulletProjectile } from "./bullet";
-import { World, Vec2, WheelJoint, Circle, RevoluteJoint } from "planck";
+import { Sprite } from "pixi.js";
+import { Vec2, Circle, RevoluteJoint } from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
@@ -9,7 +8,7 @@ export class TankPlayer {
         this.app = app;
         this.playerX = playerX;
         this.playerY = playerY;
-        this.playerSpeed = 20;
+        this.playerSpeed = 27.5;
         this.keys = {};
         this.bullets = [];
         this.moveDist = 30;
@@ -26,7 +25,7 @@ export class TankPlayer {
     }
 
     // INFO: Player Code
-    async initialisePlayerSprite(){
+    async initialisePlayerSprite() {
         //INFO: Player physical body
         //TODO: 1.Resize the cannon balls and make them shoot from proper point 2.Move bullet code to bullet.js instead of player.js 3.Re-Apply the turn by turn
         this.playerBody = this.world.createBody({
@@ -36,42 +35,47 @@ export class TankPlayer {
         })
         const [playerWidth, playerHeight] = [100 / this.scale, 70 / this.scale];
 
-        const vertices = [Vec2(-1.7,-1), Vec2(1,-1), Vec2(2,-0.25), Vec2(1,1), Vec2(-1.7,1)];
+        const vertices = [Vec2(-1.7, -1), Vec2(1, -1), Vec2(2, -0.25), Vec2(1, 1), Vec2(-1.7, 1)];
         this.playerBody.createFixture({
             shape: planck.Polygon(vertices),
-            density: 1,
-            friction: 0.6,
+            density: 0.5,
+            friction: 0.5,
             restitution: 0.01
         })
 
         let [planckX, planckY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
-        const wheelFD = {density: 1, friction: 0.9}
+        const wheelFD = { density: 1, friction: 1 }
 
-        let wheelBack = this.world.createBody({type: "dynamic", position: Vec2(planckX - 1.4, planckY - 1.2)})
+        let wheelBack = this.world.createBody({ type: "dynamic", position: Vec2(planckX - 1.4, planckY - 1.2) })
         wheelBack.createFixture(new Circle(0.2), wheelFD)
-        let wheelFront = this.world.createBody({type: "dynamic", position: Vec2(planckX + 1, planckY - 1.2)})
+        let wheelFront = this.world.createBody({ type: "dynamic", position: Vec2(planckX + 1, planckY - 1.2) })
         wheelFront.createFixture(new Circle(0.2), wheelFD)
         this.wheelFront = wheelFront;
 
-
+        const restitutionValue = 0.05;
+        const maxMotorTorque = 50;
+        const initialMotorSpeed = 0.0;
+        const frequencyHz = 100;
+        const dampingRatio = 1;
         this.springBack = this.world.createJoint(
             new RevoluteJoint({
-                motorSpeed: 0.0, maxMotorTorque: 20, restitution: 0.1,
-                enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
-            }, this.playerBody, wheelBack, wheelBack.getPosition(), new Vec2(0.0, 1)));
+                motorSpeed: initialMotorSpeed, maxMotorTorque: maxMotorTorque, restitution: restitutionValue,
+                enableMotor: true, frequencyHz: frequencyHz, dampingRatio: dampingRatio
+            }, this.playerBody, wheelBack, wheelBack.getPosition()));
 
         this.springFront = this.world.createJoint(
             new RevoluteJoint({
-                motorSpeed: 0.0, maxMotorTorque: 20,  restitution: 0.1,
-                enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
-            }, this.playerBody, wheelFront, wheelFront.getPosition(),new Vec2(0.0, 1)));
+                motorSpeed: initialMotorSpeed, maxMotorTorque: maxMotorTorque, restitution: restitutionValue,
+                enableMotor: true, frequencyHz: frequencyHz, dampingRatio: dampingRatio
+            }, this.playerBody, wheelFront, wheelFront.getPosition()));
+
 
         // INFO: Player Sprite
         const playerSprite = Sprite.from(this.playerTexture);
         playerSprite.anchor.set(0.5, 0.5);
 
         const [spriteWidth, spriteHeight] = [100, 70];
-        playerSprite.scale.set(spriteWidth / this.playerTexture.width, spriteHeight / this.playerTexture.height); 
+        playerSprite.scale.set(spriteWidth / this.playerTexture.width, spriteHeight / this.playerTexture.height);
         playerSprite.x = this.playerX;
         playerSprite.y = this.playerY;
         this.playerSprite = playerSprite;
@@ -79,7 +83,7 @@ export class TankPlayer {
         this.app.stage.addChild(this.playerSprite);
     }
 
-    updatePlayer(){
+    updatePlayer() {
         const bodyPosition = this.playerBody.getPosition();
 
         this.playerSprite.x = bodyPosition.x * this.scale;
@@ -89,7 +93,7 @@ export class TankPlayer {
 
 
     movePlayer() {
-        if (this.moveDist > 0){
+        if (this.moveDist > 0) {
             if (this.keys['68']) {
                 this.springFront.setMotorSpeed(-this.playerSpeed);
                 this.springFront.enableMotor(true);
@@ -106,14 +110,14 @@ export class TankPlayer {
                 this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
             } else if (!this.keys["65"] || !this.keys["68"]) {
                 this.springFront.setMotorSpeed(0);
-                this.springFront.enableMotor(false);
+                this.springFront.enableMotor(true);
                 this.springBack.setMotorSpeed(0);
-                this.springBack.enableMotor(false);
+                this.springBack.enableMotor(true);
             }
         }
     }
 
-    resetMoveDist(){
+    resetMoveDist() {
         this.moveDist = 30;
     }
 
@@ -121,21 +125,21 @@ export class TankPlayer {
     async initialiseShellSprite(velX, velY) {
         const bodyPos = this.playerBody.getPosition();
         this.physicalShell = this.world.createBody({
-            type: "dynamic", 
+            type: "dynamic",
             position: Vec2(bodyPos.x, bodyPos.y + 1),
             fixedRotation: true,
             gravityScale: 0.5,
             bullet: true,
             linearVelocity: Vec2(velX, velY * 2),
         });
-        const shellFD = {friction: 0.3, density: 1};
+        const shellFD = { friction: 0.3, density: 1 };
 
         // INFO: Creating the shell sprite
         const shellSprite = Sprite.from(this.shellTexture);
         shellSprite.anchor.set(0.5, 0.5);
 
         const [spriteWidth, spriteHeight] = [10, 10];
-        shellSprite.scale.set(spriteWidth / this.shellTexture.width, spriteHeight / this.shellTexture.height); 
+        shellSprite.scale.set(spriteWidth / this.shellTexture.width, spriteHeight / this.shellTexture.height);
         shellSprite.x = bodyPos.x * this.scale;
         shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale) + 1;
 
@@ -156,7 +160,7 @@ export class TankPlayer {
             linearVelocity: Vec2(velX, velY * 2),
         });
 
-        const shellFD = {friction: 0.3, density: 1 };
+        const shellFD = { friction: 0.3, density: 1 };
         this.physicalShell.createFixture(new Circle(0.2), shellFD);
 
         this.shellSprite.x = bodyPos.x * this.scale;

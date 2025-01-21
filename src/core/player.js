@@ -98,9 +98,9 @@ export class TankPlayer {
 
     resetPlayerMotorSpeed() {
         this.springFront.setMotorSpeed(0);
-        this.springFront.enableMotor(false);
+        this.springFront.enableMotor(true);
         this.springBack.setMotorSpeed(0);
-        this.springBack.enableMotor(false);
+        this.springBack.enableMotor(true);
     }
 
 

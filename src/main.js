@@ -130,8 +130,6 @@ export async function startGame() {
             }
         }
 
-        console.log("Motor speed P1: ", playerOne.getPlayerMotorSpeed(), "Motor speed P2: ", playerTwo.getPlayerMotorSpeed());
-
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
         // debugRenderer.render();

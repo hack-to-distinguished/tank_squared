@@ -8,7 +8,7 @@ export class TankPlayer {
         this.app = app;
         this.playerX = playerX;
         this.playerY = playerY;
-        this.playerSpeed = 25;
+        this.playerSpeed = 27.5;
         this.keys = {};
         this.bullets = [];
         this.moveDist = 30;

@@ -22,6 +22,7 @@ export class TankPlayer {
         this.physicalShell = null;
         this.shellTexture = shellTexture;
         this.shellSprite = null;
+        this.playerCannon = null;
     }
 
     // INFO: Player Code
@@ -38,8 +39,8 @@ export class TankPlayer {
         const vertices = [Vec2(-1.7,-1), Vec2(1,-1), Vec2(2,-0.25), Vec2(1,1), Vec2(-1.7,1)];
         this.playerBody.createFixture({
             shape: planck.Polygon(vertices),
-            density: 1,
-            friction: 0.6,
+            density: 0.5,
+            friction: 1,
             restitution: 0.01
         })
 
@@ -48,22 +49,42 @@ export class TankPlayer {
 
         let wheelBack = this.world.createBody({type: "dynamic", position: Vec2(planckX - 1.4, planckY - 1.2)})
         wheelBack.createFixture(new Circle(0.2), wheelFD)
+        let wheelMiddle = this.world.createBody({type: "dynamic", position: Vec2(planckX - 0.7, planckY - 1.2)})
+        wheelMiddle.createFixture(new Circle(0.2), wheelFD)
         let wheelFront = this.world.createBody({type: "dynamic", position: Vec2(planckX + 1, planckY - 1.2)})
         wheelFront.createFixture(new Circle(0.2), wheelFD)
-        this.wheelFront = wheelFront;
 
 
         this.springBack = this.world.createJoint(
-            new RevoluteJoint({
-                motorSpeed: 0.0, maxMotorTorque: 20, restitution: 0.1,
-                enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
+            //new RevoluteJoint({
+            //    motorSpeed: 0.0, maxMotorTorque: 20, restitution: 0.1,
+            //    enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
+            //}, this.playerBody, wheelBack, wheelBack.getPosition(), new Vec2(0.0, 1)));
+            new WheelJoint({
+                motorSpeed: 0.0, maxMotorTorque: 20, enableMotor: true, 
+                frequencyHz: 4, dampingRatio: 1.5, collideConnected: true
             }, this.playerBody, wheelBack, wheelBack.getPosition(), new Vec2(0.0, 1)));
 
+        const springMiddle = this.world.createJoint(
+            //new RevoluteJoint({
+            //    motorSpeed: 0.0, maxMotorTorque: 20,  restitution: 0.1,
+            //    enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
+            //}, this.playerBody, wheelFront, wheelFront.getPosition(),new Vec2(0.0, 1)));
+            new WheelJoint({
+                motorSpeed: 0.0, maxMotorTorque: 20, enableMotor: true, 
+                frequencyHz: 4, dampingRatio: 0.5, collideConnected: true
+            }, this.playerBody, wheelFront, wheelFront.getPosition(), new Vec2(0.0, 1)));
+        this.springFront = springMiddle;
+
         this.springFront = this.world.createJoint(
-            new RevoluteJoint({
-                motorSpeed: 0.0, maxMotorTorque: 20,  restitution: 0.1,
-                enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
-            }, this.playerBody, wheelFront, wheelFront.getPosition(),new Vec2(0.0, 1)));
+            //new RevoluteJoint({
+            //    motorSpeed: 0.0, maxMotorTorque: 20,  restitution: 0.1,
+            //    enableMotor: true, frequencyHz: 4, dampingRatio: 0.2
+            //}, this.playerBody, wheelFront, wheelFront.getPosition(),new Vec2(0.0, 1)));
+            new WheelJoint({
+                motorSpeed: 0.0, maxMotorTorque: 20, enableMotor: true, 
+                frequencyHz: 4, dampingRatio: 0.5, collideConnected: true
+            }, this.playerBody, wheelFront, wheelFront.getPosition(), new Vec2(0.0, 1)));
 
         // INFO: Player Sprite
         const playerSprite = Sprite.from(this.playerTexture);
@@ -76,6 +97,23 @@ export class TankPlayer {
         this.playerSprite = playerSprite;
 
         this.app.stage.addChild(this.playerSprite);
+
+
+        // INFO: Tank cannon
+        this.playerCannon = this.world.createBody({
+            type: "dynamic",
+            positions: Vec2(this.playerBody.x, this.playerBody.y + 1),
+            gravityScale: 1
+        });
+
+        let rectVertices = [Vec2(0, 0), Vec2(1, 0), Vec2(1, 6), Vec2(0, 6)];
+        this.playerCannon.createFixture({
+            shape: planck.Polygon(rectVertices),
+            density: 1
+        });
+
+        // TODO: Create a joint to pair the cannon with the tank
+        //new RevoluteJoint({}, myBodyA, myBodyB, myBodyA.getWorldCenter());
     }
 
     updatePlayer(){
@@ -110,6 +148,10 @@ export class TankPlayer {
                 this.springBack.enableMotor(false);
             }
         }
+    }
+
+    // TODO: Move the cannon sprite based on the shooting direction
+    moveCannon() {
     }
 
     resetMoveDist(){
@@ -174,11 +216,11 @@ export class TankPlayer {
     }
 
 
+    // INFO: Keyboard controls
     checkSpaceBarInput() {
         return this.keys['32'] === true;
     }
 
-    // INFO: Keyboard control
     setupKeyboardControls() {
         window.addEventListener("keydown", this.keysDown.bind(this));
         window.addEventListener("keyup", this.keysUp.bind(this));

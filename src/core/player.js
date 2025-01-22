@@ -136,16 +136,6 @@ export class TankPlayer {
 
     async initialiseShellSprite(velX, velY) {
         const bodyPos = this.playerBody.getPosition();
-        this.physicalShell = this.world.createBody({
-            type: "dynamic",
-            position: Vec2(bodyPos.x, bodyPos.y + 1),
-            fixedRotation: true,
-            gravityScale: 0.5,
-            bullet: true,
-            linearVelocity: Vec2(velX, velY * 2),
-        });
-        const shellFD = { friction: 0.3, density: 1 };
-
         // INFO: Creating the shell sprite
         const shellSprite = Sprite.from(this.shellTexture);
         shellSprite.anchor.set(0.5, 0.5);
@@ -156,8 +146,6 @@ export class TankPlayer {
         shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale) + 1;
 
         this.shellSprite = shellSprite;
-        this.app.stage.addChild(this.shellSprite);
-        this.shellSprite.visible = false;
     }
 
     async openFire(velX, velY) {
@@ -178,6 +166,8 @@ export class TankPlayer {
         this.shellSprite.x = bodyPos.x * this.scale;
         this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
         this.shellSprite.visible = true;
+
+        this.app.stage.addChild(this.shellSprite);
     }
 
 

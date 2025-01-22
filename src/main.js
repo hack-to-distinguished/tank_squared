@@ -94,6 +94,7 @@ export async function startGame() {
                 lastFireTime = currentTime;
                 playerTurn = false
                 playerTwo.resetMoveDist();
+                playerOne.resetPlayerMotorSpeed();
             } else {
                 if (playerOne.moveDist > 0) {
                     playerOne.movePlayer()
@@ -109,6 +110,7 @@ export async function startGame() {
                 lastFireTime = currentTime;
                 playerTurn = true;
                 playerOne.resetMoveDist();
+                playerTwo.resetPlayerMotorSpeed();
             } else {
                 if (playerTwo.moveDist > 0) {
                     playerTwo.movePlayer();
@@ -130,7 +132,7 @@ export async function startGame() {
 
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
-        //debugRenderer.render();
+        // debugRenderer.render();
     })
 }
 

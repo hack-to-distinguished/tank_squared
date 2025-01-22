@@ -171,7 +171,7 @@ export class TankPlayer {
     }
 
 
-    updateShell(terrainPoints, mapGenerator) {
+    updateShell(terrainPoints, mapGenerator, originalTerrainBody) {
         if (this.physicalShell) {
             const bodyPos = this.physicalShell.getPosition();
             let contactType = this.checkCollisions();
@@ -179,7 +179,7 @@ export class TankPlayer {
             this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
 
             if (contactType == "ChainCircleContact") {
-                this.destroyTerrain(terrainPoints, mapGenerator);
+                this.destroyTerrain(terrainPoints, mapGenerator, originalTerrainBody);
                 this.resetAndDestroyShell();
             } else if (contactType == "PolygonCircleContact") {
                 console.log("Bullet has collided with the body of a tank!");
@@ -213,19 +213,64 @@ export class TankPlayer {
         }
     }
 
-    destroyTerrain(terrainPoints, mapGenerator) {
+    destroyTerrain(terrainPoints, mapGenerator, originalTerrainBody) {
         // terrainPoints contains the y axis points in pixijs format
         const pixiBlastRadius = 50;
         let newTerrainPoints = [];
 
-        let blastCircleBody = this.world.createBody({ type: "static", position: this.physicalShell.getPosition() });
-        blastCircleBody.createFixture(new Circle(pixiBlastRadius / this.scale));
+        // let blastCircleBody = this.world.createBody({ type: "static", position: this.physicalShell.getPosition() });
+        // blastCircleBody.createFixture(new Circle(pixiBlastRadius / this.scale));
 
-        const graphic = new Graphics();
-        graphic.circle(this.shellSprite.x, this.shellSprite.y, pixiBlastRadius);
-        graphic.fill({ color: 0xffffff, alpha: 1 });
-        this.app.stage.addChild(graphic);
+        // const graphic = new Graphics();
+        // graphic.circle(this.shellSprite.x, this.shellSprite.y, pixiBlastRadius);
+        // graphic.fill({ color: 0xffffff, alpha: 1 });
+        // this.app.stage.addChild(graphic);
+        console.log("Centre of circle (x, y): ", this.shellSprite.x, this.shellSprite.y);
 
+        let leftX, leftY, rightX, rightY;
+        // get points left, and right from the centre of circle (pixijs system), will be used as boundaries
+        for (let i = 0; i < terrainPoints.length; i++) {
+            if (i < this.shellSprite.x - pixiBlastRadius) {
+                leftX = i;
+                leftY = terrainPoints[i];
+            }
+
+            if (i > (this.shellSprite.x + pixiBlastRadius)) {
+                rightX = i;
+                rightY = terrainPoints[i];
+                i = terrainPoints.length;
+            }
+        }
+
+        for (let i = 0; i < terrainPoints.length; i++) {
+            let testX = 0;
+            let testY = 0;
+            if (i > leftX && i < rightX) {
+                testY = this.shellSprite.y + Math.sqrt((pixiBlastRadius * pixiBlastRadius) - ((i - this.shellSprite.x) * (i - this.shellSprite.x)))
+                testX = i;
+                console.log("(TestX, TestY): ", testX, testY);
+                if (testY > terrainPoints[i]) {
+                    newTerrainPoints.push(testY);
+                }
+            } else {
+                newTerrainPoints.push(terrainPoints[i]);
+            }
+        }
+
+        console.log("(LeftX, LeftY): ", leftX, leftY);
+        console.log("(RightX, RightY): ", rightX, rightY);
+
+        const terrainFixture = originalTerrainBody.getFixtureList();
+        //
+        // let body = this.world.getBodyList();
+        // while (body) {
+        //     console.log("Body Type: ", body.getType());
+        //     if (body.getType() == "static") {
+        //         body.destroyFixture(terrainFixture);
+        //         this.world.destroyBody(body);
+        //     }
+        //     body = body.getNext();
+        // }
         mapGenerator.drawTerrain(this.app, newTerrainPoints, this.world, this.scale);
     }
 

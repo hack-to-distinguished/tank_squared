@@ -122,6 +122,7 @@ export class MapGenerator {
         terrainGraphic.fill(0x4d1a00);
         app.stage.addChild(terrainGraphic);
 
+        return terrainBody;
 
     }
 }

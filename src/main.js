@@ -130,8 +130,8 @@ export async function startGame() {
             }
         }
 
-        // playerOne.checkCollisions();
-        // playerTwo.checkCollisions();
+        playerOne.checkCollisions();
+        playerTwo.checkCollisions();
 
         playerOne.updatePlayer();
         playerTwo.updatePlayer();

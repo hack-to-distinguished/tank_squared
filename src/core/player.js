@@ -1,5 +1,5 @@
-import { Sprite } from "pixi.js";
-import { Vec2, Circle, RevoluteJoint, Manifold, getPointStates } from "planck";
+import { Sprite, Graphics } from "pixi.js";
+import { Vec2, Circle, RevoluteJoint, Manifold } from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
@@ -38,12 +38,7 @@ export class TankPlayer {
         const [playerWidth, playerHeight] = [100 / this.scale, 70 / this.scale];
 
         const vertices = [Vec2(-1.7, -1), Vec2(1, -1), Vec2(2, -0.25), Vec2(1, 1), Vec2(-1.7, 1)];
-        this.playerBody.createFixture({
-            shape: planck.Polygon(vertices),
-            density: 0.5,
-            friction: 0.5,
-            restitution: 0.01
-        })
+
 
         let [planckX, planckY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
         const wheelFD = { density: 1, friction: 1 }
@@ -146,7 +141,6 @@ export class TankPlayer {
             bullet: true,
             linearVelocity: Vec2(velX, velY * 2),
         });
-        const shellFD = { friction: 0.3, density: 1 };
 
         // INFO: Creating the shell sprite
         const shellSprite = Sprite.from(this.shellTexture);
@@ -186,9 +180,15 @@ export class TankPlayer {
     updateShell() {
         if (this.physicalShell) {
             const bodyPos = this.physicalShell.getPosition();
-            let contactType = this.checkCollisions();
+            // let contactType = this.checkCollisions();
             this.shellSprite.x = bodyPos.x * this.scale;
             this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
+
+            // if (contactType == "ChainCircleContact") {
+            //     console.log("Bullet has hit the ground!");
+            // } else if (contactType == "PolygonCircleContact") {
+            //     console.log("Bullet has collided with the body of a tank!");
+            // }
 
             // TODO: replace this with dissapear if collision with something
             const isOutOfBounds = bodyPos.y < -10 || bodyPos.x < -10;
@@ -198,11 +198,7 @@ export class TankPlayer {
                 this.physicalShell = null; // Reset the shell
                 return 0;
             }
-            if (contactType == "ChainCircleContact") {
-                console.log("Bullet has hit the ground!");
-            } else if (contactType == "PolygonCircleContact") {
-                console.log("Bullet has collided with the body of a tank!");
-            }
+
         }
     }
 
@@ -211,11 +207,22 @@ export class TankPlayer {
             for (let ce = this.physicalShell.getContactList(); ce; ce = ce.next) {
                 let c = ce.contact;
                 let contactType = c.m_evaluateFcn.name;
-                return contactType;
+
+                if (contactType == "ChainCircleContact") {
+                    this.destroyTerrain();
+                }
             }
         }
     }
 
+    destroyTerrain() {
+        const bodyPos = this.physicalShell.getPosition();
+        const pixiBlastRadius = 50;
+        const graphic = new Graphics();
+        graphic.circle(bodyPos.x * this.scale, this.app.renderer.height - (bodyPos.y * this.scale), pixiBlastRadius);
+        graphic.fill({ color: 0xde3249, alpha: 1 });
+        this.app.stage.addChild(graphic);
+    }
 
     checkSpaceBarInput() {
         return this.keys['32'] === true;

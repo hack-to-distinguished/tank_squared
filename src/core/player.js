@@ -134,7 +134,7 @@ export class TankPlayer {
     }
 
 
-    async initialiseShellSprite(velX, velY) {
+    async initialiseShellSprite() {
         const bodyPos = this.playerBody.getPosition();
         // INFO: Creating the shell sprite
         const shellSprite = Sprite.from(this.shellTexture);

@@ -94,9 +94,18 @@ export class MapGenerator {
     }
 
     drawTerrain(app, terrainPoints, world, sf) {
+        // applying planckjs logic 
+        let terrainBody = world.createBody({ type: "static", position: new Vec2(0, 0) });
+        const groundFD = { density: 1, friction: 0.6 } // FD stands for friction density
 
-        const pixelsPerMetre = 100;
-        const metresPerPixel = 1 / pixelsPerMetre;
+        let vectorPoints = [];
+
+        for (let i = 0; i < terrainPoints.length; i++) {
+            vectorPoints.push(Vec2(i * (1 / sf), (this.app.renderer.height - terrainPoints[i]) / sf));
+        }
+
+        let terrainChainShape = new Chain(vectorPoints, false);
+        terrainBody.createFixture(terrainChainShape, groundFD);
 
         // Drawing the terrain
         let terrainGraphic = new Graphics();
@@ -106,24 +115,13 @@ export class MapGenerator {
             terrainGraphic.lineTo(x, terrainPoints[x]);
         }
 
-        terrainGraphic.lineTo(app.canvas.width, app.canvas.height);
+        terrainGraphic.lineTo(app.canvas.width + 10000, app.canvas.height);
         terrainGraphic.lineTo(0, app.canvas.height);
         terrainGraphic.lineTo(0, terrainPoints[0]);
         terrainGraphic.stroke({ width: 2, color: 0xffffff });
         terrainGraphic.fill(0x4d1a00);
         app.stage.addChild(terrainGraphic);
 
-        // applying planckjs logic 
-        let body = world.createBody({ type: "static", position: new Vec2(0, 0) });
-        const groundFD = { density: 1, friction: 0.6 } // FD stands for friction density
 
-        let vs = [];
-
-        for (let i = 0; i < terrainPoints.length; i++) {
-            vs.push(Vec2(i * (1 / sf), (this.app.renderer.height - terrainPoints[i]) / sf));
-        }
-
-        let chain = new Chain(vs, false);
-        body.createFixture(chain, groundFD);
     }
 }

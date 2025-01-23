@@ -1,9 +1,9 @@
 import { LCG } from "./LCG";
-import { Graphics } from "pixi.js";
-import { Vec2, Chain } from "planck";
+import { Map } from "../map";
 
 export class MapGenerator {
     constructor(app, seed) {
+        this.map = null;
         this.app = app;
         this.terrain = [];
         // if no argument is passed into mapgenerator then it will just create a random terrain
@@ -93,36 +93,21 @@ export class MapGenerator {
         return scaledValues;
     }
 
-    drawTerrain(app, terrainPoints, world, sf) {
-        // applying planckjs logic 
-        let terrainBody = world.createBody({ type: "static", position: new Vec2(0, 0) });
-        const groundFD = { density: 1, friction: 0.6 } // FD stands for friction density
-
-        let vectorPoints = [];
-
-        for (let i = 0; i < terrainPoints.length; i++) {
-            vectorPoints.push(Vec2(i * (1 / sf), (this.app.renderer.height - terrainPoints[i]) / sf));
+    getTerrainBodyFromMap() {
+        if (this.map) {
+            return this.map.getTerrainBody();
         }
+    }
 
-        let terrainChainShape = new Chain(vectorPoints, false);
-        terrainBody.createFixture(terrainChainShape, groundFD);
-
-        // Drawing the terrain
-        let terrainGraphic = new Graphics();
-        terrainGraphic.moveTo(0, terrainPoints[0]);
-
-        for (let x = 1; x < terrainPoints.length; x++) {
-            terrainGraphic.lineTo(x, terrainPoints[x]);
+    getTerrainPointsFromMap() {
+        if (this.map) {
+            return this.map.getTerrainPoints();
         }
+    }
 
-        terrainGraphic.lineTo(app.canvas.width + 10000, app.canvas.height);
-        terrainGraphic.lineTo(0, app.canvas.height);
-        terrainGraphic.lineTo(0, terrainPoints[0]);
-        terrainGraphic.stroke({ width: 2, color: 0xffffff });
-        terrainGraphic.fill(0x4d1a00);
-        app.stage.addChild(terrainGraphic);
-
-        return terrainBody;
-
+    drawTerrain(terrainPoints, world, sf) {
+        this.map = new Map(terrainPoints, world, sf, this.app);
+        this.map.initialiseMap();
+        this.map.visualiseTerrain();
     }
 }

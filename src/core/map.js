@@ -36,8 +36,16 @@ export class Map {
         this.terrainBody.createFixture(this.terrainChainShape, groundFD);
     }
 
-    visualiseTerrain() {
+    destroyTerrainGraphic() {
+        this.terrainGraphic.destroy();
+    }
+
+    visualiseTerrain(app) {
         if (this.terrainBody) {
+            // if (this.terrainGraphic) {
+            //     this.terrainGraphic.destroy();
+            //     console.log("Dean");
+            // }
             this.terrainGraphic = new Graphics();
             this.terrainGraphic.moveTo(0, this.terrainPoints[0]);
 

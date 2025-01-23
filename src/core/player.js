@@ -255,10 +255,11 @@ export class TankPlayer {
             }
         }
 
-        // reset map body and fixture
+        // reset map body, graphic, and fixture
         originalTerrainBody.destroyFixture(originalTerrainFixture);
         this.world.destroyBody(originalTerrainBody);
-        mapGenerator.drawTerrain(newTerrainPoints, this.world, this.scale);
+        mapGenerator.destroyTerrainGraphicFromMap();
+        mapGenerator.drawTerrain(newTerrainPoints, this.world, this.scale, this.app);
     }
 
     checkSpaceBarInput() {

@@ -93,6 +93,12 @@ export class MapGenerator {
         return scaledValues;
     }
 
+    destroyTerrainGraphicFromMap() {
+        if (this.map) {
+            this.map.destroyTerrainGraphic();
+        }
+    }
+
     getTerrainBodyFromMap() {
         if (this.map) {
             return this.map.getTerrainBody();
@@ -105,9 +111,9 @@ export class MapGenerator {
         }
     }
 
-    drawTerrain(terrainPoints, world, sf) {
+    drawTerrain(terrainPoints, world, sf, app) {
         this.map = new Map(terrainPoints, world, sf, this.app);
-        this.map.initialiseMap();
+        this.map.initialiseMap(app);
         this.map.visualiseTerrain();
     }
 }

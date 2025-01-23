@@ -1,7 +1,6 @@
 import { Application, Assets, Graphics } from "pixi.js";
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
-import { Background } from "./scenes/mapImage.js";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
 import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
@@ -94,6 +93,7 @@ export async function startGame() {
                 lastFireTime = currentTime;
                 playerTurn = false
                 playerTwo.resetMoveDist();
+                playerOne.resetPlayerMotorSpeed();
             } else {
                 if (playerOne.moveDist > 0) {
                     playerOne.movePlayer()
@@ -109,6 +109,7 @@ export async function startGame() {
                 lastFireTime = currentTime;
                 playerTurn = true;
                 playerOne.resetMoveDist();
+                playerTwo.resetPlayerMotorSpeed();
             } else {
                 if (playerTwo.moveDist > 0) {
                     playerTwo.movePlayer();
@@ -126,7 +127,6 @@ export async function startGame() {
             if (shellActive == 0) {
                 shellVisible = false;
             }
-            console.log("shell still active", shellActive);
         }
 
         playerOne.updatePlayer();

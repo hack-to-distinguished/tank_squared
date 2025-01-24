@@ -221,7 +221,7 @@ export class TankPlayer {
 
         // prepare new map data to be used
         let newTerrainPoints = [];
-        const pixiBlastRadius = 75;
+        const pixiBlastRadius = 40;
 
         let leftX, leftY, rightX, rightY;
         // get points left, and right from the centre of circle (pixijs system), will be used as boundaries

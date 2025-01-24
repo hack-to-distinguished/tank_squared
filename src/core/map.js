@@ -49,7 +49,7 @@ export class Map {
                 this.terrainGraphic.lineTo(x, this.terrainPoints[x]);
             }
 
-            this.terrainGraphic.lineTo(this.app.canvas.width, this.app.canvas.height);
+            this.terrainGraphic.lineTo(this.app.canvas.width + 100000, this.app.canvas.height);
             this.terrainGraphic.lineTo(0, this.app.canvas.height);
             this.terrainGraphic.lineTo(0, this.terrainPoints[0]);
             this.terrainGraphic.stroke({ width: 2, color: 0xffffff });

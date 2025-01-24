@@ -58,7 +58,7 @@ export async function startGame() {
 
     // adding mapgenerator, and drawing the terrain
     const mapGenerator = new MapGenerator(app);
-    let terrainPoints = mapGenerator.generateTerrain(128, 256, 1, 2);
+    let terrainPoints = mapGenerator.generateTerrain(128, 256, 2, 2);
     mapGenerator.drawTerrain(terrainPoints, world, scaleFactor, app);
 
     const fireCooldown = 1000;

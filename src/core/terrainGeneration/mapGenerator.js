@@ -87,7 +87,7 @@ export class MapGenerator {
         return scaledPixiValues;
     }
 
-    generateTerrain(app, amplitude, wavelength, numberOfOctaves, reductionFactor) {
+    generateTerrain(amplitude, wavelength, numberOfOctaves, reductionFactor) {
         const perlinNoise = this.combinePerlin(this.generatePerlinNoiseOctaves(amplitude, wavelength, numberOfOctaves, reductionFactor, this.app.canvas.width));
         const scaledValues = this.scalePerlinNoiseValuesToPixi(perlinNoise, this.app.canvas.height, amplitude);
         return scaledValues;

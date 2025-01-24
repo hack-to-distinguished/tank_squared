@@ -42,10 +42,6 @@ export class Map {
 
     visualiseTerrain(app) {
         if (this.terrainBody) {
-            // if (this.terrainGraphic) {
-            //     this.terrainGraphic.destroy();
-            //     console.log("Dean");
-            // }
             this.terrainGraphic = new Graphics();
             this.terrainGraphic.moveTo(0, this.terrainPoints[0]);
 
@@ -53,7 +49,7 @@ export class Map {
                 this.terrainGraphic.lineTo(x, this.terrainPoints[x]);
             }
 
-            this.terrainGraphic.lineTo(this.app.canvas.width + 10000, this.app.canvas.height);
+            this.terrainGraphic.lineTo(this.app.canvas.width, this.app.canvas.height);
             this.terrainGraphic.lineTo(0, this.app.canvas.height);
             this.terrainGraphic.lineTo(0, this.terrainPoints[0]);
             this.terrainGraphic.stroke({ width: 2, color: 0xffffff });

@@ -1,4 +1,4 @@
-import { Sprite, Graphics } from "pixi.js";
+import { Sprite } from "pixi.js";
 import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 
 export class TankPlayer {
@@ -221,7 +221,7 @@ export class TankPlayer {
 
         // prepare new map data to be used
         let newTerrainPoints = [];
-        const pixiBlastRadius = 50;
+        const pixiBlastRadius = 75;
 
         let leftX, leftY, rightX, rightY;
         // get points left, and right from the centre of circle (pixijs system), will be used as boundaries
@@ -239,16 +239,14 @@ export class TankPlayer {
         }
 
         // create the new points to accomadate the crater that was formed
+        let circleY = 0;
         for (let i = 0; i < originalTerrainPoints.length; i++) {
-            let testX = 0;
-            let testY = 0;
-            //TODO: Logic here needs to be fixed; it is overwriting the old crater when another shot is created...
-            if (i > leftX && i < rightX) {
-                testY = this.shellSprite.y + Math.sqrt((pixiBlastRadius * pixiBlastRadius) - ((i - this.shellSprite.x) * (i - this.shellSprite.x)));
-                testX = i;
-                console.log("(TestX, TestY): ", testX, testY);
-                if (testY > originalTerrainPoints[i]) {
-                    newTerrainPoints.push(testY);
+            if (i >= leftX && i <= rightX) {
+                circleY = this.shellSprite.y + Math.sqrt((pixiBlastRadius * pixiBlastRadius) - ((i - this.shellSprite.x) * (i - this.shellSprite.x)));
+                if (circleY >= originalTerrainPoints[i]) {
+                    newTerrainPoints.push(circleY);
+                } else { // catch any points that are less than the value of originalTerrainPoints[i] 
+                    newTerrainPoints.push(originalTerrainPoints[i]);
                 }
             } else {
                 newTerrainPoints.push(originalTerrainPoints[i]);

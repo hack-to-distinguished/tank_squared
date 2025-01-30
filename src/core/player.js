@@ -178,20 +178,19 @@ export class TankPlayer {
             this.shellSprite.x = bodyPos.x * this.scale;
             this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
 
+            // check if out of bounds
+            if (this.shellSprite.x >= this.app.renderer.width || this.shellSprite.x <= 0 || this.shellSprite.y >= this.app.renderer.height) {
+                console.log("Out of bounds!");
+                this.resetAndDestroyShell();
+            }
+
+            // check for other collision types
             if (contactType == "ChainCircleContact") {
                 this.destroyTerrain(mapGenerator);
                 this.resetAndDestroyShell();
             } else if (contactType == "PolygonCircleContact") {
                 console.log("Bullet has collided with the body of a tank!");
             }
-
-            // TODO: replace this with dissapear if collision with something
-            const isOutOfBounds = bodyPos.y < -10 || bodyPos.x < -10;
-            if (isOutOfBounds) {
-                this.resetAndDestroyShell();
-                return 0;
-            }
-
         }
     }
 

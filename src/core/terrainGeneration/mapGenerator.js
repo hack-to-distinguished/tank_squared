@@ -88,8 +88,12 @@ export class MapGenerator {
     }
 
     generateTerrain(amplitude, wavelength, numberOfOctaves, reductionFactor) {
+        // console.log("Generating terrain points...");
+        // const start = performance.now();
         const perlinNoise = this.combinePerlin(this.generatePerlinNoiseOctaves(amplitude, wavelength, numberOfOctaves, reductionFactor, this.app.canvas.width));
         const scaledValues = this.scalePerlinNoiseValuesToPixi(perlinNoise, this.app.canvas.height, amplitude);
+        // const end = performance.now();
+        // console.log(`Internal terrain generation time: ${(end - start).toFixed(4)} ms`);
         return scaledValues;
     }
 

@@ -164,10 +164,14 @@ export class TankPlayer {
             }
         }
     }
+    // TODO: FIX: Add the mouseEvent listener to the keyboard controls at the bottom
 
     // TODO: Move the cannon sprite based on the shooting direction
-    moveCannon() {
-    }
+    // You might have to add the event lister to the DOM and then check for a response here
+    //updateCannon(mousePos:MouseEvent){
+    //    // TODO: Ev listener added, now get the position of the mouse
+    //    console.log("mm", mousePos.target.x);
+    //};
 
     resetMoveDist() {
         this.moveDist = 30;

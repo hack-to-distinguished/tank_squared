@@ -34,6 +34,8 @@ export async function startGame() {
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
     playerOne.setupKeyboardControls();
+    //document.addEventListener(MouseEvent.MOUSE_MOVE, playerOne.updateCannon());
+    document.addEventListener(MouseEvent.MOUSE_MOVE, updateCannon());
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
@@ -66,6 +68,12 @@ export async function startGame() {
     const fireCooldown = 1000;
     let lastFireTime = 0;
     let shellVisible = false;
+    //updateCannon(me:MouseEvent){
+    function updateCannon(){
+        // TODO: Ev listener added, now get the position of the mouse
+        //console.log("mm", me.target.x);
+        console.log("mm");
+    };
 
     app.ticker.add(() => {
 
@@ -87,6 +95,8 @@ export async function startGame() {
         world.step(1 / 60);
         const currentTime = Date.now();
         if (playerTurn) {
+            updateCannon();
+            //playerOne.updateCannon();
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
                 playerOne.openFire(velX, velY);
                 shellVisible = true;

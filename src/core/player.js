@@ -19,6 +19,7 @@ export class TankPlayer {
         this.wheelFront = null;
         this.springFront = null;
         this.springBack = null;
+        this.spring = null;
         this.physicalShell = null;
         this.shellTexture = shellTexture;
         this.shellSprite = null;
@@ -49,34 +50,53 @@ export class TankPlayer {
 
         let wheelBack = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX - 1.4, playerBodyY - 1.2) })
         wheelBack.createFixture(new Circle(0.2), wheelFD)
-        
-        let wheelMiddle = this.world.createBody({type: "dynamic", position: Vec2(playerBodyX - 0.7, playerBodyY - 1.2)})
-        wheelMiddle.createFixture(new Circle(0.2), wheelFD)
+
+        let wheelMiddleBack = this.world.createBody({type: "dynamic", position: Vec2(playerBodyX - 0.7, playerBodyY - 1.2)})
+        wheelMiddleBack.createFixture(new Circle(0.2), wheelFD)
+
+        let wheelMiddleFront = this.world.createBody({type: "dynamic", position: Vec2(playerBodyX + 0.3, playerBodyY - 1.2)})
+        wheelMiddleFront.createFixture(new Circle(0.2), wheelFD)
 
         let wheelFront = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX + 1, playerBodyY - 1.2) })
         wheelFront.createFixture(new Circle(0.2), wheelFD)
 
-        const [ restitutionValue, dampingRatio, frequencyHz]= [0.05, 1, 0.2];
-        const [maxMotorTorque, initialMotorSpeed] = [50, 0.0];
-        const collideConnected = true;
-        this.springBack = this.world.createJoint(
-            new RevoluteJoint({
-                motorSpeed: initialMotorSpeed, maxMotorTorque: maxMotorTorque, enableMotor: true, 
-                frequencyHz: frequencyHz, dampingRatio: dampingRatio, restitution: restitutionValue
-            }, this.playerBody, wheelBack, wheelBack.getPosition(), new Vec2(0.0, 1)));
+        class WheelSpring {
+            constructor(world, playerBody, wheel) {
+                this.world = world;
+                this.playerBody = playerBody;
+                this.wheel = wheel;
 
-        const springMiddle = this.world.createJoint(
-            new RevoluteJoint({
-                motorSpeed: initialMotorSpeed, maxMotorTorque: maxMotorTorque, enableMotor: true, 
-                frequencyHz: frequencyHz, dampingRatio: dampingRatio, restitution: restitutionValue
-            }, this.playerBody, wheelMiddle, wheelMiddle.getPosition(), new Vec2(0.0, 1)));
-        this.springMiddle = springMiddle;
+                this.restitutionValue = 0.005;
+                this.dampingRatio = 1;
+                this.frequencyHz = 0.2;
+                this.maxMotorTorque = 50;
+                this.initialMotorSpeed = 0.0;
+                this.collideConnected = true;
+            }
 
-        this.springFront = this.world.createJoint(
-            new RevoluteJoint({
-                motorSpeed: initialMotorSpeed, maxMotorTorque: maxMotorTorque, enableMotor: true, 
-                frequencyHz: frequencyHz, dampingRatio: dampingRatio, restitution: restitutionValue
-            }, this.playerBody, wheelFront, wheelFront.getPosition(), new Vec2(0.0, 1)));
+            createSpring() {
+                this.spring = this.world.createJoint(
+                    new RevoluteJoint({
+                        motorSpeed: this.initialMotorSpeed,
+                        maxMotorTorque: this.maxMotorTorque,
+                        enableMotor: true,
+                        frequencyHz: this.frequencyHz,
+                        dampingRatio: this.dampingRatio,
+                        restitution: this.restitutionValue
+                    }, this.playerBody, this.wheel, this.wheel.getPosition(), new Vec2(0.0, 1))
+                );
+            }
+        }
+
+        this.springBack = new WheelSpring(this.world, this.playerBody, wheelBack);
+        this.springMiddleBack = new WheelSpring(this.world, this.playerBody, wheelMiddleBack);
+        this.springMiddleFront = new WheelSpring(this.world, this.playerBody, wheelMiddleFront);
+        this.springFront = new WheelSpring(this.world, this.playerBody, wheelFront);
+
+        this.springBack.createSpring();
+        this.springMiddleBack.createSpring();
+        this.springMiddleFront.createSpring();
+        this.springFront.createSpring();
 
 
         // INFO: Player Sprite
@@ -121,46 +141,38 @@ export class TankPlayer {
 
 
     getPlayerMotorSpeed() {
-        return this.springFront.getMotorSpeed();
+        return this.springFront.spring.getMotorSpeed();
     }
 
     resetPlayerMotorSpeed() {
-        this.springFront.setMotorSpeed(0);
-        this.springFront.enableMotor(true);
-        this.springBack.setMotorSpeed(0);
-        this.springBack.enableMotor(true);
-        this.springMiddle.setMotorSpeed(0);
-        this.springMiddle.enableMotor(true);
+        this.springBack.spring.setMotorSpeed(0);
+        this.springMiddleBack.spring.setMotorSpeed(0);
+        this.springMiddleFront.spring.setMotorSpeed(0);
+        this.springFront.spring.setMotorSpeed(0);
     }
 
 
     movePlayer() {
         if (this.moveDist > 0) {
             if (this.keys['68']) {
-                this.springFront.setMotorSpeed(-this.playerSpeed);
-                this.springFront.enableMotor(true);
-                this.springBack.setMotorSpeed(-this.playerSpeed);
-                this.springBack.enableMotor(true);
-                this.springMiddle.setMotorSpeed(-this.playerSpeed);
-                this.springMiddle.enableMotor(true);
+                this.springBack.spring.setMotorSpeed(-this.playerSpeed);
+                this.springMiddleBack.spring.setMotorSpeed(-this.playerSpeed);
+                this.springMiddleFront.spring.setMotorSpeed(-this.playerSpeed);
+                this.springFront.spring.setMotorSpeed(-this.playerSpeed);
 
                 this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
             } else if (this.keys['65']) {
-                this.springFront.setMotorSpeed(+this.playerSpeed);
-                this.springFront.enableMotor(true);
-                this.springBack.setMotorSpeed(+this.playerSpeed);
-                this.springBack.enableMotor(true);
-                this.springMiddle.setMotorSpeed(+this.playerSpeed);
-                this.springMiddle.enableMotor(true);
+                this.springBack.spring.setMotorSpeed(+this.playerSpeed);
+                this.springMiddleBack.spring.setMotorSpeed(+this.playerSpeed);
+                this.springMiddleFront.spring.setMotorSpeed(+this.playerSpeed);
+                this.springFront.spring.setMotorSpeed(+this.playerSpeed);
 
                 this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
             } else if (!this.keys["65"] || !this.keys["68"]) {
-                this.springFront.setMotorSpeed(0);
-                this.springFront.enableMotor(true);
-                this.springBack.setMotorSpeed(0);
-                this.springBack.enableMotor(true);
-                this.springMiddle.setMotorSpeed(0);
-                this.springMiddle.enableMotor(true);
+                this.springBack.spring.setMotorSpeed(0);
+                this.springMiddleBack.spring.setMotorSpeed(0);
+                this.springMiddleFront.spring.setMotorSpeed(0);
+                this.springFront.spring.setMotorSpeed(0);
             }
         }
     }

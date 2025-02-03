@@ -65,7 +65,6 @@ export class TankPlayer {
                 this.world = world;
                 this.playerBody = playerBody;
                 this.wheel = wheel;
-
                 this.restitutionValue = 0.005;
                 this.dampingRatio = 1;
                 this.frequencyHz = 0.2;
@@ -77,12 +76,8 @@ export class TankPlayer {
             createSpring() {
                 this.spring = this.world.createJoint(
                     new RevoluteJoint({
-                        motorSpeed: this.initialMotorSpeed,
-                        maxMotorTorque: this.maxMotorTorque,
-                        enableMotor: true,
-                        frequencyHz: this.frequencyHz,
-                        dampingRatio: this.dampingRatio,
-                        restitution: this.restitutionValue
+                        motorSpeed: this.initialMotorSpeed, maxMotorTorque: this.maxMotorTorque, enableMotor: true, 
+                        frequencyHz: this.frequencyHz, dampingRatio: this.dampingRatio, restitution: this.restitutionValue
                     }, this.playerBody, this.wheel, this.wheel.getPosition(), new Vec2(0.0, 1))
                 );
             }
@@ -126,7 +121,6 @@ export class TankPlayer {
         const cannonBase = this.world.createJoint(
             new RevoluteJoint({}, this.playerBody, playerCannon, playerCannon.getPosition(), new Vec2(1, 1))
         );
-
 
         this.playerCannon = playerCannon;
     }
@@ -176,14 +170,7 @@ export class TankPlayer {
             }
         }
     }
-    // TODO: FIX: Add the mouseEvent listener to the keyboard controls at the bottom
 
-    // TODO: Move the cannon sprite based on the shooting direction
-    // You might have to add the event lister to the DOM and then check for a response here
-    //updateCannon(mousePos:MouseEvent){
-    //    // TODO: Ev listener added, now get the position of the mouse
-    //    console.log("mm", mousePos.target.x);
-    //};
 
     resetMoveDist() {
         this.moveDist = 30;
@@ -251,9 +238,20 @@ export class TankPlayer {
         return this.keys['32'] === true;
     }
 
+    // TODO: Move the cannon sprite based on the shooting direction
+    updateCannon(e) {
+        let mouseX = e.clientX;
+        let mouseY = e.clientY;
+
+        var cannonPos = this.playerCannon.getPosition();
+        console.log("cpos", cannonPos);
+    };
+
+
     setupKeyboardControls() {
         window.addEventListener("keydown", this.keysDown.bind(this));
         window.addEventListener("keyup", this.keysUp.bind(this));
+        window.addEventListener("mousemove", this.updateCannon);
     }
 
     keysDown(e) {

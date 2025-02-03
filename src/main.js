@@ -51,18 +51,15 @@ export async function startGame() {
 
     let magnitudeVelocity = 0;
     let launchAngle = 0;
-
-    let [isPlayerOneFalling, isPlayerTwoFalling] = [true, true];
     let playerTurn = true;
-    let [playerOneMoveDist, playerTwoMoveDist] = [20, 20];
 
     app.ticker.maxFPS = 60;
     const debugRenderer = new DebugRenderer(world, app, scaleFactor);
 
     // adding mapgenerator, and drawing the terrain
     const mapGenerator = new MapGenerator(app);
-    const terrain = mapGenerator.generateTerrain(app, 128, 256, 1, 2);
-    mapGenerator.drawTerrain(app, terrain, world, scaleFactor);
+    let terrainPoints = mapGenerator.generateTerrain(128, 256, 2, 2);
+    mapGenerator.drawTerrain(terrainPoints, world, scaleFactor, app);
 
     const fireCooldown = 1000;
     let lastFireTime = 0;
@@ -123,7 +120,7 @@ export async function startGame() {
 
         // TODO: While visible, run the action
         if (shellVisible) {
-            const shellActive = playerOne.updateShell() || playerTwo.updateShell();
+            const shellActive = playerOne.updateShell(mapGenerator) || playerTwo.updateShell(mapGenerator);
             // TODO: Change from a visible flag to a collided with flag
             if (shellActive == 0) {
                 shellVisible = false;

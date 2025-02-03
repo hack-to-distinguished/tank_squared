@@ -1,5 +1,5 @@
 import { Sprite } from "pixi.js";
-import { Vec2, Circle, RevoluteJoint } from "planck";
+import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
@@ -22,6 +22,7 @@ export class TankPlayer {
         this.physicalShell = null;
         this.shellTexture = shellTexture;
         this.shellSprite = null;
+
     }
 
     // INFO: Player Code
@@ -33,11 +34,10 @@ export class TankPlayer {
             position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
             gravityScale: 3
         })
-        const [playerWidth, playerHeight] = [100 / this.scale, 70 / this.scale];
 
         const vertices = [Vec2(-1.7, -1), Vec2(1, -1), Vec2(2, -0.25), Vec2(1, 1), Vec2(-1.7, 1)];
         this.playerBody.createFixture({
-            shape: planck.Polygon(vertices),
+            shape: Polygon(vertices),
             density: 0.5,
             friction: 0.5,
             restitution: 0.01
@@ -171,24 +171,92 @@ export class TankPlayer {
     }
 
 
-    updateShell() {
+    updateShell(mapGenerator) {
         if (this.physicalShell) {
             const bodyPos = this.physicalShell.getPosition();
+            let contactType = this.checkCollisions();
             this.shellSprite.x = bodyPos.x * this.scale;
             this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
 
-            // TODO: replace this with dissapear if collision with something
-            //console.log("Check collision", this.physicalShell.getContactList());
-            const isOutOfBounds = bodyPos.y < -10 || bodyPos.x < -10;
-            if (isOutOfBounds) {
-                this.shellSprite.visible = false;
-                this.world.destroyBody(this.physicalShell);
-                this.physicalShell = null; // Reset the shell
-                return 0;
+            // check if out of bounds
+            if (this.shellSprite.x >= this.app.renderer.width || this.shellSprite.x <= 0 || this.shellSprite.y >= this.app.renderer.height) {
+                this.resetAndDestroyShell();
+            }
+
+            // check for other collision types
+            if (contactType == "ChainCircleContact") {
+                this.destroyTerrain(mapGenerator);
+                this.resetAndDestroyShell();
+            } else if (contactType == "PolygonCircleContact") {
+                console.log("Bullet has collided with the body of a tank!");
             }
         }
     }
 
+    resetAndDestroyShell() {
+        if (this.physicalShell) {
+            this.shellSprite.visible = false;
+            this.world.destroyBody(this.physicalShell);
+            this.physicalShell = null; // Reset the shell
+        }
+    }
+
+    checkCollisions() {
+        if (this.physicalShell) {
+            for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
+                let contact = contactList.contact;
+                let contactType = contact.m_evaluateFcn.name;
+                return contactType;
+            }
+        }
+    }
+
+    destroyTerrain(mapGenerator) {
+        // set up the original metadata of map
+        let originalTerrainPoints = mapGenerator.getTerrainPointsFromMap();
+        let originalTerrainBody = mapGenerator.getTerrainBodyFromMap();
+        let originalTerrainFixture = originalTerrainBody.getFixtureList();
+
+        // prepare new map data to be used
+        let newTerrainPoints = [];
+        const pixiBlastRadius = 40;
+
+        let leftX, leftY, rightX, rightY;
+        // get points left, and right from the centre of circle (pixijs system), will be used as boundaries
+        for (let i = 0; i < originalTerrainPoints.length; i++) {
+            if (i < this.shellSprite.x - pixiBlastRadius) {
+                leftX = i;
+                leftY = originalTerrainPoints[i];
+            }
+
+            if (i > (this.shellSprite.x + pixiBlastRadius)) {
+                rightX = i;
+                rightY = originalTerrainPoints[i];
+                i = originalTerrainPoints.length;
+            }
+        }
+
+        // create the new points to accomadate the crater that was formed
+        let circleY = 0;
+        for (let i = 0; i < originalTerrainPoints.length; i++) {
+            if (i >= leftX && i <= rightX) {
+                circleY = this.shellSprite.y + Math.sqrt((pixiBlastRadius * pixiBlastRadius) - ((i - this.shellSprite.x) * (i - this.shellSprite.x)));
+                if (circleY >= originalTerrainPoints[i]) {
+                    newTerrainPoints.push(circleY);
+                } else { // catch any points that are less than the value of originalTerrainPoints[i] 
+                    newTerrainPoints.push(originalTerrainPoints[i]);
+                }
+            } else {
+                newTerrainPoints.push(originalTerrainPoints[i]);
+            }
+        }
+
+        // reset map body, graphic, and fixture
+        originalTerrainBody.destroyFixture(originalTerrainFixture);
+        this.world.destroyBody(originalTerrainBody);
+        mapGenerator.destroyTerrainGraphicFromMap();
+        mapGenerator.drawTerrain(newTerrainPoints, this.world, this.scale, this.app);
+    }
 
     checkSpaceBarInput() {
         return this.keys['32'] === true;

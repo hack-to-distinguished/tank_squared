@@ -129,7 +129,7 @@ export async function startGame() {
 
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
-        debugRenderer.render();
+        // debugRenderer.render();
     })
 }
 

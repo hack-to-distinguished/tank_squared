@@ -180,7 +180,6 @@ export class TankPlayer {
 
             // check if out of bounds
             if (this.shellSprite.x >= this.app.renderer.width || this.shellSprite.x <= 0 || this.shellSprite.y >= this.app.renderer.height) {
-                console.log("Out of bounds!");
                 this.resetAndDestroyShell();
             }
 
@@ -204,9 +203,9 @@ export class TankPlayer {
 
     checkCollisions() {
         if (this.physicalShell) {
-            for (let ce = this.physicalShell.getContactList(); ce; ce = ce.next) {
-                let c = ce.contact;
-                let contactType = c.m_evaluateFcn.name;
+            for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
+                let contact = contactList.contact;
+                let contactType = contact.m_evaluateFcn.name;
                 return contactType;
             }
         }

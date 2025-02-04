@@ -1,4 +1,4 @@
-import { Vec2, WheelJoint, Circle, RevoluteJoint } from "planck";
+import { Vec2, WheelJoint, Circle, RevoluteJoint, Polygon } from "planck";
 import { Sprite } from "pixi.js";
 
 export class TankPlayer {
@@ -65,20 +65,14 @@ export class TankPlayer {
                 this.world = world;
                 this.playerBody = playerBody;
                 this.wheel = wheel;
-                this.restitutionValue = 0.005;
-                this.dampingRatio = 1;
-                this.frequencyHz = 0.2;
-                this.maxMotorTorque = 50;
-                this.initialMotorSpeed = 0.0;
-                this.collideConnected = true;
             }
 
             createSpring() {
                 this.spring = this.world.createJoint(
                     new RevoluteJoint({
-                        motorSpeed: this.initialMotorSpeed, maxMotorTorque: this.maxMotorTorque, enableMotor: true, 
-                        frequencyHz: this.frequencyHz, dampingRatio: this.dampingRatio, restitution: this.restitutionValue
-                    }, this.playerBody, this.wheel, this.wheel.getPosition(), new Vec2(0.0, 1))
+                        motorSpeed: 0, maxMotorTorque: 50, enableMotor: true, 
+                        frequencyHz: 0.2, dampingRatio: 1, restitution: 0.005, collideConnected: true
+                    }, this.playerBody, this.wheel, this.wheel.getPosition())
                 );
             }
         }
@@ -111,18 +105,48 @@ export class TankPlayer {
         const playerCannon = this.world.createBody({
             type: "dynamic",
             position: Vec2(playerBodyX + 0.1, playerBodyY + 1),
-            gravityScale: 0.5
+            gravityScale: 0.5,
+            restitution: 0
         });
 
         let rectVertices = [Vec2(0, 0), Vec2(0.2, 0), Vec2(0.2, 1.6), Vec2(0, 1.6)];
-        playerCannon.createFixture({shape: planck.Polygon(rectVertices), density: 0.5});
+        playerCannon.createFixture({shape: Polygon(rectVertices), density: 1});
 
-        // TODO: Create a joint to pair the cannon with the tank
-        const cannonBase = this.world.createJoint(
-            new RevoluteJoint({}, this.playerBody, playerCannon, playerCannon.getPosition(), new Vec2(1, 1))
+        const cannonJoint = this.world.createJoint(
+            new RevoluteJoint({
+                collideConnected: false 
+            }, this.playerBody, playerCannon, playerCannon.getPosition())
+            //new planck.MotorJoint({collideConnected: true}, this.playerBody, playerCannon, playerCannon.getPosition())
+        );
+        console.log("cpos", playerCannon.getPosition());
+        this.playerCannon = playerCannon;
+
+
+        // INFO: Cannon base (connected to cannon via gear joint)
+        const cannonBase = this.world.createBody({
+            type: "dynamic",
+            position: Vec2(playerBodyX + 0.2, playerBodyY + 1)
+        });
+        cannonBase.createFixture({shape: Circle(0.2)})
+
+        const cannonBaseJoint = this.world.createJoint(
+            new RevoluteJoint({
+                collideConnected: true
+            }, this.playerBody, cannonBase, cannonBase.getPosition())
         );
 
-        this.playerCannon = playerCannon;
+        // INFO: Gear Joint
+        const gearBaseToCannon = this.world.createJoint(
+            new planck.GearJoint({
+
+            });
+        );
+
+
+
+
+
+
     }
 
     updatePlayer() {
@@ -251,7 +275,7 @@ export class TankPlayer {
     setupKeyboardControls() {
         window.addEventListener("keydown", this.keysDown.bind(this));
         window.addEventListener("keyup", this.keysUp.bind(this));
-        window.addEventListener("mousemove", this.updateCannon);
+        window.addEventListener("mousemove", this.updateCannon.bind(this));
     }
 
     keysDown(e) {

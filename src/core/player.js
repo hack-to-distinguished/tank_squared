@@ -3,6 +3,9 @@ import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
+        //TODO: Add health bars...
+        this.hp = 100;
+
         this.world = world;
         this.coordConverter = coordConverter;
         this.app = app;
@@ -188,6 +191,7 @@ export class TankPlayer {
                 this.destroyTerrain(mapGenerator);
                 this.resetAndDestroyShell();
             } else if (contactType == "PolygonCircleContact") {
+                //TODO: Setup the Damage Checks...
                 console.log("Bullet has collided with the body of a tank!");
             }
         }

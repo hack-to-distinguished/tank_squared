@@ -21,7 +21,6 @@ export class DebugRenderer {
             // Loop through each fixture of the body
             for (let fixture = body.getFixtureList(); fixture; fixture = fixture.getNext()) {
                 const shape = fixture.getShape();
-                // console.log("Shape: ", shape.getType());
                 if (shape.getType() === "circle") {
                     this.drawCircle(shape, position, angle);
                 } else if (shape.getType() === "polygon") {
@@ -29,9 +28,35 @@ export class DebugRenderer {
                 } else if (shape.getType() === "edge") {
                     this.drawEdge(shape, position, angle);
                 } else if (shape.getType() == "chain") {
-                     this.drawChain(shape, position, angle);
+                    this.drawChain(shape, position, angle);
                 }
             }
+        }
+        this.drawJoints();
+    }
+
+    drawJoints() {
+        this.graphics.lineStyle(2, 0x0000ff, 1); // Blue lines for joints
+        for (let joint = this.world.getJointList(); joint; joint = joint.getNext()) {
+            const anchorA = joint.getAnchorA();
+            const anchorB = joint.getAnchorB();
+
+            const pointA = {
+                x: anchorA.x * this.scale,
+                y: this.app.renderer.height - anchorA.y * this.scale,
+            };
+            const pointB = {
+                x: anchorB.x * this.scale,
+                y: this.app.renderer.height - anchorB.y * this.scale,
+            };
+
+            this.graphics.moveTo(pointA.x, pointA.y);
+            this.graphics.lineTo(pointB.x, pointB.y);
+
+            this.graphics.beginFill(0x0000ff, 1);
+            this.graphics.drawCircle(pointA.x, pointA.y, 3);
+            this.graphics.drawCircle(pointB.x, pointB.y, 3);
+            this.graphics.endFill();
         }
     }
 

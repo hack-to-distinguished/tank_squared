@@ -156,7 +156,8 @@ export class TankPlayer {
 
         this.physicalShell = this.world.createBody({
             type: "dynamic",
-            position: Vec2(bodyPos.x, bodyPos.y + 1),
+            // this is only a temp fix... waiting for chris to get barrel working...
+            position: Vec2(bodyPos.x, bodyPos.y + 2.2), // slight change to projectile generation, made it higher so it doesnt touch player's body
             fixedRotation: true,
             gravityScale: 0.5,
             bullet: true,
@@ -192,6 +193,7 @@ export class TankPlayer {
                 this.resetAndDestroyShell();
             } else if (contactType == "PolygonCircleContact") {
                 //TODO: Setup the Damage Checks...
+                this.resetAndDestroyShell();
                 // console.log("Bullet has collided with the body of a tank!");
             }
         }

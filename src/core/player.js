@@ -192,7 +192,7 @@ export class TankPlayer {
                 this.resetAndDestroyShell();
             } else if (contactType == "PolygonCircleContact") {
                 //TODO: Setup the Damage Checks...
-                console.log("Bullet has collided with the body of a tank!");
+                // console.log("Bullet has collided with the body of a tank!");
             }
         }
     }

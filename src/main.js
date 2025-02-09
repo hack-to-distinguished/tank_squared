@@ -84,36 +84,45 @@ export async function startGame() {
 
         world.step(1 / 60);
         const currentTime = Date.now();
+        console.log(playerOne.checkCollisions());
         if (playerTurn) {
+            //TODO: Need to enable hit detection, and player turn switching if projectile hits opponent
+
+            // check if player one's projectile has hit the ground, if it has switch turns
+            if (playerOne.checkCollisions() == "ChainCircleContact") {
+                playerTurn = false
+                playerOne.resetPlayerMotorSpeed();
+            }
+
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
                 playerOne.openFire(velX, velY);
                 shellVisible = true;
                 lastFireTime = currentTime;
-                playerTurn = false
                 playerTwo.resetMoveDist();
-                playerOne.resetPlayerMotorSpeed();
+                playerOne.moveDist = -1;
+
             } else {
                 if (playerOne.moveDist > 0) {
                     playerOne.movePlayer()
-                } else {
-                    playerTurn = false;
-                    playerTwo.resetMoveDist();
                 }
             }
         } else {
+
+            // check if player two's projectile has hit the ground, if it has switch turns
+            if (playerTwo.checkCollisions() == "ChainCircleContact") {
+                playerTurn = true
+                playerOne.resetPlayerMotorSpeed();
+            }
+
             if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
                 playerTwo.openFire(velX, velY);
                 shellVisible = true;
                 lastFireTime = currentTime;
-                playerTurn = true;
                 playerOne.resetMoveDist();
-                playerTwo.resetPlayerMotorSpeed();
+                playerTwo.moveDist = -1;
             } else {
                 if (playerTwo.moveDist > 0) {
                     playerTwo.movePlayer();
-                } else {
-                    playerTurn = true;
-                    playerOne.resetMoveDist();
                 }
             }
         }

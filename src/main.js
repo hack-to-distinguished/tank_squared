@@ -34,6 +34,7 @@ export async function startGame() {
     const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
+    let p1HPBar = playerOne.initialisePlayerHealthBar();
     playerOne.setupKeyboardControls();
 
     // Adding second player
@@ -88,10 +89,10 @@ export async function startGame() {
             //TODO: Need to enable hit detection, and player turn switching if projectile hits opponent
 
             // check if player one's projectile has hit the ground, if it has switch turns
-            if (playerOne.checkCollisions() == "ChainCircleContact") {
+            if (playerOne.getCollisions() == "ChainCircleContact") {
                 playerTurn = false
                 playerOne.resetPlayerMotorSpeed();
-            } else if (playerOne.checkCollisions() == "PolygonCircleContact") {
+            } else if (playerOne.getCollisions() == "PolygonCircleContact") {
                 console.log("Hit Player Two!");
                 playerTurn = false;
                 playerOne.resetPlayerMotorSpeed();
@@ -112,10 +113,10 @@ export async function startGame() {
         } else {
 
             // check if player two's projectile has hit the ground, if it has switch turns
-            if (playerTwo.checkCollisions() == "ChainCircleContact") {
+            if (playerTwo.getCollisions() == "ChainCircleContact") {
                 playerTurn = true
                 playerOne.resetPlayerMotorSpeed();
-            } else if (playerTwo.checkCollisions() == "PolygonCircleContact") {
+            } else if (playerTwo.getCollisions() == "PolygonCircleContact") {
                 console.log("Hit Player One!");
                 playerTurn = true;
                 playerOne.resetPlayerMotorSpeed();
@@ -144,6 +145,7 @@ export async function startGame() {
         }
 
         playerOne.updatePlayer();
+        playerOne.updatePosPlayerHealthBar(p1HPBar);
         playerTwo.updatePlayer();
         debugRenderer.render();
     })

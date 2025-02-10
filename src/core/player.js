@@ -1,4 +1,4 @@
-import { Sprite } from "pixi.js";
+import { Sprite, Graphics } from "pixi.js";
 import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 
 export class TankPlayer {
@@ -178,7 +178,7 @@ export class TankPlayer {
     updateShell(mapGenerator) {
         if (this.physicalShell) {
             const bodyPos = this.physicalShell.getPosition();
-            let contactType = this.checkCollisions();
+            let contactType = this.getCollisions();
             this.shellSprite.x = bodyPos.x * this.scale;
             this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
 
@@ -207,7 +207,22 @@ export class TankPlayer {
         }
     }
 
-    checkCollisions() {
+    initialisePlayerHealthBar() {
+        const graphics = new Graphics();
+        graphics.rect(this.playerSprite.x, this.playerSprite.y, 200, 25);
+        graphics.fill(0xde3249);
+        graphics.endFill();
+        this.app.stage.addChild(graphics);
+        return graphics;
+    }
+
+    updatePosPlayerHealthBar(graphics) {
+        graphics.x = this.playerSprite.x;
+        graphics.y = this.playerSprite.y;
+        this.app.stage.addChild(graphics);
+    }
+
+    getCollisions() {
         if (this.physicalShell) {
             for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
                 let contact = contactList.contact;

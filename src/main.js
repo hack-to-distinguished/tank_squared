@@ -8,8 +8,6 @@ import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
 import { Converter } from "./core/Converter.js";
 import { createMainMenu } from './menu.js';
 
-// test
-
 export async function startGame() {
 
     const app = new Application();

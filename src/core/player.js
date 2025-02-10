@@ -5,6 +5,8 @@ export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
         //TODO: Add health bars...
         this.hp = 100;
+        this.hpRedBarGraphic = null;
+        this.hpGreenBarGraphic = null;
 
         this.world = world;
         this.coordConverter = coordConverter;
@@ -208,18 +210,30 @@ export class TankPlayer {
     }
 
     initialisePlayerHealthBar() {
-        const graphics = new Graphics();
-        graphics.rect(this.playerSprite.x, this.playerSprite.y, 200, 25);
-        graphics.fill(0xde3249);
-        graphics.endFill();
-        this.app.stage.addChild(graphics);
-        return graphics;
+        const redGraphics = new Graphics();
+        const greenGraphics = new Graphics();
+
+        redGraphics.rect(-52, -60, 100, 10);
+        redGraphics.fill(0xde3249);
+        greenGraphics.rect(-52, -60, 100, 10);
+        greenGraphics.fill(0x2ee651);
+
+        this.app.stage.addChild(redGraphics);
+        this.app.stage.addChild(greenGraphics);
+        this.hpRedBarGraphic = redGraphics;
+        this.hpGreenBarGraphic = greenGraphics;
     }
 
-    updatePosPlayerHealthBar(graphics) {
-        graphics.x = this.playerSprite.x;
-        graphics.y = this.playerSprite.y;
-        this.app.stage.addChild(graphics);
+    updatePosPlayerHealthBar() {
+        this.hpRedBarGraphic.x = this.playerSprite.x;
+        this.hpRedBarGraphic.y = this.playerSprite.y;
+        this.hpGreenBarGraphic.x = this.playerSprite.x;
+        this.hpGreenBarGraphic.y = this.playerSprite.y;
+    }
+
+    damagePlayerHealthBar() {
+        //TODO: implement playerhp damage simulating hpbar decrease
+        // this.hpGreenBarGraphic.width -= 1;
     }
 
     getCollisions() {

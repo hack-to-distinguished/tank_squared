@@ -1,4 +1,4 @@
-import { Vec2, WheelJoint, Circle, RevoluteJoint, Polygon } from "planck";
+import { Vec2, WheelJoint, Circle, RevoluteJoint, Polygon, GearJoint } from "planck";
 import { Sprite } from "pixi.js";
 
 export class TankPlayer {
@@ -40,7 +40,7 @@ export class TankPlayer {
         const vertices = [Vec2(-1.7, -1), Vec2(1, -1), Vec2(2, -0.25), Vec2(1, 1), Vec2(-1.7, 1)];
         this.playerBody.createFixture({
             shape: planck.Polygon(vertices),
-            density: 0.5,
+            density: 1,
             friction: 0.5,
             restitution: 0.01
         })
@@ -101,46 +101,95 @@ export class TankPlayer {
         this.app.stage.addChild(this.playerSprite);
 
 
-        // INFO: Tank cannon
         const playerCannon = this.world.createBody({
             type: "dynamic",
-            position: Vec2(playerBodyX + 0.1, playerBodyY + 1),
+            position: Vec2(playerBodyX + 0.1, playerBodyY + 1.8),
             gravityScale: 0.5,
             restitution: 0
         });
-
-        let rectVertices = [Vec2(0, 0), Vec2(0.2, 0), Vec2(0.2, 1.6), Vec2(0, 1.6)];
-        playerCannon.createFixture({shape: Polygon(rectVertices), density: 1});
+        playerCannon.createFixture({shape: planck.Box(0.1, 0.8), density: 0.3, friction: 0.3});
 
         const cannonJoint = this.world.createJoint(
             new RevoluteJoint({
-                collideConnected: false 
-            }, this.playerBody, playerCannon, playerCannon.getPosition())
-            //new planck.MotorJoint({collideConnected: true}, this.playerBody, playerCannon, playerCannon.getPosition())
+                collideConnected: false, enableMotor: true, motorSpeed: 30, maxMotorTorque: 50,
+                //localAnchorA: Vec2(playerBodyX + 0.1, playerBodyY + 1.8),
+            }, this.playerBody, playerCannon,
+                //Vec2(playerBodyX + 0.1, playerBodyY + 1.8)
+                this.playerBody.getPosition()
+            )
         );
-        console.log("cpos", playerCannon.getPosition());
-        this.playerCannon = playerCannon;
 
-
-        // INFO: Cannon base (connected to cannon via gear joint)
-        const cannonBase = this.world.createBody({
-            type: "dynamic",
-            position: Vec2(playerBodyX + 0.2, playerBodyY + 1)
+        const bigBox = this.world.createBody({
+            type: "static", 
+            position: Vec2(playerBodyX, 20), 
         });
-        cannonBase.createFixture({shape: Circle(0.2)})
+        bigBox.createFixture({shape: planck.Box(0.5, 1.5)})
 
-        const cannonBaseJoint = this.world.createJoint(
+        const smallBox = this.world.createBody({
+            type: "dynamic", 
+            position: Vec2(bigBox.getPosition().x, bigBox.getPosition().y), 
+        });
+        smallBox.createFixture({shape: planck.Box(0.2, 1), density: 1, friction: 1})
+
+        const boxJoint = this.world.createJoint(
             new RevoluteJoint({
-                collideConnected: true
-            }, this.playerBody, cannonBase, cannonBase.getPosition())
+                enableMotor: true, motorSpeed: Math.PI, 
+                maxMotorTorque: 10000.0, collideConnected: false,
+                //localAnchorA: Vec2(smallBox.getPosition().x, smallBox.getPosition().y+1)
+                referenceAngle: 1
+            }, bigBox, smallBox,
+                //bigBox.getPosition()
+                Vec2(bigBox.getPosition().x, bigBox.getPosition().y+1)
+            )
         );
 
-        // INFO: Gear Joint
-        const gearBaseToCannon = this.world.createJoint(
-            new planck.GearJoint({
+        console.log("joint", boxJoint);
+        console.log("smallBox", smallBox);
+        console.log("bigBox", bigBox);
 
-            });
-        );
+
+
+        //// INFO: Tank cannon
+        //const playerCannon = this.world.createBody({
+        //    type: "dynamic",
+        //    position: Vec2(playerBodyX + 0.1, playerBodyY + 1),
+        //    gravityScale: 0.5,
+        //    restitution: 0
+        //});
+        //
+        //let rectVertices = [Vec2(0, 0), Vec2(0.2, 0), Vec2(0.2, 1.6), Vec2(0, 1.6)];
+        //playerCannon.createFixture({shape: Polygon(rectVertices), density: 1});
+        //
+        //const cannonJoint = this.world.createJoint(
+        //    new RevoluteJoint({
+        //        collideConnected: true 
+        //    }, this.playerBody, playerCannon, playerCannon.getPosition())
+        //    //new planck.MotorJoint({collideConnected: true}, this.playerBody, playerCannon, playerCannon.getPosition())
+        //);
+        //console.log("cpos", playerCannon.getPosition());
+        this.playerCannon = playerCannon;
+        //
+        //
+        //// INFO: Cannon base (connected to cannon via gear joint)
+        //const cannonBase = this.world.createBody({
+        //    type: "dynamic",
+        //    position: Vec2(playerBodyX + 0.2, playerBodyY + 1)
+        //});
+        //cannonBase.createFixture({shape: Circle(0.2)})
+        //
+        //const cannonBaseJoint = this.world.createJoint(
+        //    new RevoluteJoint({
+        //        collideConnected: true
+        //    }, this.playerBody, cannonBase, cannonBase.getPosition())
+        //);
+        //
+        //// INFO: Gear Joint
+        //const gearBaseToCannon = this.world.createJoint(
+        //    new GearJoint({enableMotor: true, motorSpeed: 10, maxMotorTorque: 50},
+        //        cannonBase, playerCannon, 
+        //        cannonBaseJoint, cannonJoint, 1
+        //    )
+        //);
 
 
 

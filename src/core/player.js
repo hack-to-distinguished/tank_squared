@@ -24,6 +24,7 @@ export class TankPlayer {
         this.shellTexture = shellTexture;
         this.shellSprite = null;
         this.playerCannon = null;
+        this.sbj = null;
     }
 
     // INFO: Player Code
@@ -119,33 +120,6 @@ export class TankPlayer {
             )
         );
 
-        const bigBox = this.world.createBody({
-            type: "static", 
-            position: Vec2(playerBodyX, 20), 
-        });
-        bigBox.createFixture({shape: planck.Box(0.5, 1.5)})
-
-        const smallBox = this.world.createBody({
-            type: "dynamic", 
-            position: Vec2(bigBox.getPosition().x, bigBox.getPosition().y), 
-        });
-        smallBox.createFixture({shape: planck.Box(0.2, 1), density: 1, friction: 1})
-
-        const boxJoint = this.world.createJoint(
-            new RevoluteJoint({
-                enableMotor: true, motorSpeed: Math.PI, 
-                maxMotorTorque: 10000.0, collideConnected: false,
-                //localAnchorA: Vec2(smallBox.getPosition().x, smallBox.getPosition().y+1)
-                referenceAngle: 1
-            }, bigBox, smallBox,
-                //bigBox.getPosition()
-                Vec2(bigBox.getPosition().x, bigBox.getPosition().y+1)
-            )
-        );
-
-        console.log("joint", boxJoint);
-        console.log("smallBox", smallBox);
-        console.log("bigBox", bigBox);
 
 
 
@@ -196,6 +170,86 @@ export class TankPlayer {
 
 
 
+    }
+
+    testBed() {
+        
+        const bigBox = this.world.createBody({
+            type: "static", 
+            position: Vec2(10, 20), 
+        });
+        bigBox.createFixture({shape: planck.Box(0.5, 1.5)})
+
+        const smallBox = this.world.createBody({
+            type: "dynamic", 
+            position: Vec2(bigBox.getPosition().x -1, bigBox.getPosition().y + 1), 
+            fixedRotation: false
+        });
+        smallBox.createFixture({shape: planck.Box(1, 0.2), density: 1, friction: 1})
+
+        var bigBoxJoint = this.world.createJoint(
+            new RevoluteJoint({
+                //enableMotor: true, 
+                //motorSpeed: Math.PI, 
+                motorSpeed: 0,
+                maxMotorTorque: 100, collideConnected: false,
+                referenceAngle: 1
+            }, 
+                smallBox, bigBox,
+                //bigBox, smallBox,
+                //bigBox.getPosition()
+                Vec2(bigBox.getPosition().x, bigBox.getPosition().y+1)
+            )
+        );
+
+        var smallBoxJoint = this.world.createJoint(
+            new RevoluteJoint({
+                enableMotor: true, motorSpeed: 0,
+                maxMotorTorque: 100, collideConnected: false,
+            }, bigBox, smallBox,
+               Vec2(smallBox.getPosition().x+1, smallBox.getPosition().y)
+            )
+        );
+
+
+        var gearJoint = this.world.createJoint(
+            new GearJoint({
+                bodyA: smallBox,
+                bodyB: bigBox,
+                joint1: smallBoxJoint,
+                joint2: bigBoxJoint,
+                ratio: 2 * Math.PI / 3
+            })
+        );
+        
+
+
+        // INFO: Mouse joint
+        const bigBox2 = this.world.createBody({
+            type: "static", 
+            position: Vec2(30, 20), 
+        });
+        bigBox2.createFixture({shape: planck.Box(0.5, 1.5)})
+
+        const smallBox2 = this.world.createBody({
+            type: "dynamic", 
+            position: Vec2(bigBox2.getPosition().x -1, bigBox2.getPosition().y + 1), 
+            fixedRotation: false,
+            massData: 2
+        });
+        smallBox2.createFixture({shape: planck.Box(1, 0.2), density: 1, friction: 1})
+
+        var smallBoxJoint = this.world.createJoint(
+            new planck.MouseJoint({
+                frequencyHz: 8.0,
+                dampingRatio: 0.7,
+                collideConnected: true,
+                maxForce: 10
+            }, bigBox2, smallBox2,
+               Vec2(smallBox2.getPosition().x -0.8, smallBox2.getPosition().y)
+            )
+        );
+        this.sbj = smallBoxJoint;
     }
 
     updatePlayer() {
@@ -316,8 +370,13 @@ export class TankPlayer {
         let mouseX = e.clientX;
         let mouseY = e.clientY;
 
-        var cannonPos = this.playerCannon.getPosition();
-        console.log("cpos", cannonPos);
+        //var cannonPos = this.playerCannon.getPosition();
+        //
+        console.log("cpos", mouseX, mouseY);
+
+        console.log("sbj", this.sbj);
+        this.sbj.setTarget({x:mouseX / this.scale, y:mouseY / this.scale});
+        return mouseX, mouseY
     };
 
 

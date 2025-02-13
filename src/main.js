@@ -1,7 +1,6 @@
-import { Application, Assets, Graphics } from "pixi.js";
+import { Application, Assets } from "pixi.js";
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
-// import { Background } from "./scenes/mapImage.js";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
 import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
@@ -147,8 +146,9 @@ export async function startGame() {
 
         playerOne.updatePlayer();
         playerOne.updatePosPlayerHealthBar();
-        playerOne.damagePlayerHealthBar();
+        playerOne.updatePlayerHealthBar();
         playerTwo.updatePosPlayerHealthBar();
+        playerTwo.updatePlayerHealthBar();
         playerTwo.updatePlayer();
         // debugRenderer.render();
     })

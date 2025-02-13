@@ -231,9 +231,9 @@ export class TankPlayer {
         this.hpGreenBarGraphic.y = this.playerSprite.y;
     }
 
-    damagePlayerHealthBar() {
+    updatePlayerHealthBar() {
         //TODO: implement playerhp damage simulating hpbar decrease
-        // this.hpGreenBarGraphic.width -= 1;
+        this.hpGreenBarGraphic.width -= 1;
     }
 
     getCollisions() {

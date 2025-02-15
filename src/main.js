@@ -147,9 +147,11 @@ export async function startGame() {
         playerOne.updatePlayer();
         playerOne.updatePosPlayerHealthBar();
         playerOne.updatePlayerHealthBar();
+
         playerTwo.updatePosPlayerHealthBar();
         playerTwo.updatePlayerHealthBar();
         playerTwo.updatePlayer();
+
         // debugRenderer.render();
     })
 }

@@ -89,10 +89,15 @@ export class DebugRenderer {
     }
 
     drawPolygon(shape, position, angle) {
-        const vertices = shape.m_vertices.map((v) => ({
-            x: (v.x + position.x) * this.scale,
-            y: this.app.renderer.height - (v.y + position.y) * this.scale,
-        }));
+        const vertices = shape.m_vertices.map((v) => {
+            const rotatedX = v.x * Math.cos(angle) - v.y * Math.sin(angle);
+            const rotatedY = v.x * Math.sin(angle) + v.y * Math.cos(angle);
+
+            return {
+                x: (rotatedX + position.x) * this.scale,
+                y: this.app.renderer.height - (rotatedY + position.y) * this.scale,
+            };
+        });
 
         this.graphics.beginFill(0x00ff00, 0.2); // Transparent green fill
         this.graphics.moveTo(vertices[0].x, vertices[0].y);

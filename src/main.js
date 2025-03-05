@@ -34,7 +34,6 @@ export async function startGame() {
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
     playerOne.setupKeyboardControls();
-    playerOne.testBed();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');

@@ -151,10 +151,10 @@ export class TankPlayer {
         this.playerCannonSprite
             .beginFill(0x3f553c) // Reapply the fill color
             .drawRect(
-                -0.1 * this.scale, // X offset (center point for rotation)
-                -0.4 * this.scale, // Y offset (anchor in the middle)
-                0.2 * this.scale,  // Width
-                0.8 * this.scale   // Height (length of the cannon)
+                -0.1 * this.scale,
+                -0.4 * this.scale,
+                0.2 * this.scale,
+                1.8 * this.scale
             )
             .endFill();
 

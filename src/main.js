@@ -30,14 +30,14 @@ export async function startGame() {
     // Adding player
     const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 500, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 550, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
     playerOne.setupKeyboardControls();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 500, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 550, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();
     playerTwo.setupKeyboardControls();
@@ -84,6 +84,8 @@ export async function startGame() {
         world.step(1 / 60);
         const currentTime = Date.now();
         if (playerTurn) {
+            debugRenderer.render();
+            playerOne.updateCannon();
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
                 playerOne.openFire(velX, velY);
                 shellVisible = true;
@@ -128,7 +130,7 @@ export async function startGame() {
 
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
-        debugRenderer.render();
+        //debugRenderer.render();
     })
 }
 

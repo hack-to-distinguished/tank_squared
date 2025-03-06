@@ -135,30 +135,29 @@ export class TankPlayer {
 
 
     updatePlayer() {
+        // INFO: Update the player sprite
         const bodyPosition = this.playerBody.getPosition();
-
         this.playerSprite.x = bodyPosition.x * this.scale;
         this.playerSprite.y = this.app.renderer.height - (bodyPosition.y * this.scale);
         this.playerSprite.rotation = -this.playerBody.getAngle();
 
 
-        // Update cannon graphics
+        // INFO: Update cannon graphics
         const cannonPosition = this.playerCannon.getPosition();
         const cannonAngle = -this.playerCannon.getAngle();
 
-        this.playerCannonSprite.clear(); // Clear the previous frame
+        this.playerCannonSprite.clear();
 
         this.playerCannonSprite
-            .beginFill(0x3f553c) // Reapply the fill color
+            .beginFill(0x3f553c)
             .drawRect(
                 -0.1 * this.scale,
-                -0.4 * this.scale,
+                -0.8 * this.scale,
                 0.2 * this.scale,
-                1.8 * this.scale
+                38
             )
             .endFill();
 
-        // Set position and rotation
         this.playerCannonSprite.x = cannonPosition.x * this.scale;
         this.playerCannonSprite.y = this.app.renderer.height - (cannonPosition.y * this.scale);
         this.playerCannonSprite.rotation = cannonAngle;

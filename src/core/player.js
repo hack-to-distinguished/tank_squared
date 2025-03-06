@@ -273,7 +273,9 @@ export class TankPlayer {
         let mouseY = this.mouse.y
 
         var rad = Math.atan2(mouseY, mouseX);
-        this.playerCannon.setAngle(rad * (180 / Math.PI));
+
+        //if this.playerCannon.getAngle()
+        this.playerCannon.setAngle(-rad * (180 / Math.PI));
     }
 
 

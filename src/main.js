@@ -84,7 +84,6 @@ export async function startGame() {
         world.step(1 / 60);
         const currentTime = Date.now();
         if (playerTurn) {
-            debugRenderer.render();
             playerOne.updateCannon();
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
                 playerOne.openFire(velX, velY);
@@ -130,7 +129,7 @@ export async function startGame() {
 
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
-        //debugRenderer.render();
+        debugRenderer.render();
     })
 }
 

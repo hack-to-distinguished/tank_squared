@@ -126,8 +126,6 @@ export class TankPlayer {
             )
             .fill(0x3f553c);
 
-        //playerCannonSprite.scale.set(spriteWidth / this.playerTexture.width, spriteHeight / this.playerTexture.height);
-        //playerCannonSprite.x = this.playerSprite.x
         playerCannonSprite.y = this.playerSprite.y - playerHeight / 2
         this.playerCannonSprite = playerCannonSprite;
         this.app.stage.addChild(playerCannonSprite);
@@ -161,6 +159,17 @@ export class TankPlayer {
         this.playerCannonSprite.x = cannonPosition.x * this.scale;
         this.playerCannonSprite.y = this.app.renderer.height - (cannonPosition.y * this.scale);
         this.playerCannonSprite.rotation = cannonAngle;
+    }
+
+
+    updateCannon() {
+        let angleChange = 0.02;
+
+        if (this.keys['87']) {
+            this.playerCannon.setAngle(this.playerCannon.getAngle() + angleChange);
+        } else if (this.keys['83']) {
+            this.playerCannon.setAngle(this.playerCannon.getAngle() - angleChange);
+        }
     }
 
 
@@ -199,6 +208,8 @@ export class TankPlayer {
                 this.springFront.spring.setMotorSpeed(0);
             }
         }
+
+        this.updateCannon();
     }
 
 
@@ -263,49 +274,31 @@ export class TankPlayer {
     }
 
 
-    // INFO: Keyboard controls
     checkSpaceBarInput() {
         return this.keys['32'] === true;
     }
 
-    updateCannon(e) {
-        let mouseX = this.mouse.x
-        let mouseY = this.mouse.y
-
-        var rad = Math.atan2(mouseY, mouseX);
-
-        //if this.playerCannon.getAngle()
-        this.playerCannon.setAngle(-rad * (180 / Math.PI));
-    }
-
-
     setupKeyboardControls() {
         window.addEventListener("keydown", this.keysDown.bind(this));
         window.addEventListener("keyup", this.keysUp.bind(this));
-        window.addEventListener("mousemove", this.mouseMove.bind(this));
-    }
-
-    mouseMove(e){
-        this.mouse.x = e.clientX;
-        this.mouse.y = e.clientY;
     }
 
     keysDown(e) {
-        if (e.keyCode == 68) {
+        if (e.keyCode == 68) { // D
             this.keys[e.keyCode] = true;
-        } else if (e.keyCode == 65) {
+        } else if (e.keyCode == 65) { // A
             this.keys[e.keyCode] = true;
-        } else if (e.keyCode == 32 && (this.keys["68"] == false || this.keys["65"] == false)) {
+        } else if (e.keyCode == 32) { // Space
+            this.keys[e.keyCode] = true;
+        } else if (e.keyCode == 87) { // W
+            this.keys[e.keyCode] = true;
+        } else if (e.keyCode == 83) { // S
             this.keys[e.keyCode] = true;
         }
     }
 
     keysUp(e) {
-        if (e.keyCode == 68) {
-            this.keys[e.keyCode] = false;
-        } else if (e.keyCode == 65) {
-            this.keys[e.keyCode] = false;
-        } else if (e.keyCode == 32) {
+        if ([68, 65, 32, 87, 83].includes(e.keyCode)) {
             this.keys[e.keyCode] = false;
         }
     }

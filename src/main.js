@@ -78,15 +78,12 @@ export async function startGame() {
             magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
         }
 
-        const velX = magnitudeVelocity * Math.cos(launchAngle);
-        const velY = magnitudeVelocity * Math.sin(launchAngle);
 
         world.step(1 / 60);
         const currentTime = Date.now();
         if (playerTurn) {
-            playerOne.updateCannon();
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-                playerOne.openFire(velX, velY);
+                playerOne.openFire();
                 shellVisible = true;
                 lastFireTime = currentTime;
                 playerTurn = false
@@ -102,7 +99,7 @@ export async function startGame() {
             }
         } else {
             if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-                playerTwo.openFire(velX, velY);
+                playerTwo.openFire(true);
                 shellVisible = true;
                 lastFireTime = currentTime;
                 playerTurn = true;

@@ -116,6 +116,7 @@ export class TankPlayer {
                 collideConnected: true
             }, this.playerBody, this.playerCannon, Vec2(playerBodyX + 0.1, playerBodyY + 1.2))
         );
+        this.cannonJoint = cannonJoint;
 
         // INFO: Cannon Sprite
         console.log("playerSpritePos", this.playerSprite.x / this.scale, this.playerSprite.y);
@@ -232,8 +233,21 @@ export class TankPlayer {
         this.shellSprite = shellSprite;
     }
 
-    async openFire(velX, velY) {
-        const bodyPos = this.playerBody.getPosition();
+    async openFire(reverse=false) {
+        const cannonAngle = -this.playerCannon.getAngle();
+        console.log("angles", cannonAngle);
+
+        const magnitudeVelocity = 10
+        var velX = magnitudeVelocity * Math.cos(cannonAngle);
+        var velY = magnitudeVelocity * Math.sin(cannonAngle);
+        console.log("Velx, Vely", velX, velY);
+
+        if (reverse) {
+            velX = magnitudeVelocity * Math.cos(cannonAngle) * -1;
+            velY = magnitudeVelocity * Math.sin(cannonAngle) * -1;
+        }
+
+        const bodyPos = this.playerCannon.getPosition();
 
         this.physicalShell = this.world.createBody({
             type: "dynamic",

@@ -233,7 +233,11 @@ export class TankPlayer {
 
     updatePlayerHealthBar() {
         //TODO: implement playerhp damage simulating hpbar decrease
+        //TODO: fix bar decreasing from middle rather than from starting from the right, then going all the way to the left
         this.hpGreenBarGraphic.width -= 1;
+        if (this.hpGreenBarGraphic.width < 1) {
+            this.app.stage.removeChild(this.hpGreenBarGraphic);
+        }
     }
 
     getCollisions() {

@@ -213,9 +213,10 @@ export class TankPlayer {
         const redGraphics = new Graphics();
         const greenGraphics = new Graphics();
 
+        const path = [0, 0, this.hp, 0, this.hp, 10, 0, 10];
+        greenGraphics.poly(path);
         redGraphics.rect(-52, -60, 100, 10);
         redGraphics.fill(0xde3249);
-        greenGraphics.rect(-52, -60, 100, 10);
         greenGraphics.fill(0x2ee651);
 
         this.app.stage.addChild(redGraphics);
@@ -227,17 +228,24 @@ export class TankPlayer {
     updatePosPlayerHealthBar() {
         this.hpRedBarGraphic.x = this.playerSprite.x;
         this.hpRedBarGraphic.y = this.playerSprite.y;
-        this.hpGreenBarGraphic.x = this.playerSprite.x;
-        this.hpGreenBarGraphic.y = this.playerSprite.y;
+        this.hpGreenBarGraphic.x = this.playerSprite.x - 52;
+        this.hpGreenBarGraphic.y = this.playerSprite.y - 60;
     }
 
     updatePlayerHealthBar() {
         //TODO: implement playerhp damage simulating hpbar decrease
-        //TODO: fix bar decreasing from middle rather than from starting from the right, then going all the way to the left
-        this.hpGreenBarGraphic.width -= 1;
-        if (this.hpGreenBarGraphic.width < 1) {
-            this.app.stage.removeChild(this.hpGreenBarGraphic);
+        if (this.hp > 0) {
+            this.hp -= 1;
         }
+        this.app.stage.removeChild(this.hpGreenBarGraphic);
+        this.hpGreenBarGraphic = new Graphics();
+
+        const path = [0, 0, this.hp, 0, this.hp, 10, 0, 10];
+        this.hpGreenBarGraphic.poly(path);
+        this.hpGreenBarGraphic.fill(0x2ee651);
+        this.hpGreenBarGraphic.x = this.playerSprite.x - 52;
+        this.hpGreenBarGraphic.y = this.playerSprite.y - 60;
+        this.app.stage.addChild(this.hpGreenBarGraphic);
     }
 
     getCollisions() {

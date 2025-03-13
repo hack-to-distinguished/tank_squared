@@ -177,7 +177,12 @@ export class TankPlayer {
     }
 
 
-    updateShell(mapGenerator) {
+    updateShell(mapGenerator, playerHit) {
+
+        if (playerHit) {
+            this.updatePlayerHealthBar();
+        }
+
         if (this.physicalShell) {
             const bodyPos = this.physicalShell.getPosition();
             let contactType = this.getCollisions();
@@ -193,11 +198,14 @@ export class TankPlayer {
             if (contactType == "ChainCircleContact") {
                 this.destroyTerrain(mapGenerator);
                 this.resetAndDestroyShell();
-            } else if (contactType == "PolygonCircleContact") {
+            }
+
+
+
+            if (contactType == "PolygonCircleContact") {
                 //TODO: Setup the Damage Checks...
-                this.resetAndDestroyShell();
                 console.log("Bullet has collided with the body of a tank!");
-                this.updatePlayerHealthBar();
+                this.resetAndDestroyShell();
             }
         }
     }
@@ -235,8 +243,6 @@ export class TankPlayer {
 
     updatePlayerHealthBar() {
         //TODO: implement playerhp damage simulating hpbar decrease
-
-        // console.log(this.getCollisions());
 
         if (this.hp > 0) {
             this.hp -= 20;

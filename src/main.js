@@ -66,6 +66,9 @@ export async function startGame() {
     let lastFireTime = 0;
     let shellVisible = false;
 
+    let isPlayerTwoHit = false;
+    let isPlayerOneHit = false;
+
     app.ticker.add(() => {
 
         // takes values from the sliders, and calculates the vertical, and horizontal motion
@@ -94,6 +97,7 @@ export async function startGame() {
                 playerOne.resetPlayerMotorSpeed();
             } else if (playerOne.getCollisions() == "PolygonCircleContact") {
                 console.log("Hit Player Two!");
+                isPlayerTwoHit = true;
                 playerTurn = false;
                 playerOne.resetPlayerMotorSpeed();
             }
@@ -118,6 +122,7 @@ export async function startGame() {
                 playerOne.resetPlayerMotorSpeed();
             } else if (playerTwo.getCollisions() == "PolygonCircleContact") {
                 console.log("Hit Player One!");
+                isPlayerOneHit = true;
                 playerTurn = true;
                 playerOne.resetPlayerMotorSpeed();
             }
@@ -137,7 +142,10 @@ export async function startGame() {
 
         // TODO: While visible, run the action
         if (shellVisible) {
-            const shellActive = playerOne.updateShell(mapGenerator) || playerTwo.updateShell(mapGenerator);
+            if (isPlayerTwoHit) {
+                console.log("isPlayerTwoHit: " + isPlayerTwoHit);
+            }
+            const shellActive = playerOne.updateShell(mapGenerator, isPlayerOneHit) || playerTwo.updateShell(mapGenerator, isPlayerTwoHit);
             // TODO: Change from a visible flag to a collided with flag
             if (shellActive == 0) {
                 shellVisible = false;
@@ -146,13 +154,14 @@ export async function startGame() {
 
         playerOne.updatePlayer();
         playerOne.updatePosPlayerHealthBar();
-        // playerOne.updatePlayerHealthBar();
 
         playerTwo.updatePosPlayerHealthBar();
-        // playerTwo.updatePlayerHealthBar();
         playerTwo.updatePlayer();
 
-        // debugRenderer.render();
+        isPlayerOneHit = false;
+        isPlayerTwoHit = false;
+
+        debugRenderer.render();
     })
 }
 

@@ -196,7 +196,8 @@ export class TankPlayer {
             } else if (contactType == "PolygonCircleContact") {
                 //TODO: Setup the Damage Checks...
                 this.resetAndDestroyShell();
-                // console.log("Bullet has collided with the body of a tank!");
+                console.log("Bullet has collided with the body of a tank!");
+                this.updatePlayerHealthBar();
             }
         }
     }
@@ -234,8 +235,11 @@ export class TankPlayer {
 
     updatePlayerHealthBar() {
         //TODO: implement playerhp damage simulating hpbar decrease
+
+        // console.log(this.getCollisions());
+
         if (this.hp > 0) {
-            this.hp -= 1;
+            this.hp -= 20;
         }
         this.app.stage.removeChild(this.hpGreenBarGraphic);
         this.hpGreenBarGraphic = new Graphics();

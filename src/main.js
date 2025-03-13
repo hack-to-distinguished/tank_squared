@@ -146,10 +146,10 @@ export async function startGame() {
 
         playerOne.updatePlayer();
         playerOne.updatePosPlayerHealthBar();
-        playerOne.updatePlayerHealthBar();
+        // playerOne.updatePlayerHealthBar();
 
         playerTwo.updatePosPlayerHealthBar();
-        playerTwo.updatePlayerHealthBar();
+        // playerTwo.updatePlayerHealthBar();
         playerTwo.updatePlayer();
 
         // debugRenderer.render();

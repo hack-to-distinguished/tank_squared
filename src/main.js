@@ -33,7 +33,7 @@ export async function startGame() {
     const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
-    playerOne.initialisePlayerHealthBar();
+    await playerOne.initialisePlayerHealthBar();
     playerOne.setupKeyboardControls();
 
     // Adding second player
@@ -41,7 +41,7 @@ export async function startGame() {
     const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();
-    playerTwo.initialisePlayerHealthBar();
+    await playerTwo.initialisePlayerHealthBar();
     playerTwo.setupKeyboardControls();
 
     // Adding projectile mechanism

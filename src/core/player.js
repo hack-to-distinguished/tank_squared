@@ -218,7 +218,7 @@ export class TankPlayer {
         }
     }
 
-    initialisePlayerHealthBar() {
+    async initialisePlayerHealthBar() {
         const redGraphics = new Graphics();
         const greenGraphics = new Graphics();
 

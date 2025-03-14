@@ -1,9 +1,9 @@
 import { LCG } from "./LCG";
-import { Graphics } from "pixi.js";
-import { Vec2, Chain } from "planck";
+import { Map } from "../map";
 
 export class MapGenerator {
     constructor(app, seed) {
+        this.map = null;
         this.app = app;
         this.terrain = [];
         // if no argument is passed into mapgenerator then it will just create a random terrain
@@ -87,43 +87,37 @@ export class MapGenerator {
         return scaledPixiValues;
     }
 
-    generateTerrain(app, amplitude, wavelength, numberOfOctaves, reductionFactor) {
+    generateTerrain(amplitude, wavelength, numberOfOctaves, reductionFactor) {
+        // console.log("Generating terrain points...");
+        // const start = performance.now();
         const perlinNoise = this.combinePerlin(this.generatePerlinNoiseOctaves(amplitude, wavelength, numberOfOctaves, reductionFactor, this.app.canvas.width));
         const scaledValues = this.scalePerlinNoiseValuesToPixi(perlinNoise, this.app.canvas.height, amplitude);
+        // const end = performance.now();
+        // console.log(`Internal terrain generation time: ${(end - start).toFixed(4)} ms`);
         return scaledValues;
     }
 
-    drawTerrain(app, terrainPoints, world, sf) {
-
-        const pixelsPerMetre = 100;
-        const metresPerPixel = 1 / pixelsPerMetre;
-
-        // Drawing the terrain
-        let terrainGraphic = new Graphics();
-        terrainGraphic.moveTo(0, terrainPoints[0]);
-
-        for (let x = 1; x < terrainPoints.length; x++) {
-            terrainGraphic.lineTo(x, terrainPoints[x]);
+    destroyTerrainGraphicFromMap() {
+        if (this.map) {
+            this.map.destroyTerrainGraphic();
         }
+    }
 
-        terrainGraphic.lineTo(app.canvas.width, app.canvas.height);
-        terrainGraphic.lineTo(0, app.canvas.height);
-        terrainGraphic.lineTo(0, terrainPoints[0]);
-        terrainGraphic.stroke({ width: 2, color: 0xffffff });
-        terrainGraphic.fill(0x4d1a00);
-        app.stage.addChild(terrainGraphic);
-
-        // applying planckjs logic 
-        let body = world.createBody({ type: "static", position: new Vec2(0, 0) });
-        const groundFD = { density: 1, friction: 0.6 } // FD stands for friction density
-
-        let vs = [];
-
-        for (let i = 0; i < terrainPoints.length; i++) {
-            vs.push(Vec2(i * (1 / sf), (this.app.renderer.height - terrainPoints[i]) / sf));
+    getTerrainBodyFromMap() {
+        if (this.map) {
+            return this.map.getTerrainBody();
         }
+    }
 
-        let chain = new Chain(vs, false);
-        body.createFixture(chain, groundFD);
+    getTerrainPointsFromMap() {
+        if (this.map) {
+            return this.map.getTerrainPoints();
+        }
+    }
+
+    drawTerrain(terrainPoints, world, sf, app) {
+        this.map = new Map(terrainPoints, world, sf, this.app);
+        this.map.initialiseMap(app);
+        this.map.visualiseTerrain();
     }
 }

@@ -1,4 +1,4 @@
-import { Application, Assets, Graphics } from "pixi.js";
+import { Application, Assets } from "pixi.js";
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { DebugRenderer } from "./core/debugOutlines.js";
@@ -33,6 +33,7 @@ export async function startGame() {
     const playerOne = new TankPlayer(appWidth / 10, appHeight - 550, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
+    await playerOne.initialisePlayerHealthBar();
     playerOne.setupKeyboardControls();
 
     // Adding second player
@@ -40,6 +41,7 @@ export async function startGame() {
     const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 550, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();
+    await playerTwo.initialisePlayerHealthBar();
     playerTwo.setupKeyboardControls();
 
     let playerTurn = true;
@@ -48,54 +50,78 @@ export async function startGame() {
 
     // adding mapgenerator, and drawing the terrain
     const mapGenerator = new MapGenerator(app);
-    const terrain = mapGenerator.generateTerrain(app, 128, 256, 1, 2);
-    mapGenerator.drawTerrain(app, terrain, world, scaleFactor);
+    let terrainPoints = mapGenerator.generateTerrain(128, 256, 2, 2);
+    mapGenerator.drawTerrain(terrainPoints, world, scaleFactor, app);
 
     const fireCooldown = 1000;
     let lastFireTime = 0;
     let shellVisible = false;
+
+    let isPlayerTwoHit = false;
+    let isPlayerOneHit = false;
 
     app.ticker.add(() => {
 
         world.step(1 / 60);
         const currentTime = Date.now();
         if (playerTurn) {
+            //TODO: Need to enable hit detection, and player turn switching if projectile hits opponent
+
+            // check if player one's projectile has hit the ground, if it has switch turns
+            if (playerOne.getCollisions() == "ChainCircleContact") {
+                playerTurn = false
+                playerOne.resetPlayerMotorSpeed();
+            } else if (playerOne.getCollisions() == "PolygonCircleContact") {
+                console.log("Hit Player Two!");
+                isPlayerTwoHit = true;
+                playerTurn = false;
+                playerOne.resetPlayerMotorSpeed();
+            }
+
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
                 playerOne.openFire();
                 shellVisible = true;
                 lastFireTime = currentTime;
-                playerTurn = false
                 playerTwo.resetMoveDist();
-                playerOne.resetPlayerMotorSpeed();
+                playerOne.moveDist = -1;
+
             } else {
                 if (playerOne.moveDist > 0) {
                     playerOne.movePlayer()
-                } else {
-                    playerTurn = false;
-                    playerTwo.resetMoveDist();
                 }
             }
         } else {
+
+            // check if player two's projectile has hit the ground, if it has switch turns
+            if (playerTwo.getCollisions() == "ChainCircleContact") {
+                playerTurn = true
+                playerOne.resetPlayerMotorSpeed();
+            } else if (playerTwo.getCollisions() == "PolygonCircleContact") {
+                console.log("Hit Player One!");
+                isPlayerOneHit = true;
+                playerTurn = true;
+                playerOne.resetPlayerMotorSpeed();
+            }
+
             if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
                 playerTwo.openFire();
                 shellVisible = true;
                 lastFireTime = currentTime;
-                playerTurn = true;
                 playerOne.resetMoveDist();
-                playerTwo.resetPlayerMotorSpeed();
+                playerTwo.moveDist = -1;
             } else {
                 if (playerTwo.moveDist > 0) {
                     playerTwo.movePlayer();
-                } else {
-                    playerTurn = true;
-                    playerOne.resetMoveDist();
                 }
             }
         }
 
         // TODO: While visible, run the action
         if (shellVisible) {
-            const shellActive = playerOne.updateShell() || playerTwo.updateShell();
+            if (isPlayerTwoHit) {
+                console.log("isPlayerTwoHit: " + isPlayerTwoHit);
+            }
+            const shellActive = playerOne.updateShell(mapGenerator, isPlayerOneHit) || playerTwo.updateShell(mapGenerator, isPlayerTwoHit);
             // TODO: Change from a visible flag to a collided with flag
             if (shellActive == 0) {
                 shellVisible = false;
@@ -103,8 +129,15 @@ export async function startGame() {
         }
 
         playerOne.updatePlayer();
+        playerOne.updatePosPlayerHealthBar();
+
+        playerTwo.updatePosPlayerHealthBar();
         playerTwo.updatePlayer();
-        debugRenderer.render();
+
+        isPlayerOneHit = false;
+        isPlayerTwoHit = false;
+
+         //debugRenderer.render();
     })
 }
 

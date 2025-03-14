@@ -1,8 +1,11 @@
-import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 import { Sprite, Graphics } from "pixi.js";
+import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
+        this.hp = 100;
+        this.hpRedBarGraphic = null;
+        this.hpGreenBarGraphic = null;
         this.world = world;
         this.coordConverter = coordConverter;
         this.app = app;
@@ -35,12 +38,11 @@ export class TankPlayer {
             position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
             gravityScale: 2, fixedRotation: false,
         })
-        const [playerWidth, playerHeight] = [100 / this.scale, 70 / this.scale];
 
         const vertices = [Vec2(-1.7, -1), Vec2(1, -1), Vec2(2, -0.25), Vec2(1, 1), Vec2(-1.7, 1)];
         this.playerBody.createFixture({
-            shape: planck.Polygon(vertices),
-            density: 1,
+            shape: Polygon(vertices),
+            density: 0.5,
             friction: 0.5,
             restitution: 0.01
         })
@@ -127,7 +129,7 @@ export class TankPlayer {
             )
             .fill(0x3f553c);
 
-        playerCannonSprite.y = this.playerSprite.y - playerHeight / 2
+        playerCannonSprite.y = this.playerSprite.y - spriteHeight / 2.5
         this.playerCannonSprite = playerCannonSprite;
         this.app.stage.addChild(playerCannonSprite);
     }
@@ -236,7 +238,6 @@ export class TankPlayer {
     async openFire() {
         var cannonAngle = -this.playerCannon.getAngle();
         const magnitudeVelocity = 10
-        // no need for reversal, just swapped sin and cos around, works fine now
         // TODO: need to add fix so that bullet actually comes out at the end of the barrel
         var velX = magnitudeVelocity * Math.sin(cannonAngle);
         var velY = magnitudeVelocity * Math.cos(cannonAngle);
@@ -246,7 +247,7 @@ export class TankPlayer {
 
         this.physicalShell = this.world.createBody({
             type: "dynamic",
-            position: Vec2(bodyPos.x, bodyPos.y + 0.1),
+            position: Vec2(bodyPos.x, bodyPos.y + 2.2),
             fixedRotation: true,
             gravityScale: 0.5,
             bullet: true,
@@ -264,24 +265,143 @@ export class TankPlayer {
     }
 
 
-    updateShell() {
+    updateShell(mapGenerator, playerHit) {
+
+        if (playerHit) {
+            this.updatePlayerHealthBar();
+        }
+
         if (this.physicalShell) {
             const bodyPos = this.physicalShell.getPosition();
+            let contactType = this.getCollisions();
             this.shellSprite.x = bodyPos.x * this.scale;
             this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
 
-            // TODO: replace this with dissapear if collision with something
-            //console.log("Check collision", this.physicalShell.getContactList());
-            const isOutOfBounds = bodyPos.y < -10 || bodyPos.x < -10;
-            if (isOutOfBounds) {
-                this.shellSprite.visible = false;
-                this.world.destroyBody(this.physicalShell);
-                this.physicalShell = null; // Reset the shell
-                return 0;
+            // check if out of bounds
+            if (this.shellSprite.x >= this.app.renderer.width || this.shellSprite.x <= 0 || this.shellSprite.y >= this.app.renderer.height) {
+                this.resetAndDestroyShell();
+            }
+
+            // check for other collision types
+            if (contactType == "ChainCircleContact") {
+                this.destroyTerrain(mapGenerator);
+                this.resetAndDestroyShell();
+            }
+
+
+
+            if (contactType == "PolygonCircleContact") {
+                //TODO: Setup the Damage Checks...
+                console.log("Bullet has collided with the body of a tank!");
+                this.resetAndDestroyShell();
             }
         }
     }
 
+    resetAndDestroyShell() {
+        if (this.physicalShell) {
+            this.shellSprite.visible = false;
+            this.world.destroyBody(this.physicalShell);
+            this.physicalShell = null; // Reset the shell
+        }
+    }
+
+    async initialisePlayerHealthBar() {
+        const redGraphics = new Graphics();
+        const greenGraphics = new Graphics();
+
+        const path = [0, 0, this.hp, 0, this.hp, 10, 0, 10];
+        greenGraphics.poly(path);
+        redGraphics.rect(-52, -60, 100, 10);
+        redGraphics.fill(0xde3249);
+        greenGraphics.fill(0x2ee651);
+
+        this.app.stage.addChild(redGraphics);
+        this.app.stage.addChild(greenGraphics);
+        this.hpRedBarGraphic = redGraphics;
+        this.hpGreenBarGraphic = greenGraphics;
+    }
+
+    updatePosPlayerHealthBar() {
+        this.hpRedBarGraphic.x = this.playerSprite.x;
+        this.hpRedBarGraphic.y = this.playerSprite.y;
+        this.hpGreenBarGraphic.x = this.playerSprite.x - 52;
+        this.hpGreenBarGraphic.y = this.playerSprite.y - 60;
+    }
+
+    updatePlayerHealthBar() {
+        //TODO: implement playerhp damage simulating hpbar decrease
+
+        if (this.hp > 0) {
+            this.hp -= 20;
+        }
+        this.app.stage.removeChild(this.hpGreenBarGraphic);
+        this.hpGreenBarGraphic = new Graphics();
+
+        const path = [0, 0, this.hp, 0, this.hp, 10, 0, 10];
+        this.hpGreenBarGraphic.poly(path);
+        this.hpGreenBarGraphic.fill(0x2ee651);
+        this.hpGreenBarGraphic.x = this.playerSprite.x - 52;
+        this.hpGreenBarGraphic.y = this.playerSprite.y - 60;
+        this.app.stage.addChild(this.hpGreenBarGraphic);
+    }
+
+    getCollisions() {
+        if (this.physicalShell) {
+            for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
+                let contact = contactList.contact;
+                let contactType = contact.m_evaluateFcn.name;
+                return contactType;
+            }
+        }
+    }
+
+    destroyTerrain(mapGenerator) {
+        // set up the original metadata of map
+        let originalTerrainPoints = mapGenerator.getTerrainPointsFromMap();
+        let originalTerrainBody = mapGenerator.getTerrainBodyFromMap();
+        let originalTerrainFixture = originalTerrainBody.getFixtureList();
+
+        // prepare new map data to be used
+        let newTerrainPoints = [];
+        const pixiBlastRadius = 40;
+
+        let leftX, leftY, rightX, rightY;
+        // get points left, and right from the centre of circle (pixijs system), will be used as boundaries
+        for (let i = 0; i < originalTerrainPoints.length; i++) {
+            if (i < this.shellSprite.x - pixiBlastRadius) {
+                leftX = i;
+                leftY = originalTerrainPoints[i];
+            }
+
+            if (i > (this.shellSprite.x + pixiBlastRadius)) {
+                rightX = i;
+                rightY = originalTerrainPoints[i];
+                i = originalTerrainPoints.length;
+            }
+        }
+
+        // create the new points to accomadate the crater that was formed
+        let circleY = 0;
+        for (let i = 0; i < originalTerrainPoints.length; i++) {
+            if (i >= leftX && i <= rightX) {
+                circleY = this.shellSprite.y + Math.sqrt((pixiBlastRadius * pixiBlastRadius) - ((i - this.shellSprite.x) * (i - this.shellSprite.x)));
+                if (circleY >= originalTerrainPoints[i]) {
+                    newTerrainPoints.push(circleY);
+                } else { // catch any points that are less than the value of originalTerrainPoints[i] 
+                    newTerrainPoints.push(originalTerrainPoints[i]);
+                }
+            } else {
+                newTerrainPoints.push(originalTerrainPoints[i]);
+            }
+        }
+
+        // reset map body, graphic, and fixture
+        originalTerrainBody.destroyFixture(originalTerrainFixture);
+        this.world.destroyBody(originalTerrainBody);
+        mapGenerator.destroyTerrainGraphicFromMap();
+        mapGenerator.drawTerrain(newTerrainPoints, this.world, this.scale, this.app);
+    }
 
     checkSpaceBarInput() {
         return this.keys['32'] === true;

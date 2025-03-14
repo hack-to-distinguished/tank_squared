@@ -1,8 +1,13 @@
-import { Sprite } from "pixi.js";
+import { Sprite, Graphics } from "pixi.js";
 import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
+        //TODO: Add health bars...
+        this.hp = 100;
+        this.hpRedBarGraphic = null;
+        this.hpGreenBarGraphic = null;
+
         this.world = world;
         this.coordConverter = coordConverter;
         this.app = app;
@@ -153,7 +158,8 @@ export class TankPlayer {
 
         this.physicalShell = this.world.createBody({
             type: "dynamic",
-            position: Vec2(bodyPos.x, bodyPos.y + 1),
+            // this is only a temp fix... waiting for chris to get barrel working...
+            position: Vec2(bodyPos.x, bodyPos.y + 2.2), // slight change to projectile generation, made it higher so it doesnt touch player's body
             fixedRotation: true,
             gravityScale: 0.5,
             bullet: true,
@@ -171,10 +177,15 @@ export class TankPlayer {
     }
 
 
-    updateShell(mapGenerator) {
+    updateShell(mapGenerator, playerHit) {
+
+        if (playerHit) {
+            this.updatePlayerHealthBar();
+        }
+
         if (this.physicalShell) {
             const bodyPos = this.physicalShell.getPosition();
-            let contactType = this.checkCollisions();
+            let contactType = this.getCollisions();
             this.shellSprite.x = bodyPos.x * this.scale;
             this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
 
@@ -187,8 +198,14 @@ export class TankPlayer {
             if (contactType == "ChainCircleContact") {
                 this.destroyTerrain(mapGenerator);
                 this.resetAndDestroyShell();
-            } else if (contactType == "PolygonCircleContact") {
+            }
+
+
+
+            if (contactType == "PolygonCircleContact") {
+                //TODO: Setup the Damage Checks...
                 console.log("Bullet has collided with the body of a tank!");
+                this.resetAndDestroyShell();
             }
         }
     }
@@ -201,7 +218,47 @@ export class TankPlayer {
         }
     }
 
-    checkCollisions() {
+    async initialisePlayerHealthBar() {
+        const redGraphics = new Graphics();
+        const greenGraphics = new Graphics();
+
+        const path = [0, 0, this.hp, 0, this.hp, 10, 0, 10];
+        greenGraphics.poly(path);
+        redGraphics.rect(-52, -60, 100, 10);
+        redGraphics.fill(0xde3249);
+        greenGraphics.fill(0x2ee651);
+
+        this.app.stage.addChild(redGraphics);
+        this.app.stage.addChild(greenGraphics);
+        this.hpRedBarGraphic = redGraphics;
+        this.hpGreenBarGraphic = greenGraphics;
+    }
+
+    updatePosPlayerHealthBar() {
+        this.hpRedBarGraphic.x = this.playerSprite.x;
+        this.hpRedBarGraphic.y = this.playerSprite.y;
+        this.hpGreenBarGraphic.x = this.playerSprite.x - 52;
+        this.hpGreenBarGraphic.y = this.playerSprite.y - 60;
+    }
+
+    updatePlayerHealthBar() {
+        //TODO: implement playerhp damage simulating hpbar decrease
+
+        if (this.hp > 0) {
+            this.hp -= 20;
+        }
+        this.app.stage.removeChild(this.hpGreenBarGraphic);
+        this.hpGreenBarGraphic = new Graphics();
+
+        const path = [0, 0, this.hp, 0, this.hp, 10, 0, 10];
+        this.hpGreenBarGraphic.poly(path);
+        this.hpGreenBarGraphic.fill(0x2ee651);
+        this.hpGreenBarGraphic.x = this.playerSprite.x - 52;
+        this.hpGreenBarGraphic.y = this.playerSprite.y - 60;
+        this.app.stage.addChild(this.hpGreenBarGraphic);
+    }
+
+    getCollisions() {
         if (this.physicalShell) {
             for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
                 let contact = contactList.contact;

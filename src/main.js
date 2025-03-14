@@ -42,15 +42,6 @@ export async function startGame() {
     await playerTwo.initialiseShellSprite();
     playerTwo.setupKeyboardControls();
 
-    // Adding projectile mechanism
-    const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
-    const sliderVelocity = new Slider(100, 100, app, 320, "Initial Velocity");
-    sliderLaunchAngle.addGraphicsToStage();
-    sliderVelocity.addGraphicsToStage();
-
-    let magnitudeVelocity = 0;
-    let launchAngle = 0;
-
     let playerTurn = true;
     app.ticker.maxFPS = 60;
     const debugRenderer = new DebugRenderer(world, app, scaleFactor);
@@ -65,19 +56,6 @@ export async function startGame() {
     let shellVisible = false;
 
     app.ticker.add(() => {
-
-        // takes values from the sliders, and calculates the vertical, and horizontal motion
-        // if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {
-        //     launchAngle = converter.convertDegreesToRadians(90);
-        // } else {
-        //     launchAngle = converter.convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
-        // }
-        // if (sliderVelocity.getNormalisedSliderValue() == 0) {
-        //     magnitudeVelocity = 5;
-        // } else {
-        //     magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
-        // }
-
 
         world.step(1 / 60);
         const currentTime = Date.now();

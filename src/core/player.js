@@ -52,10 +52,10 @@ export class TankPlayer {
         let wheelBack = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX - 1.4, playerBodyY - 1.2) })
         wheelBack.createFixture(new Circle(0.2), wheelFD)
 
-        let wheelMiddleBack = this.world.createBody({type: "dynamic", position: Vec2(playerBodyX - 0.7, playerBodyY - 1.2)})
+        let wheelMiddleBack = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX - 0.7, playerBodyY - 1.2) })
         wheelMiddleBack.createFixture(new Circle(0.2), wheelFD)
 
-        let wheelMiddleFront = this.world.createBody({type: "dynamic", position: Vec2(playerBodyX + 0.3, playerBodyY - 1.2)})
+        let wheelMiddleFront = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX + 0.3, playerBodyY - 1.2) })
         wheelMiddleFront.createFixture(new Circle(0.2), wheelFD)
 
         let wheelFront = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX + 1, playerBodyY - 1.2) })
@@ -71,7 +71,7 @@ export class TankPlayer {
             createSpring() {
                 this.spring = this.world.createJoint(
                     new RevoluteJoint({
-                        motorSpeed: 0, maxMotorTorque: 50, enableMotor: true, 
+                        motorSpeed: 0, maxMotorTorque: 50, enableMotor: true,
                         frequencyHz: 0.2, dampingRatio: 1, restitution: 0.005, collideConnected: false
                     }, this.playerBody, this.wheel, this.wheel.getPosition())
                 );
@@ -109,7 +109,7 @@ export class TankPlayer {
             position: Vec2(playerBodyX + 0.1, playerBodyY + 1.8),
             fixedRotation: true
         });
-        this.playerCannon.createFixture({shape: planck.Box(0.1, 0.8), density: 1, friction: 1});
+        this.playerCannon.createFixture({ shape: planck.Box(0.1, 0.8), density: 1, friction: 1 });
 
         const cannonJoint = this.world.createJoint(
             new RevoluteJoint({
@@ -233,25 +233,20 @@ export class TankPlayer {
         this.shellSprite = shellSprite;
     }
 
-    async openFire(reverse=false) {
-        const cannonAngle = -this.playerCannon.getAngle();
-        console.log("angles", cannonAngle);
-
+    async openFire() {
+        var cannonAngle = -this.playerCannon.getAngle();
         const magnitudeVelocity = 10
-        var velX = magnitudeVelocity * Math.cos(cannonAngle);
-        var velY = magnitudeVelocity * Math.sin(cannonAngle);
+        // no need for reversal, just swapped sin and cos around, works fine now
+        // TODO: need to add fix so that bullet actually comes out at the end of the barrel
+        var velX = magnitudeVelocity * Math.sin(cannonAngle);
+        var velY = magnitudeVelocity * Math.cos(cannonAngle);
         console.log("Velx, Vely", velX, velY);
-
-        if (reverse) {
-            velX = magnitudeVelocity * Math.cos(cannonAngle) * -1;
-            velY = magnitudeVelocity * Math.sin(cannonAngle) * -1;
-        }
 
         const bodyPos = this.playerCannon.getPosition();
 
         this.physicalShell = this.world.createBody({
             type: "dynamic",
-            position: Vec2(bodyPos.x, bodyPos.y + 1),
+            position: Vec2(bodyPos.x, bodyPos.y + 0.1),
             fixedRotation: true,
             gravityScale: 0.5,
             bullet: true,

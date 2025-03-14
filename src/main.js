@@ -67,16 +67,16 @@ export async function startGame() {
     app.ticker.add(() => {
 
         // takes values from the sliders, and calculates the vertical, and horizontal motion
-        if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {
-            launchAngle = converter.convertDegreesToRadians(90);
-        } else {
-            launchAngle = converter.convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
-        }
-        if (sliderVelocity.getNormalisedSliderValue() == 0) {
-            magnitudeVelocity = 5;
-        } else {
-            magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
-        }
+        // if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {
+        //     launchAngle = converter.convertDegreesToRadians(90);
+        // } else {
+        //     launchAngle = converter.convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
+        // }
+        // if (sliderVelocity.getNormalisedSliderValue() == 0) {
+        //     magnitudeVelocity = 5;
+        // } else {
+        //     magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
+        // }
 
 
         world.step(1 / 60);
@@ -99,7 +99,7 @@ export async function startGame() {
             }
         } else {
             if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-                playerTwo.openFire(true);
+                playerTwo.openFire();
                 shellVisible = true;
                 lastFireTime = currentTime;
                 playerTurn = true;

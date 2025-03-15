@@ -143,7 +143,6 @@ export async function startGame() {
         let time = performance.now();
         time /= 1000;
         time = Math.floor(time % 60);
-        console.log(time);
         if (time % hpBarHideCooldown == 0 && time > 0) {
             console.log("Hiding HP Bar!");
             playerOne.hideHPBar();
@@ -153,7 +152,7 @@ export async function startGame() {
         isPlayerOneHit = false;
         isPlayerTwoHit = false;
 
-        debugRenderer.render();
+        // debugRenderer.render();
 
     })
 }

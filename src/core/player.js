@@ -3,11 +3,9 @@ import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
-        //TODO: Add health bars...
         this.hp = 100;
         this.hpRedBarGraphic = null;
         this.hpGreenBarGraphic = null;
-
         this.world = world;
         this.coordConverter = coordConverter;
         this.app = app;
@@ -15,6 +13,7 @@ export class TankPlayer {
         this.playerY = playerY;
         this.playerSpeed = 27.5;
         this.keys = {};
+        this.mouse = { x: 0, y: 0 };
         this.bullets = [];
         this.moveDist = 30;
         this.playerTexture = playerTexture;
@@ -24,20 +23,20 @@ export class TankPlayer {
         this.wheelFront = null;
         this.springFront = null;
         this.springBack = null;
+        this.spring = null;
         this.physicalShell = null;
         this.shellTexture = shellTexture;
         this.shellSprite = null;
-
+        this.playerCannon = null;
     }
 
-    // INFO: Player Code
     async initialisePlayerSprite() {
+
         //INFO: Player physical body
-        //TODO: 1.Resize the cannon balls and make them shoot from proper point 2.Move bullet code to bullet.js instead of player.js 3.Re-Apply the turn by turn
         this.playerBody = this.world.createBody({
             type: "dynamic",
             position: Vec2(this.playerX / this.scale, this.playerY / this.scale),
-            gravityScale: 3
+            gravityScale: 2, fixedRotation: false,
         })
 
         const vertices = [Vec2(-1.7, -1), Vec2(1, -1), Vec2(2, -0.25), Vec2(1, 1), Vec2(-1.7, 1)];
@@ -47,32 +46,49 @@ export class TankPlayer {
             friction: 0.5,
             restitution: 0.01
         })
+        console.log("Tank Body:", this.playerBody);
 
-        let [planckX, planckY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
+        let [playerBodyX, playerBodyY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
         const wheelFD = { density: 1, friction: 1 }
 
-        let wheelBack = this.world.createBody({ type: "dynamic", position: Vec2(planckX - 1.4, planckY - 1.2) })
+        let wheelBack = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX - 1.4, playerBodyY - 1.2) })
         wheelBack.createFixture(new Circle(0.2), wheelFD)
-        let wheelFront = this.world.createBody({ type: "dynamic", position: Vec2(planckX + 1, planckY - 1.2) })
+
+        let wheelMiddleBack = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX - 0.7, playerBodyY - 1.2) })
+        wheelMiddleBack.createFixture(new Circle(0.2), wheelFD)
+
+        let wheelMiddleFront = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX + 0.3, playerBodyY - 1.2) })
+        wheelMiddleFront.createFixture(new Circle(0.2), wheelFD)
+
+        let wheelFront = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX + 1, playerBodyY - 1.2) })
         wheelFront.createFixture(new Circle(0.2), wheelFD)
-        this.wheelFront = wheelFront;
 
-        const restitutionValue = 0.05;
-        const maxMotorTorque = 50;
-        const initialMotorSpeed = 0.0;
-        const frequencyHz = 100;
-        const dampingRatio = 1;
-        this.springBack = this.world.createJoint(
-            new RevoluteJoint({
-                motorSpeed: initialMotorSpeed, maxMotorTorque: maxMotorTorque, restitution: restitutionValue,
-                enableMotor: true, frequencyHz: frequencyHz, dampingRatio: dampingRatio
-            }, this.playerBody, wheelBack, wheelBack.getPosition()));
+        class WheelSpring {
+            constructor(world, playerBody, wheel) {
+                this.world = world;
+                this.playerBody = playerBody;
+                this.wheel = wheel;
+            }
 
-        this.springFront = this.world.createJoint(
-            new RevoluteJoint({
-                motorSpeed: initialMotorSpeed, maxMotorTorque: maxMotorTorque, restitution: restitutionValue,
-                enableMotor: true, frequencyHz: frequencyHz, dampingRatio: dampingRatio
-            }, this.playerBody, wheelFront, wheelFront.getPosition()));
+            createSpring() {
+                this.spring = this.world.createJoint(
+                    new RevoluteJoint({
+                        motorSpeed: 0, maxMotorTorque: 50, enableMotor: true,
+                        frequencyHz: 0.2, dampingRatio: 1, restitution: 0.005, collideConnected: false
+                    }, this.playerBody, this.wheel, this.wheel.getPosition())
+                );
+            }
+        }
+
+        this.springBack = new WheelSpring(this.world, this.playerBody, wheelBack);
+        this.springMiddleBack = new WheelSpring(this.world, this.playerBody, wheelMiddleBack);
+        this.springMiddleFront = new WheelSpring(this.world, this.playerBody, wheelMiddleFront);
+        this.springFront = new WheelSpring(this.world, this.playerBody, wheelFront);
+
+        this.springBack.createSpring();
+        this.springMiddleBack.createSpring();
+        this.springMiddleFront.createSpring();
+        this.springFront.createSpring();
 
 
         // INFO: Player Sprite
@@ -86,53 +102,119 @@ export class TankPlayer {
         this.playerSprite = playerSprite;
 
         this.app.stage.addChild(this.playerSprite);
+
+
+
+        // INFO: Cannon Body
+        this.playerCannon = this.world.createBody({
+            type: "dynamic",
+            position: Vec2(playerBodyX + 0.1, playerBodyY + 1.8),
+            fixedRotation: true
+        });
+        this.playerCannon.createFixture({ shape: planck.Box(0.1, 0.8), density: 1, friction: 1 });
+
+        const cannonJoint = this.world.createJoint(
+            new RevoluteJoint({
+                collideConnected: true
+            }, this.playerBody, this.playerCannon, Vec2(playerBodyX + 0.1, playerBodyY + 1.2))
+        );
+        this.cannonJoint = cannonJoint;
+
+        // INFO: Cannon Sprite
+        console.log("playerSpritePos", this.playerSprite.x / this.scale, this.playerSprite.y);
+        const playerCannonSprite = new Graphics()
+            .rect(
+                this.playerX, this.playerY,
+                spriteWidth / this.scale, 38
+            )
+            .fill(0x3f553c);
+
+        playerCannonSprite.y = this.playerSprite.y - spriteHeight / 2.5
+        this.playerCannonSprite = playerCannonSprite;
+        this.app.stage.addChild(playerCannonSprite);
     }
 
-    updatePlayer() {
-        const bodyPosition = this.playerBody.getPosition();
 
+    updatePlayer() {
+        // INFO: Update the player sprite
+        const bodyPosition = this.playerBody.getPosition();
         this.playerSprite.x = bodyPosition.x * this.scale;
         this.playerSprite.y = this.app.renderer.height - (bodyPosition.y * this.scale);
         this.playerSprite.rotation = -this.playerBody.getAngle();
+
+
+        // INFO: Update cannon graphics
+        const cannonPosition = this.playerCannon.getPosition();
+        const cannonAngle = -this.playerCannon.getAngle();
+
+        this.playerCannonSprite.clear();
+
+        this.playerCannonSprite
+            .beginFill(0x3f553c)
+            .drawRect(
+                -0.1 * this.scale,
+                -0.8 * this.scale,
+                0.2 * this.scale,
+                38
+            )
+            .endFill();
+
+        this.playerCannonSprite.x = cannonPosition.x * this.scale;
+        this.playerCannonSprite.y = this.app.renderer.height - (cannonPosition.y * this.scale);
+        this.playerCannonSprite.rotation = cannonAngle;
+    }
+
+
+    updateCannon() {
+        let angleChange = 0.02;
+
+        if (this.keys['87']) {
+            this.playerCannon.setAngle(this.playerCannon.getAngle() + angleChange);
+        } else if (this.keys['83']) {
+            this.playerCannon.setAngle(this.playerCannon.getAngle() - angleChange);
+        }
     }
 
 
     getPlayerMotorSpeed() {
-        return this.springFront.getMotorSpeed();
+        return this.springFront.spring.getMotorSpeed();
     }
 
     resetPlayerMotorSpeed() {
-        this.springFront.setMotorSpeed(0);
-        this.springFront.enableMotor(true);
-        this.springBack.setMotorSpeed(0);
-        this.springBack.enableMotor(true);
+        this.springBack.spring.setMotorSpeed(0);
+        this.springMiddleBack.spring.setMotorSpeed(0);
+        this.springMiddleFront.spring.setMotorSpeed(0);
+        this.springFront.spring.setMotorSpeed(0);
     }
 
 
     movePlayer() {
         if (this.moveDist > 0) {
             if (this.keys['68']) {
-                this.springFront.setMotorSpeed(-this.playerSpeed);
-                this.springFront.enableMotor(true);
-                this.springBack.setMotorSpeed(-this.playerSpeed);
-                this.springBack.enableMotor(true);
+                this.springBack.spring.setMotorSpeed(-this.playerSpeed);
+                this.springMiddleBack.spring.setMotorSpeed(-this.playerSpeed);
+                this.springMiddleFront.spring.setMotorSpeed(-this.playerSpeed);
+                this.springFront.spring.setMotorSpeed(-this.playerSpeed);
 
                 this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
             } else if (this.keys['65']) {
-                this.springFront.setMotorSpeed(+this.playerSpeed);
-                this.springFront.enableMotor(true);
-                this.springBack.setMotorSpeed(+this.playerSpeed);
-                this.springBack.enableMotor(true);
+                this.springBack.spring.setMotorSpeed(+this.playerSpeed);
+                this.springMiddleBack.spring.setMotorSpeed(+this.playerSpeed);
+                this.springMiddleFront.spring.setMotorSpeed(+this.playerSpeed);
+                this.springFront.spring.setMotorSpeed(+this.playerSpeed);
 
                 this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
             } else if (!this.keys["65"] || !this.keys["68"]) {
-                this.springFront.setMotorSpeed(0);
-                this.springFront.enableMotor(true);
-                this.springBack.setMotorSpeed(0);
-                this.springBack.enableMotor(true);
+                this.springBack.spring.setMotorSpeed(0);
+                this.springMiddleBack.spring.setMotorSpeed(0);
+                this.springMiddleFront.spring.setMotorSpeed(0);
+                this.springFront.spring.setMotorSpeed(0);
             }
         }
+
+        this.updateCannon();
     }
+
 
     resetMoveDist() {
         this.moveDist = 30;
@@ -153,13 +235,19 @@ export class TankPlayer {
         this.shellSprite = shellSprite;
     }
 
-    async openFire(velX, velY) {
-        const bodyPos = this.playerBody.getPosition();
+    async openFire() {
+        var cannonAngle = -this.playerCannon.getAngle();
+        const magnitudeVelocity = 10
+        // TODO: need to add fix so that bullet actually comes out at the end of the barrel
+        var velX = magnitudeVelocity * Math.sin(cannonAngle);
+        var velY = magnitudeVelocity * Math.cos(cannonAngle);
+        console.log("Velx, Vely", velX, velY);
+
+        const bodyPos = this.playerCannon.getPosition();
 
         this.physicalShell = this.world.createBody({
             type: "dynamic",
-            // this is only a temp fix... waiting for chris to get barrel working...
-            position: Vec2(bodyPos.x, bodyPos.y + 2.2), // slight change to projectile generation, made it higher so it doesnt touch player's body
+            position: Vec2(bodyPos.x, bodyPos.y + 2.2),
             fixedRotation: true,
             gravityScale: 0.5,
             bullet: true,
@@ -319,28 +407,27 @@ export class TankPlayer {
         return this.keys['32'] === true;
     }
 
-    // INFO: Keyboard control
     setupKeyboardControls() {
         window.addEventListener("keydown", this.keysDown.bind(this));
         window.addEventListener("keyup", this.keysUp.bind(this));
     }
 
     keysDown(e) {
-        if (e.keyCode == 68) {
+        if (e.keyCode == 68) { // D
             this.keys[e.keyCode] = true;
-        } else if (e.keyCode == 65) {
+        } else if (e.keyCode == 65) { // A
             this.keys[e.keyCode] = true;
-        } else if (e.keyCode == 32 && (this.keys["68"] == false || this.keys["65"] == false)) {
+        } else if (e.keyCode == 32) { // Space
+            this.keys[e.keyCode] = true;
+        } else if (e.keyCode == 87) { // W
+            this.keys[e.keyCode] = true;
+        } else if (e.keyCode == 83) { // S
             this.keys[e.keyCode] = true;
         }
     }
 
     keysUp(e) {
-        if (e.keyCode == 68) {
-            this.keys[e.keyCode] = false;
-        } else if (e.keyCode == 65) {
-            this.keys[e.keyCode] = false;
-        } else if (e.keyCode == 32) {
+        if ([68, 65, 32, 87, 83].includes(e.keyCode)) {
             this.keys[e.keyCode] = false;
         }
     }

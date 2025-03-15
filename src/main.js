@@ -30,7 +30,7 @@ export async function startGame() {
     // Adding player
     const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 300, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 550, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
     await playerOne.initialisePlayerHealthBar();
@@ -38,22 +38,13 @@ export async function startGame() {
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 300, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 550, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();
     await playerTwo.initialisePlayerHealthBar();
     playerTwo.setupKeyboardControls();
 
-    // Adding projectile mechanism
-    const sliderLaunchAngle = new Slider(100, 200, app, 320, "Launch Angle");
-    const sliderVelocity = new Slider(100, 100, app, 320, "Initial Velocity");
-    sliderLaunchAngle.addGraphicsToStage();
-    sliderVelocity.addGraphicsToStage();
-
-    let magnitudeVelocity = 0;
-    let launchAngle = 0;
     let playerTurn = true;
-
     app.ticker.maxFPS = 60;
     const debugRenderer = new DebugRenderer(world, app, scaleFactor);
 
@@ -70,21 +61,6 @@ export async function startGame() {
     let isPlayerOneHit = false;
 
     app.ticker.add(() => {
-
-        // takes values from the sliders, and calculates the vertical, and horizontal motion
-        if (sliderLaunchAngle.getNormalisedSliderValue() == 0) {
-            launchAngle = converter.convertDegreesToRadians(90);
-        } else {
-            launchAngle = converter.convertDegreesToRadians(sliderLaunchAngle.getNormalisedSliderValue() * 180);
-        }
-        if (sliderVelocity.getNormalisedSliderValue() == 0) {
-            magnitudeVelocity = 5;
-        } else {
-            magnitudeVelocity = sliderVelocity.getNormalisedSliderValue() * 10;
-        }
-
-        const velX = magnitudeVelocity * Math.cos(launchAngle);
-        const velY = magnitudeVelocity * Math.sin(launchAngle);
 
         world.step(1 / 60);
         const currentTime = Date.now();
@@ -103,7 +79,7 @@ export async function startGame() {
             }
 
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-                playerOne.openFire(velX, velY);
+                playerOne.openFire();
                 shellVisible = true;
                 lastFireTime = currentTime;
                 playerTwo.resetMoveDist();
@@ -128,7 +104,7 @@ export async function startGame() {
             }
 
             if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-                playerTwo.openFire(velX, velY);
+                playerTwo.openFire();
                 shellVisible = true;
                 lastFireTime = currentTime;
                 playerOne.resetMoveDist();
@@ -161,7 +137,7 @@ export async function startGame() {
         isPlayerOneHit = false;
         isPlayerTwoHit = false;
 
-        // debugRenderer.render();
+         //debugRenderer.render();
     })
 }
 

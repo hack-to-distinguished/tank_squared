@@ -347,7 +347,6 @@ export class TankPlayer {
     }
 
     updatePlayerHealthBar() {
-        //TODO: implement playerhp damage simulating hpbar decrease
 
         if (this.hp > 0) {
             this.hp -= 20;

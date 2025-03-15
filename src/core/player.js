@@ -319,7 +319,7 @@ export class TankPlayer {
         this.app.stage.addChild(redGraphics);
         this.app.stage.addChild(greenGraphics);
         this.hpRedBarGraphic = redGraphics;
-        this.hpRedBarGraphic.zIndex = 1000;
+        this.hpRedBarGraphic.zIndex = 999;
         this.hpGreenBarGraphic = greenGraphics;
         this.hpGreenBarGraphic.zIndex = 1000;
     }
@@ -345,6 +345,7 @@ export class TankPlayer {
         this.hpGreenBarGraphic.fill(0x2ee651);
         this.hpGreenBarGraphic.x = this.playerSprite.x - 52;
         this.hpGreenBarGraphic.y = this.playerSprite.y + 50;
+        this.hpGreenBarGraphic.zIndex = 1000;
         this.app.stage.addChild(this.hpGreenBarGraphic);
     }
 

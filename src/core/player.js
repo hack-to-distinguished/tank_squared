@@ -327,11 +327,16 @@ export class TankPlayer {
         this.hpContainer.addChild(this.hpRedBarGraphic, this.hpGreenBarGraphic);
         this.hpContainer.zIndex = 1000;
 
+
         this.app.stage.addChild(this.hpContainer);
+    }
 
-        // this.app.stage.addChild(redGraphics);
-        // this.app.stage.addChild(greenGraphics);
+    hideHPBar() {
+        TweenMax.to(this.hpContainer, 2, { alpha: 0 });
+    }
 
+    revealHPBar() {
+        this.hpContainer.alpha = 1;
     }
 
     updatePosPlayerHealthBar() {

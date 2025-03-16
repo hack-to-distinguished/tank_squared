@@ -61,7 +61,7 @@ export async function startGame() {
     let isPlayerOneHit = false;
 
     // change this value so the hpbar will hide every x seconds
-    const hpBarHideCooldown = 10;
+    const hpBarHideCooldown = 5;
 
     app.ticker.add(() => {
 

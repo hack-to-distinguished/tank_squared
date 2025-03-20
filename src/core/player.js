@@ -41,14 +41,31 @@ export class TankPlayer {
             gravityScale: 2, fixedRotation: false,
         })
 
-        const vertices = [Vec2(-1.7, -1), Vec2(1, -1), Vec2(2, -0.25), Vec2(1, 1), Vec2(-1.7, 1)];
+        //const vertices = [Vec2(-1.7, -1), Vec2(1, -1), Vec2(2, -0.25), Vec2(1, 1), Vec2(-1.7, 1)];
+        const mainBodyVertices = [
+            Vec2(-1.8, -0.8),  // Bottom-left
+            Vec2(1.5, -0.8),   // Bottom-right
+            Vec2(2.0, -0.3),   // Mid-top-right
+            Vec2(1.2, 0.5),    // Top-right
+            Vec2(-1.5, 0.5),   // Top-left
+            Vec2(-2.0, -0.3)];
+
         this.playerBody.createFixture({
-            shape: Polygon(vertices),
-            density: 0.5,
+            shape: Polygon(mainBodyVertices),
+            density: 1,
             friction: 0.5,
             restitution: 0.01
         })
-        console.log("Tank Body:", this.playerBody);
+        const tankHeadVertices = [
+            Vec2(-1, 0.5), Vec2(0.8, 0.5), Vec2(0.4, 1.5), Vec2(-0.5, 1.5)
+        ];
+
+        this.playerBody.createFixture({
+            shape: Polygon(tankHeadVertices),
+            density: 0.1,
+            friction: 0.1,
+            restitution: 0.01
+        })
 
         let [playerBodyX, playerBodyY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
         const wheelFD = { density: 1, friction: 1 }

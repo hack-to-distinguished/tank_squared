@@ -2,9 +2,9 @@ import { Graphics } from "pixi.js";
 
 export class DebugRenderer {
     constructor(world, app, scale) {
-        this.world = world; // Planck.js world
-        this.app = app;     // Pixi.js application
-        this.scale = scale; // Scale factor for meters to pixels
+        this.world = world;
+        this.app = app;
+        this.scale = scale;
         this.graphics = new Graphics();
         this.app.stage.addChild(this.graphics);
     }
@@ -36,7 +36,7 @@ export class DebugRenderer {
     }
 
     drawJoints() {
-        this.graphics.lineStyle(2, 0x0000ff, 1); // Blue lines for joints
+        this.graphics.lineStyle(2, 0x0000ff, 1);
         for (let joint = this.world.getJointList(); joint; joint = joint.getNext()) {
             const anchorA = joint.getAnchorA();
             const anchorB = joint.getAnchorB();
@@ -99,7 +99,7 @@ export class DebugRenderer {
             };
         });
 
-        this.graphics.beginFill(0x00ff00, 0.2); // Transparent green fill
+        this.graphics.beginFill(0x00ff00, 0.2);
         this.graphics.moveTo(vertices[0].x, vertices[0].y);
         for (let i = 1; i < vertices.length; i++) {
             this.graphics.lineTo(vertices[i].x, vertices[i].y);

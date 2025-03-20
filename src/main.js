@@ -68,14 +68,11 @@ export async function startGame() {
         world.step(1 / 60);
         const currentTime = Date.now();
         if (playerTurn) {
-            //TODO: Need to enable hit detection, and player turn switching if projectile hits opponent
-
             // check if player one's projectile has hit the ground, if it has switch turns
             if (playerOne.getCollisions() == "ChainCircleContact") {
                 playerTurn = false
                 playerOne.resetPlayerMotorSpeed();
             } else if (playerOne.getCollisions() == "PolygonCircleContact") {
-                console.log("Hit Player Two!");
                 isPlayerTwoHit = true;
                 playerTurn = false;
                 playerOne.resetPlayerMotorSpeed();
@@ -100,7 +97,6 @@ export async function startGame() {
                 playerTurn = true
                 playerOne.resetPlayerMotorSpeed();
             } else if (playerTwo.getCollisions() == "PolygonCircleContact") {
-                console.log("Hit Player One!");
                 isPlayerOneHit = true;
                 playerTurn = true;
                 playerOne.resetPlayerMotorSpeed();
@@ -144,7 +140,6 @@ export async function startGame() {
         time /= 1000;
         time = Math.floor(time % 60);
         if (time % hpBarHideCooldown == 0 && time > 0) {
-            console.log("Hiding HP Bar!");
             playerOne.hideHPBar();
             playerTwo.hideHPBar();
         }
@@ -152,7 +147,7 @@ export async function startGame() {
         isPlayerOneHit = false;
         isPlayerTwoHit = false;
 
-        // debugRenderer.render();
+        debugRenderer.render();
 
     })
 }

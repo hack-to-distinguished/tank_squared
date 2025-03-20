@@ -147,7 +147,7 @@ export async function startGame() {
         isPlayerOneHit = false;
         isPlayerTwoHit = false;
 
-        debugRenderer.render();
+        //debugRenderer.render();
 
     })
 }

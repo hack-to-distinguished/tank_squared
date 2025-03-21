@@ -30,7 +30,6 @@ export class TankPlayer {
         this.playerCannon = null;
         this.maxFirePower = 30;
         this.minFirePower = 5;
-
         this.shotOutOfBounds = false;
     }
 

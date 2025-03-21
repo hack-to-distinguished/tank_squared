@@ -200,12 +200,12 @@ export class TankPlayer {
         return this.springFront.spring.getMotorSpeed();
     }
 
-    // resetPlayerMotorSpeed() {
-    //     this.springBack.spring.setMotorSpeed(0);
-    //     this.springMiddleBack.spring.setMotorSpeed(0);
-    //     this.springMiddleFront.spring.setMotorSpeed(0);
-    //     this.springFront.spring.setMotorSpeed(0);
-    // }
+    resetPlayerMotorSpeed() {
+        this.springBack.spring.setMotorSpeed(0);
+        this.springMiddleBack.spring.setMotorSpeed(0);
+        this.springMiddleFront.spring.setMotorSpeed(0);
+        this.springFront.spring.setMotorSpeed(0);
+    }
 
 
     movePlayer() {

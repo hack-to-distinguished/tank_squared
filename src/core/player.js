@@ -30,6 +30,8 @@ export class TankPlayer {
         this.playerCannon = null;
         this.maxFirePower = 30;
         this.minFirePower = 5;
+
+        this.shotOutOfBounds = false;
     }
 
     async initialisePlayerSprite() {
@@ -198,12 +200,12 @@ export class TankPlayer {
         return this.springFront.spring.getMotorSpeed();
     }
 
-    resetPlayerMotorSpeed() {
-        this.springBack.spring.setMotorSpeed(0);
-        this.springMiddleBack.spring.setMotorSpeed(0);
-        this.springMiddleFront.spring.setMotorSpeed(0);
-        this.springFront.spring.setMotorSpeed(0);
-    }
+    // resetPlayerMotorSpeed() {
+    //     this.springBack.spring.setMotorSpeed(0);
+    //     this.springMiddleBack.spring.setMotorSpeed(0);
+    //     this.springMiddleFront.spring.setMotorSpeed(0);
+    //     this.springFront.spring.setMotorSpeed(0);
+    // }
 
 
     movePlayer() {
@@ -253,7 +255,7 @@ export class TankPlayer {
         this.shellSprite = shellSprite;
     }
 
-    async openFire(power=5) {
+    async openFire(power = 5) {
         var cannonAngle = -this.playerCannon.getAngle();
 
         const magnitudeVelocity = power
@@ -300,7 +302,11 @@ export class TankPlayer {
 
             // check if out of bounds
             if (this.shellSprite.x >= this.app.renderer.width || this.shellSprite.x <= 0 || this.shellSprite.y >= this.app.renderer.height) {
+                console.log("Player has shot out of bounds!");
+                this.shotOutOfBounds = true;
                 this.resetAndDestroyShell();
+            } else {
+                this.shotOutOfBounds = false;
             }
 
             // check for other collision types
@@ -310,7 +316,6 @@ export class TankPlayer {
             }
 
             if (contactType == "PolygonCircleContact") {
-                //TODO: Setup the Damage Checks...
                 console.log("Bullet has collided with the body of a tank!");
                 this.resetAndDestroyShell();
             }
@@ -443,10 +448,10 @@ export class TankPlayer {
         console.log("key status", this.keys["32"]);
 
         if (this.keyPressStart["32"]) {
-            const pressDuration = Date.now() - this.keyPressStart["32"]; 
+            const pressDuration = Date.now() - this.keyPressStart["32"];
             console.log(`Space key was pressed for ${pressDuration} ms`);
 
-            let firePower = this.minFirePower + 
+            let firePower = this.minFirePower +
                 (pressDuration / 4000) * (this.maxFirePower - this.minFirePower);
 
             firePower = Math.min(

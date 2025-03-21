@@ -67,15 +67,19 @@ export async function startGame() {
 
         world.step(1 / 60);
         const currentTime = Date.now();
+
         if (playerTurn) {
             // check if player one's projectile has hit the ground, if it has switch turns
             if (playerOne.getCollisions() == "ChainCircleContact") {
                 playerTurn = false
-                playerOne.resetPlayerMotorSpeed();
             } else if (playerOne.getCollisions() == "PolygonCircleContact") {
                 isPlayerTwoHit = true;
                 playerTurn = false;
-                playerOne.resetPlayerMotorSpeed();
+            }
+
+            if (playerOne.shotOutOfBounds) {
+                playerOne.shotOutOfBounds = false;
+                playerTurn = false;
             }
 
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
@@ -95,11 +99,14 @@ export async function startGame() {
             // check if player two's projectile has hit the ground, if it has switch turns
             if (playerTwo.getCollisions() == "ChainCircleContact") {
                 playerTurn = true
-                playerOne.resetPlayerMotorSpeed();
             } else if (playerTwo.getCollisions() == "PolygonCircleContact") {
                 isPlayerOneHit = true;
                 playerTurn = true;
-                playerOne.resetPlayerMotorSpeed();
+            }
+
+            if (playerTwo.shotOutOfBounds) {
+                playerTwo.shotOutOfBounds = false;
+                playerTurn = true;
             }
 
             if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
@@ -147,7 +154,7 @@ export async function startGame() {
         isPlayerOneHit = false;
         isPlayerTwoHit = false;
 
-        //debugRenderer.render();
+        debugRenderer.render();
 
     })
 }

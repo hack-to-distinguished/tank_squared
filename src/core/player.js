@@ -14,8 +14,7 @@ export class TankPlayer {
         this.playerY = playerY;
         this.playerSpeed = 27.5;
         this.keys = {};
-        this.mouse = { x: 0, y: 0 };
-        this.bullets = [];
+        this.keyPressStart = {};
         this.moveDist = 30;
         this.playerTexture = playerTexture;
         this.world = world;
@@ -29,6 +28,8 @@ export class TankPlayer {
         this.shellTexture = shellTexture;
         this.shellSprite = null;
         this.playerCannon = null;
+        this.maxFirePower = 30;
+        this.minFirePower = 5;
     }
 
     async initialisePlayerSprite() {
@@ -122,7 +123,6 @@ export class TankPlayer {
         this.cannonJoint = cannonJoint;
 
         // INFO: Cannon Sprite
-        console.log("playerSpritePos", this.playerSprite.x / this.scale, this.playerSprite.y);
         const playerCannonSprite = new Graphics()
             .rect(
                 this.playerX, this.playerY,
@@ -236,19 +236,22 @@ export class TankPlayer {
         this.shellSprite = shellSprite;
     }
 
-    async openFire() {
+    async openFire(power=5) {
         var cannonAngle = -this.playerCannon.getAngle();
-        const magnitudeVelocity = 10
-        // TODO: need to add fix so that bullet actually comes out at the end of the barrel
+
+        const magnitudeVelocity = power
         var velX = magnitudeVelocity * Math.sin(cannonAngle);
         var velY = magnitudeVelocity * Math.cos(cannonAngle);
-        console.log("Velx, Vely", velX, velY);
 
         const bodyPos = this.playerCannon.getPosition();
 
+        const cannonLen = 38 / this.scale;
+        const spawnX = bodyPos.x + cannonLen * Math.sin(cannonAngle);
+        const spawnY = bodyPos.y + cannonLen * Math.cos(cannonAngle);
+
         this.physicalShell = this.world.createBody({
             type: "dynamic",
-            position: Vec2(bodyPos.x, bodyPos.y + 2.2),
+            position: Vec2(spawnX, spawnY),
             fixedRotation: true,
             gravityScale: 0.5,
             bullet: true,
@@ -288,8 +291,6 @@ export class TankPlayer {
                 this.destroyTerrain(mapGenerator);
                 this.resetAndDestroyShell();
             }
-
-
 
             if (contactType == "PolygonCircleContact") {
                 //TODO: Setup the Damage Checks...
@@ -421,6 +422,27 @@ export class TankPlayer {
         mapGenerator.drawTerrain(newTerrainPoints, this.world, this.scale, this.app);
     }
 
+    checkLongPress(e) {
+        console.log("key status", this.keys["32"]);
+
+        if (this.keyPressStart["32"]) {
+            const pressDuration = Date.now() - this.keyPressStart["32"]; 
+            console.log(`Space key was pressed for ${pressDuration} ms`);
+
+            let firePower = this.minFirePower + 
+                (pressDuration / 4000) * (this.maxFirePower - this.minFirePower);
+
+            firePower = Math.min(
+                this.maxFirePower, Math.max(this.minFirePower, firePower)
+            );
+
+            this.openFire(firePower);
+        }
+
+        this.keys["32"] = false;
+        delete this.keyPressStart["32"];
+    }
+
     checkSpaceBarInput() {
         return this.keys['32'] === true;
     }
@@ -442,11 +464,26 @@ export class TankPlayer {
         } else if (e.keyCode == 83) { // S
             this.keys[e.keyCode] = true;
         }
+
+        //if (![68, 65, 32, 87, 83].includes(e.keyCode)) return;
+
+        //if (e.keyCode == 32 && !this.keys["32"]) { 
+        //    this.keyPressStart[e.keyCode] = Date.now();
+        //}
+        //
+        //this.keys[e.keyCode] = true;
     }
 
     keysUp(e) {
         if ([68, 65, 32, 87, 83].includes(e.keyCode)) {
             this.keys[e.keyCode] = false;
         }
+        //if (![68, 65, 32, 87, 83].includes(e.keyCode)) return;
+
+        //if (e.keyCode == 32) {
+        //    this.checkLongPress(e);
+        //}
+        //this.keys[e.keyCode] = false;
+        //delete this.keyPressStart[e.keyCode];
     }
 };

@@ -1,5 +1,4 @@
 import { Application, Assets } from "pixi.js";
-import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
@@ -27,10 +26,15 @@ export async function startGame() {
     // Creating the converter
     let converter = new Converter(scaleFactor);
 
+    // adding mapgenerator, and drawing the terrain
+    const mapGenerator = new MapGenerator(app);
+    let terrainPoints = mapGenerator.generateTerrain(128, 256, 2, 2);
+    mapGenerator.drawTerrain(terrainPoints, world, scaleFactor, app);
+
     // Adding player
     const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 550, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 550, app, playerOneTexture, scaleFactor, converter, world, shellTexture, mapGenerator);
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
     await playerOne.initialisePlayerHealthBar();
@@ -38,7 +42,7 @@ export async function startGame() {
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 550, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 550, app, playerTwoTexture, scaleFactor, converter, world, shellTexture, mapGenerator);
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();
     await playerTwo.initialisePlayerHealthBar();
@@ -47,11 +51,6 @@ export async function startGame() {
     let playerTurn = true;
     app.ticker.maxFPS = 60;
     const debugRenderer = new DebugRenderer(world, app, scaleFactor);
-
-    // adding mapgenerator, and drawing the terrain
-    const mapGenerator = new MapGenerator(app);
-    let terrainPoints = mapGenerator.generateTerrain(128, 256, 2, 2);
-    mapGenerator.drawTerrain(terrainPoints, world, scaleFactor, app);
 
     const fireCooldown = 1000;
     let lastFireTime = 0;
@@ -62,6 +61,22 @@ export async function startGame() {
 
     // change this value so the hpbar will hide every x seconds
     const hpBarHideCooldown = 5;
+
+    world.on('begin-contact', function (contact) {
+        let c = contact.m_evaluateFcn.name;
+        if (c == "PolygonCircleContact") {
+            console.log(contact.m_evaluateFcn.name);
+        }
+        if (c == "ChainCircleContact") {
+            playerOne.destroyTerrain(mapGenerator);
+        }
+        if (c == "PolygonCircleContact") {
+            console.log("Bullet has collided with the body of a tank!");
+            playerOne.resetAndDestroyShell();
+            playerTwo.resetAndDestroyShell();
+        }
+    })
+
 
     app.ticker.add(() => {
 
@@ -132,7 +147,7 @@ export async function startGame() {
 
         // TODO: While visible, run the action
         if (shellVisible) {
-            const shellActive = playerOne.updateShell(mapGenerator, isPlayerOneHit) || playerTwo.updateShell(mapGenerator, isPlayerTwoHit);
+            const shellActive = playerOne.updateShell(isPlayerOneHit) || playerTwo.updateShell(isPlayerTwoHit);
             // TODO: Change from a visible flag to a collided with flag
             if (shellActive == 0) {
                 shellVisible = false;
@@ -162,7 +177,7 @@ export async function startGame() {
         isPlayerOneHit = false;
         isPlayerTwoHit = false;
 
-        // debugRenderer.render();
+        debugRenderer.render();
 
     })
 }

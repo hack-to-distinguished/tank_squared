@@ -312,6 +312,7 @@ export class TankPlayer {
 
         // check shell collisions for ground and player...
         if (this.physicalShell) {
+
             for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
                 let contact = contactList.contact;
                 let contactType = contact.m_evaluateFcn.name;
@@ -320,7 +321,29 @@ export class TankPlayer {
                     this.destroyTerrain(mapGenerator);
                     this.resetAndDestroyShell();
                 } else if (contactType == "PolygonCircleContact") {
-                    this.resetAndDestroyShell();
+                    // this.resetAndDestroyShell();
+                }
+            }
+        }
+    }
+
+    checkCollisionsOnTankBody() {
+        for (let contactList = this.playerBody.getContactList(); contactList; contactList = contactList.next) {
+            let contact = contactList.contact;
+            let contactType = contact.m_evaluateFcn.name;
+            console.log("Tank Body Collision: " + contactType);
+        }
+    }
+
+    checkIfProjectileHitTankBody() {
+        if (this.physicalShell) {
+            for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
+                let contact = contactList.contact;
+                let contactType = contact.m_evaluateFcn.name;
+                if (contactType == "PolygonCircleContact") {
+                    return true;
+                } else {
+                    return false;
                 }
             }
         }

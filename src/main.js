@@ -69,12 +69,14 @@ export async function startGame() {
         world.step(1 / 60);
         const currentTime = Date.now();
 
+        playerOne.checkCollisionsOnTankBody();
+
         if (playerTurn) {
             // check if player one's projectile has hit the ground, if it has switch turns
             if (playerOne.checkIfProjectileHitGround()) {
                 playerTurn = false
                 playerOne.resetPlayerMotorSpeed();
-            } else if (playerOne.projectileCollisionType == "PolygonCircleContact") {
+            } else if (playerOne.checkIfProjectileHitTankBody()) {
                 isPlayerTwoHit = true;
                 playerTurn = false;
                 playerOne.resetPlayerMotorSpeed();
@@ -105,7 +107,7 @@ export async function startGame() {
             if (playerTwo.checkIfProjectileHitGround()) {
                 playerTurn = true
                 playerTwo.resetPlayerMotorSpeed();
-            } else if (playerTwo.projectileCollisionType == "PolygonCircleContact") {
+            } else if (playerTwo.checkIfProjectileHitTankBody()) {
                 isPlayerOneHit = true;
                 playerTurn = true;
                 playerTwo.resetPlayerMotorSpeed();

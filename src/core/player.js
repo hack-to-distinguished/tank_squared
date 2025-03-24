@@ -287,12 +287,13 @@ export class TankPlayer {
     }
 
 
-    updateShell(playerHit) {
+    updateShell(mapGenerator, playerHit) {
 
         if (playerHit) {
             this.updatePlayerHealthBar();
         }
 
+        // check if the shell has gone out of bounds
         if (this.physicalShell) {
             const bodyPos = this.physicalShell.getPosition();
 
@@ -307,9 +308,35 @@ export class TankPlayer {
             } else {
                 this.shotOutOfBounds = false;
             }
+        }
 
-            // check for other collision types
+        // check shell collisions for ground and player...
+        if (this.physicalShell) {
+            for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
+                let contact = contactList.contact;
+                let contactType = contact.m_evaluateFcn.name;
+                if (contactType == "ChainCircleContact") {
+                    console.log("Dean");
+                    this.destroyTerrain(mapGenerator);
+                    this.resetAndDestroyShell();
+                } else if (contactType == "PolygonCircleContact") {
+                    this.resetAndDestroyShell();
+                }
+            }
+        }
+    }
 
+    checkIfProjectileHitGround() {
+        if (this.physicalShell) {
+            for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
+                let contact = contactList.contact;
+                let contactType = contact.m_evaluateFcn.name;
+                if (contactType == "ChainCircleContact") {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         }
     }
 
@@ -376,55 +403,6 @@ export class TankPlayer {
         this.hpGreenBarGraphic.y = this.playerSprite.y + 50;
         this.hpGreenBarGraphic.zIndex = 1000;
         this.hpContainer.addChild(this.hpGreenBarGraphic);
-    }
-
-    // setupCollisionHandlers() {
-    //     this.world.on('begin-contact', (contact) => {
-    //         let c = contact.m_evaluateFcn.name;
-    //         if (c == "PolygonCircleContact") {
-    //             console.log(contact.m_evaluateFcn.name);
-    //         }
-    //         if (c == "ChainCircleContact") {
-    //             this.destroyTerrain(this.mapGenerator);
-    //             this.resetAndDestroyShell();
-    //         }
-    //
-    //         if (c == "PolygonCircleContact") {
-    //             console.log("Bullet has collided with the body of a tank!");
-    //             this.resetAndDestroyShell();
-    //         }
-    //     });
-    // }
-
-    getCollisions() {
-        // if (this.physicalShell) {
-        //     for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
-        //         let contact = contactList.contact;
-        //         let contactType = contact.m_evaluateFcn.name;
-        //         console.log("Contact Type: " + contactType);
-        //         // return contactType;
-        //     }
-        // }
-        // for (let contactList = this.playerBody.getContactList(); contactList; contactList = contactList.next) {
-        //     let contact = contactList.contact;
-        //     let contactType = contact.m_evaluateFcn.name;
-        //     if (contactType == "PolygonCircleContact") {
-        //         console.log("Contact Type (Player Body): " + contactType);
-        //     }
-        // }
-
-        this.world.on('begin-contact', function (contact) {
-            let c = contact.m_evaluateFcn.name;
-            // console.log(c);
-            // if (c == "PolygonCircleContact") {
-            //     console.log(contact.m_evaluateFcn.name);
-            // }
-            return c;
-        });
-
-        // this.world.on('end-contact', function (contact) {
-        //
-        // });
     }
 
     destroyTerrain(mapGenerator) {

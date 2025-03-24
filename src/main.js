@@ -79,7 +79,8 @@ export async function startGame() {
             }
 
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-                playerOne.openFire();
+                //playerOne.checkLongPress();
+                //playerOne.openFire();
                 shellVisible = true;
                 lastFireTime = currentTime;
                 playerTwo.resetMoveDist();
@@ -103,7 +104,8 @@ export async function startGame() {
             }
 
             if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-                playerTwo.openFire();
+                //playerOne.checkLongPress();
+                //playerTwo.openFire();
                 shellVisible = true;
                 lastFireTime = currentTime;
                 playerOne.resetMoveDist();
@@ -147,7 +149,7 @@ export async function startGame() {
         isPlayerOneHit = false;
         isPlayerTwoHit = false;
 
-        //debugRenderer.render();
+        debugRenderer.render();
 
     })
 }

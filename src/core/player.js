@@ -41,14 +41,10 @@ export class TankPlayer {
             gravityScale: 2, fixedRotation: false,
         })
 
-        //const vertices = [Vec2(-1.7, -1), Vec2(1, -1), Vec2(2, -0.25), Vec2(1, 1), Vec2(-1.7, 1)];
         const mainBodyVertices = [
-            Vec2(-1.8, -0.8),  // Bottom-left
-            Vec2(1.5, -0.8),   // Bottom-right
-            Vec2(2.0, -0.3),   // Mid-top-right
-            Vec2(1.2, 0.5),    // Top-right
-            Vec2(-1.5, 0.5),   // Top-left
-            Vec2(-2.0, -0.3)];
+            Vec2(-1.8, -0.8), Vec2(1.5, -0.8), Vec2(2.0, -0.3),
+            Vec2(1.2, 0.5), Vec2(-1.5, 0.5), Vec2(-2.0, -0.3)
+        ];
 
         this.playerBody.createFixture({
             shape: Polygon(mainBodyVertices),
@@ -67,7 +63,7 @@ export class TankPlayer {
             restitution: 0.01
         })
 
-        let [playerBodyX, playerBodyY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
+        let [playerBodyX, playerBodyY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y]
         const wheelFD = { density: 1, friction: 1 }
 
         let wheelBack = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX - 1.4, playerBodyY - 1.2) })
@@ -170,10 +166,7 @@ export class TankPlayer {
         this.playerCannonSprite
             .beginFill(0x3f553c)
             .drawRect(
-                -0.1 * this.scale,
-                -0.8 * this.scale,
-                0.2 * this.scale,
-                38
+                -0.1 * this.scale, -0.8 * this.scale, 0.2 * this.scale, 38
             )
             .endFill();
 
@@ -241,7 +234,6 @@ export class TankPlayer {
 
     async initialiseShellSprite() {
         const bodyPos = this.playerBody.getPosition();
-        // INFO: Creating the shell sprite
         const shellSprite = Sprite.from(this.shellTexture);
         shellSprite.anchor.set(0.5, 0.5);
 
@@ -283,6 +275,30 @@ export class TankPlayer {
         this.shellSprite.visible = true;
 
         this.app.stage.addChild(this.shellSprite);
+    }
+
+    checkLongPress(e) {
+        console.log("Long press activated", e);
+        console.log("key status", this.keys["32"]);
+        console.log("Long Press keyPrssStart", this.keyPressStart);
+
+        if (this.keyPressStart["32"]) {
+            const pressDuration = Date.now() - this.keyPressStart["32"]; 
+            console.log(`Space key was pressed for ${pressDuration} ms`);
+
+            let firePower = this.minFirePower + 
+                (pressDuration / 4000) * (this.maxFirePower - this.minFirePower);
+
+            firePower = Math.min(
+                this.maxFirePower, Math.max(this.minFirePower, firePower)
+            );
+
+            this.openFire(firePower);
+        }
+        console.log("passed if", this.keyPressStart);
+
+        this.keys["32"] = false;
+        delete this.keyPressStart["32"];
     }
 
 
@@ -439,26 +455,6 @@ export class TankPlayer {
         mapGenerator.drawTerrain(newTerrainPoints, this.world, this.scale, this.app);
     }
 
-    checkLongPress(e) {
-        console.log("key status", this.keys["32"]);
-
-        if (this.keyPressStart["32"]) {
-            const pressDuration = Date.now() - this.keyPressStart["32"]; 
-            console.log(`Space key was pressed for ${pressDuration} ms`);
-
-            let firePower = this.minFirePower + 
-                (pressDuration / 4000) * (this.maxFirePower - this.minFirePower);
-
-            firePower = Math.min(
-                this.maxFirePower, Math.max(this.minFirePower, firePower)
-            );
-
-            this.openFire(firePower);
-        }
-
-        this.keys["32"] = false;
-        delete this.keyPressStart["32"];
-    }
 
     checkSpaceBarInput() {
         return this.keys['32'] === true;
@@ -484,9 +480,12 @@ export class TankPlayer {
 
         //if (![68, 65, 32, 87, 83].includes(e.keyCode)) return;
 
-        //if (e.keyCode == 32 && !this.keys["32"]) { 
-        //    this.keyPressStart[e.keyCode] = Date.now();
-        //}
+        console.log("keysDown e.keyCode", e.keyCode);
+        console.log("keysDown this.keys", this.keys);
+        if (e.keyCode == 32) { 
+            console.log("KeyDown keyPressStart", e.keyCode);
+            this.keyPressStart[e.keyCode] = Date.now();
+        }
         //
         //this.keys[e.keyCode] = true;
     }
@@ -497,10 +496,12 @@ export class TankPlayer {
         }
         //if (![68, 65, 32, 87, 83].includes(e.keyCode)) return;
 
-        //if (e.keyCode == 32) {
-        //    this.checkLongPress(e);
-        //}
-        //this.keys[e.keyCode] = false;
-        //delete this.keyPressStart[e.keyCode];
+        if (e.keyCode == 32) {
+            // INFO: If keyup this should lead to the main where only one player shoots
+            // How do I jump to another part of the code from here
+            this.checkLongPress(e);
+        }
+        this.keys[e.keyCode] = false;
+        delete this.keyPressStart[e.keyCode];
     }
 };

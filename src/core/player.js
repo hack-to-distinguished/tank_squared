@@ -31,6 +31,7 @@ export class TankPlayer {
         this.maxFirePower = 30;
         this.minFirePower = 5;
         this.shotOutOfBounds = false;
+        this.isFiring = false; // Add a flag to track if the cannon has fired
     }
 
     async initialisePlayerSprite() {
@@ -255,6 +256,10 @@ export class TankPlayer {
     }
 
     async openFire(power = 5) {
+        if (this.isFiring) return; // Prevent firing again if already fired
+
+        this.isFiring = true; // Set the flag to true indicating that the cannon has fired
+
         var cannonAngle = -this.playerCannon.getAngle();
 
         const magnitudeVelocity = power
@@ -326,6 +331,7 @@ export class TankPlayer {
             this.shellSprite.visible = false;
             this.world.destroyBody(this.physicalShell);
             this.physicalShell = null; // Reset the shell
+            this.isFiring = false;  // Reset the firing flag, allowing another shot
         }
     }
 

@@ -486,6 +486,7 @@ export class TankPlayer extends EventEmitter {
         }
     }
 
+
     keysUp(e) {
         if (!this.boundKeysDown) return;
 

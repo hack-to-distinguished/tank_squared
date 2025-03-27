@@ -1,5 +1,5 @@
-import { Sprite, Graphics, Container } from "pixi.js";
-import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
+import { Sprite, Graphics, Container, basisTranscoderUrls } from "pixi.js";
+import { Vec2, Circle, RevoluteJoint, Polygon, AABB } from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
@@ -331,25 +331,39 @@ export class TankPlayer {
         for (let contactList = this.playerBody.getContactList(); contactList; contactList = contactList.next) {
             let contact = contactList.contact;
             let contactType = contact.m_evaluateFcn.name;
-            console.log("Tank Body Collision: " + contactType);
+            // console.log("Tank Body Collision: " + contactType);
         }
     }
 
     checkIfProjectileHitTankBody() {
         if (this.physicalShell) {
-            for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
-                let contact = contactList.contact;
-                let contactType = contact.m_evaluateFcn.name;
-                if (contactType == "PolygonCircleContact") {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
+            // const aabbA = this.physicalShell.getFixtureList().getAABB();
+            // const aabbB = this.playerBody.getFixtureList().getAABB();
+            // console.log(AABB.testOverlap(aabbA, aabbB));
+            // for (let contact = this.world.getContactList(); contact; contact = contact.getNext()) {
+            //     const bA = contact.getFixtureA().getBody();
+            //     const bB = contact.getFixtureB().getBody();
+            //     if ((bA == this.physicalShell && bB == this.playerBody) || (bA == this.playerBody && bB == this.physicalShell)) {
+            //         console.log("Collision!");
+            //     }
+            // }
         }
+
+        // if (this.physicalShell) {
+        //     for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
+        //         let contact = contactList.contact;
+        //         let contactType = contact.m_evaluateFcn.name;
+        //         if (contactType == "PolygonCircleContact") {
+        //             return true;
+        //         } else {
+        //             return false;
+        //         }
+        //     }
+        // }
     }
 
     checkIfProjectileHitGround() {
+
         if (this.physicalShell) {
             for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
                 let contact = contactList.contact;

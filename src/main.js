@@ -1,4 +1,4 @@
-import { Application, Assets } from "pixi.js";
+import { Application, Assets, Sprite } from "pixi.js";
 import { Slider } from "./core/slider.js";
 import { TankPlayer } from "./core/player";
 import { DebugRenderer } from "./core/debugOutlines.js";
@@ -30,6 +30,7 @@ export async function startGame() {
     // Adding player
     const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerOneTexture = await Assets.load('assets/images/tank.png');
+
     const playerOne = new TankPlayer(appWidth / 10, appHeight - 550, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
@@ -63,6 +64,12 @@ export async function startGame() {
     // change this value so the hpbar will hide every x seconds
     const hpBarHideCooldown = 5;
 
+    //playerOne.on("pointerdown", () => {
+    //    console.log("testSprite event");
+    //    playerOne.checkLongPress();
+    //});
+    //playerOne.eventMode = "static";
+
     app.ticker.add(() => {
 
         world.step(1 / 60);
@@ -79,12 +86,21 @@ export async function startGame() {
             }
 
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-                //playerOne.checkLongPress();
-                //playerOne.openFire();
+            console.log("teys", playerOne.keyedUp);
+
+                playerOne.on("spacebarReleased", () => {
+                    console.log("listening for emit");
+                    playerOne.checkLongPress();
+                });
+                playerOne.eventMode = "static";
+
+
                 shellVisible = true;
                 lastFireTime = currentTime;
                 playerTwo.resetMoveDist();
                 playerOne.moveDist = -1;
+
+                console.log("p1 keyedup", playerOne.keyedUp);
 
             } else {
                 if (playerOne.moveDist > 0) {
@@ -104,12 +120,16 @@ export async function startGame() {
             }
 
             if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-                //playerOne.checkLongPress();
-                //playerTwo.openFire();
+            //if (playerTwo.keyedUp) {
+                //console.log("p2 keyedup", playerTwo.keyedUp);
+                //playerTwo.checkLongPress();
+                //playerTwo.keyedUp = false;
+
                 shellVisible = true;
                 lastFireTime = currentTime;
                 playerOne.resetMoveDist();
                 playerTwo.moveDist = -1;
+
             } else {
                 if (playerTwo.moveDist > 0) {
                     playerTwo.movePlayer();

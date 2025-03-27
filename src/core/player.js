@@ -1,8 +1,10 @@
-import { Sprite, Graphics, Container } from "pixi.js";
+import { Sprite, Graphics, Container, EventEmitter } from "pixi.js";
 import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 
-export class TankPlayer {
+//export class TankPlayer {
+export class TankPlayer extends EventEmitter {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
+        super();
         this.hp = 100;
         this.hpContainer = null;
         this.hpRedBarGraphic = null;
@@ -15,6 +17,7 @@ export class TankPlayer {
         this.playerSpeed = 27.5;
         this.keys = {};
         this.keyPressStart = {};
+        this.keyedUp = false;
         this.moveDist = 30;
         this.playerTexture = playerTexture;
         this.world = world;
@@ -277,8 +280,8 @@ export class TankPlayer {
         this.app.stage.addChild(this.shellSprite);
     }
 
-    checkLongPress(e) {
-        console.log("Long press activated", e);
+    checkLongPress() {
+        console.log("Long press activated");
         console.log("key status", this.keys["32"]);
         console.log("Long Press keyPrssStart", this.keyPressStart);
 
@@ -480,28 +483,37 @@ export class TankPlayer {
 
         //if (![68, 65, 32, 87, 83].includes(e.keyCode)) return;
 
-        console.log("keysDown e.keyCode", e.keyCode);
-        console.log("keysDown this.keys", this.keys);
         if (e.keyCode == 32) { 
-            console.log("KeyDown keyPressStart", e.keyCode);
+            console.log("keysDown this.keys", this.keys);
             this.keyPressStart[e.keyCode] = Date.now();
         }
         //
         //this.keys[e.keyCode] = true;
     }
 
+    //keysUp(e) {
+    //    if ([68, 65, 32, 87, 83].includes(e.keyCode)) {
+    //        this.keys[e.keyCode] = false;
+    //    }
+    //
+    //    if (e.keyCode == 32) {
+    //        // INFO: If keyup this should lead to the main where only one player shoots
+    //        // How do I jump to another part of the code from here
+    //        //this.checkLongPress(e);
+    //        this.keyedUp = true;
+    //    }
+    //    this.keys[e.keyCode] = false;
+    //    //delete this.keyPressStart[e.keyCode];
+    //}
+
     keysUp(e) {
         if ([68, 65, 32, 87, 83].includes(e.keyCode)) {
             this.keys[e.keyCode] = false;
         }
-        //if (![68, 65, 32, 87, 83].includes(e.keyCode)) return;
-
-        if (e.keyCode == 32) {
-            // INFO: If keyup this should lead to the main where only one player shoots
-            // How do I jump to another part of the code from here
-            this.checkLongPress(e);
+        if (e.keyCode === 32) {
+            this.emit("spacebarReleased");
+            console.log("Emitted spacebar release");
         }
         this.keys[e.keyCode] = false;
-        delete this.keyPressStart[e.keyCode];
     }
 };

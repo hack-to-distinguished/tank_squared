@@ -82,6 +82,6 @@ my-pixi-game/\
 - [ ] Play against AI
 
 ### Useful documentation:
-https://pixijs.download/dev/docs/index.html
-https://piqnt.com/planck.js/docs
+- https://pixijs.download/dev/docs/index.html
+- https://piqnt.com/planck.js/docs
 

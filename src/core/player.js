@@ -33,6 +33,8 @@ export class TankPlayer extends EventEmitter {
         this.playerCannon = null;
         this.maxFirePower = 30;
         this.minFirePower = 5;
+        this.shotOutOfBounds = false;
+        this.isFiring = false; // Add a flag to track if the cannon has fired
     }
 
     async initialisePlayerSprite() {
@@ -248,7 +250,11 @@ export class TankPlayer extends EventEmitter {
         this.shellSprite = shellSprite;
     }
 
-    async openFire(power=5) {
+    async openFire(power = 5) {
+        if (this.isFiring) return; // Prevent firing again if already fired
+
+        this.isFiring = true; // Set the flag to true indicating that the cannon has fired
+
         var cannonAngle = -this.playerCannon.getAngle();
 
         const magnitudeVelocity = power
@@ -280,30 +286,6 @@ export class TankPlayer extends EventEmitter {
         this.app.stage.addChild(this.shellSprite);
     }
 
-    checkLongPress() {
-        console.log("Long press activated");
-        console.log("key status", this.keys["32"]);
-        console.log("Long Press keyPrssStart", this.keyPressStart);
-
-        if (this.keyPressStart["32"]) {
-            const pressDuration = Date.now() - this.keyPressStart["32"]; 
-            console.log(`Space key was pressed for ${pressDuration} ms`);
-
-            let firePower = this.minFirePower + 
-                (pressDuration / 4000) * (this.maxFirePower - this.minFirePower);
-
-            firePower = Math.min(
-                this.maxFirePower, Math.max(this.minFirePower, firePower)
-            );
-
-            this.openFire(firePower);
-        }
-        console.log("passed if", this.keyPressStart);
-
-        this.keys["32"] = false;
-        delete this.keyPressStart["32"];
-    }
-
 
     updateShell(mapGenerator, playerHit) {
 
@@ -319,7 +301,11 @@ export class TankPlayer extends EventEmitter {
 
             // check if out of bounds
             if (this.shellSprite.x >= this.app.renderer.width || this.shellSprite.x <= 0 || this.shellSprite.y >= this.app.renderer.height) {
+                console.log("Player has shot out of bounds!");
+                this.shotOutOfBounds = true;
                 this.resetAndDestroyShell();
+            } else {
+                this.shotOutOfBounds = false;
             }
 
             // check for other collision types
@@ -329,7 +315,6 @@ export class TankPlayer extends EventEmitter {
             }
 
             if (contactType == "PolygonCircleContact") {
-                //TODO: Setup the Damage Checks...
                 console.log("Bullet has collided with the body of a tank!");
                 this.resetAndDestroyShell();
             }
@@ -341,6 +326,7 @@ export class TankPlayer extends EventEmitter {
             this.shellSprite.visible = false;
             this.world.destroyBody(this.physicalShell);
             this.physicalShell = null; // Reset the shell
+            this.isFiring = false;  // Reset the firing flag, allowing another shot
         }
     }
 
@@ -456,6 +442,30 @@ export class TankPlayer extends EventEmitter {
         this.world.destroyBody(originalTerrainBody);
         mapGenerator.destroyTerrainGraphicFromMap();
         mapGenerator.drawTerrain(newTerrainPoints, this.world, this.scale, this.app);
+    }
+
+    checkLongPress() {
+        console.log("Long press activated");
+        console.log("key status", this.keys["32"]);
+        console.log("Long Press keyPrssStart", this.keyPressStart);
+
+        if (this.keyPressStart["32"]) {
+            const pressDuration = Date.now() - this.keyPressStart["32"]; 
+            console.log(`Space key was pressed for ${pressDuration} ms`);
+
+            let firePower = this.minFirePower + 
+                (pressDuration / 4000) * (this.maxFirePower - this.minFirePower);
+
+            firePower = Math.min(
+                this.maxFirePower, Math.max(this.minFirePower, firePower)
+            );
+
+            this.openFire(firePower);
+        }
+        console.log("passed if", this.keyPressStart);
+
+        this.keys["32"] = false;
+        delete this.keyPressStart["32"];
     }
 
 

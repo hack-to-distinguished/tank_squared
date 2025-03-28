@@ -86,4 +86,10 @@ my-pixi-game/\
 - https://piqnt.com/planck.js/docs
 
 ### How to run:
-#### Required modules:
+#### Node.js: 
+Download latest version of Node.js from this link: https://nodejs.org/en
+
+#### Clone repo:
+  ```bash
+  > git clone https://github.com/Chris33871/tank_squared.git
+  ```

@@ -85,3 +85,5 @@ my-pixi-game/\
 - https://pixijs.download/dev/docs/index.html
 - https://piqnt.com/planck.js/docs
 
+### How to run:
+#### Required modules:

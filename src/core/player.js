@@ -316,11 +316,12 @@ export class TankPlayer {
             for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
                 let contact = contactList.contact;
                 let contactType = contact.m_evaluateFcn.name;
+                // console.log("Projectile Collision Type: " + contactType);
                 if (contactType == "ChainCircleContact") {
-                    console.log("Dean");
                     this.destroyTerrain(mapGenerator);
                     this.resetAndDestroyShell();
                 } else if (contactType == "PolygonCircleContact") {
+                    // console.log("Colliding with Polygon!");
                     // this.resetAndDestroyShell();
                 }
             }
@@ -328,11 +329,12 @@ export class TankPlayer {
     }
 
     checkCollisionsOnTankBody() {
-        for (let contactList = this.playerBody.getContactList(); contactList; contactList = contactList.next) {
-            let contact = contactList.contact;
-            let contactType = contact.m_evaluateFcn.name;
-            // console.log("Tank Body Collision: " + contactType);
-        }
+        // console.log(this.world.getContactList());
+        // for (let contactList = this.playerBody.getContactList(); contactList; contactList = contactList.next) {
+        //     let contact = contactList.contact;
+        //     let contactType = contact.m_evaluateFcn.name;
+        //     console.log("Tank Body Collision: " + contactType);
+        // }
     }
 
     checkIfProjectileHitTankBody() {

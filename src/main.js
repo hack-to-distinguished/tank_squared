@@ -64,6 +64,20 @@ export async function startGame() {
     // change this value so the hpbar will hide every x seconds
     const hpBarHideCooldown = 5;
 
+    world.on('begin-contact', (contact) => {
+        const fixtureA = contact.getFixtureA();
+        const fixtureB = contact.getFixtureB();
+
+        const shapeA = fixtureA.getShape().getType();
+        const shapeB = fixtureB.getShape().getType();
+
+        if ((shapeA == "polygon" && shapeB == "circle") || (shapeA == "circle" && shapeB == "polygon")) {
+            console.log("Projectile hit tank body");
+            // console.log("\nShape A: " + shapeA);
+            // console.log("Shape B: " + shapeB);
+        }
+    });
+
     app.ticker.add(() => {
 
         world.step(1 / 60);

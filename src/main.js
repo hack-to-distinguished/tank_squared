@@ -64,11 +64,17 @@ export async function startGame() {
     // change this value so the hpbar will hide every x seconds
     const hpBarHideCooldown = 5;
 
-    //playerOne.on("pointerdown", () => {
-    //    console.log("testSprite event");
-    //    playerOne.checkLongPress();
-    //});
-    //playerOne.eventMode = "static";
+    playerOne.on("shoot", () => {
+        console.log("P1 - listening for emit");
+        playerOne.checkLongPress();
+    });
+    playerOne.eventMode = "dynamic";
+
+    playerTwo.on("shoot", () => {
+        console.log("P1 - listening for emit");
+        playerTwo.checkLongPress();
+    });
+    playerTwo.eventMode = "dynamic";
 
     app.ticker.add(() => {
 
@@ -86,21 +92,18 @@ export async function startGame() {
             }
 
             if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-            console.log("teys", playerOne.keyedUp);
 
-                playerOne.on("spacebarReleased", () => {
-                    console.log("listening for emit");
-                    playerOne.checkLongPress();
-                });
-                playerOne.eventMode = "static";
-
+                //playerOne.on("spacebarReleased", () => {
+                //    console.log("P1 - listening for emit");
+                //    playerOne.checkLongPress();
+                //});
+                //playerOne.eventMode = "static";
+                playerOne.shoot();
 
                 shellVisible = true;
                 lastFireTime = currentTime;
                 playerTwo.resetMoveDist();
                 playerOne.moveDist = -1;
-
-                console.log("p1 keyedup", playerOne.keyedUp);
 
             } else {
                 if (playerOne.moveDist > 0) {
@@ -120,10 +123,12 @@ export async function startGame() {
             }
 
             if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-            //if (playerTwo.keyedUp) {
-                //console.log("p2 keyedup", playerTwo.keyedUp);
-                //playerTwo.checkLongPress();
-                //playerTwo.keyedUp = false;
+                //playerTwo.on("spacebarReleased", () => {
+                //    console.log("P2 - listening for emit");
+                //    playerTwo.checkLongPress();
+                //});
+                //playerTwo.eventMode = "static";
+                playerTwo.shoot();
 
                 shellVisible = true;
                 lastFireTime = currentTime;

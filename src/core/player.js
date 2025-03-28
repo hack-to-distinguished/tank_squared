@@ -481,30 +481,11 @@ export class TankPlayer extends EventEmitter {
             this.keys[e.keyCode] = true;
         }
 
-        //if (![68, 65, 32, 87, 83].includes(e.keyCode)) return;
-
         if (e.keyCode == 32) { 
             console.log("keysDown this.keys", this.keys);
             this.keyPressStart[e.keyCode] = Date.now();
         }
-        //
-        //this.keys[e.keyCode] = true;
     }
-
-    //keysUp(e) {
-    //    if ([68, 65, 32, 87, 83].includes(e.keyCode)) {
-    //        this.keys[e.keyCode] = false;
-    //    }
-    //
-    //    if (e.keyCode == 32) {
-    //        // INFO: If keyup this should lead to the main where only one player shoots
-    //        // How do I jump to another part of the code from here
-    //        //this.checkLongPress(e);
-    //        this.keyedUp = true;
-    //    }
-    //    this.keys[e.keyCode] = false;
-    //    //delete this.keyPressStart[e.keyCode];
-    //}
 
     keysUp(e) {
         if ([68, 65, 32, 87, 83].includes(e.keyCode)) {
@@ -515,5 +496,10 @@ export class TankPlayer extends EventEmitter {
             console.log("Emitted spacebar release");
         }
         this.keys[e.keyCode] = false;
+    }
+
+    shoot() {
+        console.log(`${this.name} fired a shot!`);
+        this.emit("shoot", this.name);
     }
 };

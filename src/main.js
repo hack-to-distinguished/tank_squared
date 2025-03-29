@@ -30,7 +30,10 @@ export async function startGame() {
     // Adding player
     const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 550, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
+    const playerOneX = appWidth / 10;
+    const playerOneY = appHeight-mapGenerator.getHeightAt(playerOneX) + 40;
+    console.log("Player 1",playerOneX, playerOneY);
+    const playerOne = new TankPlayer(playerOneX, playerOneY, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
     await playerOne.initialisePlayerHealthBar();
@@ -38,7 +41,10 @@ export async function startGame() {
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 550, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
+    const playerTwoX = appWidth / 1.2;
+    const playerTwoY = appHeight-mapGenerator.getHeightAt(playerTwoX) + 40;
+    console.log("Player 2",playerTwoX, playerTwoY);
+    const playerTwo = new TankPlayer(playerTwoX, playerTwoY, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();
     await playerTwo.initialisePlayerHealthBar();

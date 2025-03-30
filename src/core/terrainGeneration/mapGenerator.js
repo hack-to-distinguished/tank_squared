@@ -127,6 +127,7 @@ export class MapGenerator {
     drawTerrain(terrainPoints, world, sf, app) {
         this.map = new Map(terrainPoints, world, sf, this.app);
         this.map.initialiseMap(app);
+        this.map.createBoundaries();
         this.map.visualiseTerrain();
     }
 }

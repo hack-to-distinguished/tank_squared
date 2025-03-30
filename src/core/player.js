@@ -70,7 +70,7 @@ export class TankPlayer {
         })
 
         let [playerBodyX, playerBodyY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
-        const wheelFD = { density: 50, friction: 1 };
+        const wheelFD = { density: 100, friction: 100 };
 
         let wheelBack = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX - 1.4, playerBodyY - 1.2) })
         wheelBack.createFixture(new Circle(0.2), wheelFD)

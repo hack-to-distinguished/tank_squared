@@ -70,7 +70,7 @@ export class TankPlayer {
         })
 
         let [playerBodyX, playerBodyY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
-        const wheelFD = { density: 1, friction: 1 }
+        const wheelFD = { density: 50, friction: 1 };
 
         let wheelBack = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX - 1.4, playerBodyY - 1.2) })
         wheelBack.createFixture(new Circle(0.2), wheelFD)
@@ -216,30 +216,20 @@ export class TankPlayer {
 
             // Right movement
             if (this.keys['68']) {
-                if(screenX < screenWidth - tankWidth/2) {
-                    this.springBack.spring.setMotorSpeed(-this.playerSpeed);
-                    this.springMiddleBack.spring.setMotorSpeed(-this.playerSpeed);
-                    this.springMiddleFront.spring.setMotorSpeed(-this.playerSpeed);
-                    this.springFront.spring.setMotorSpeed(-this.playerSpeed);
+                this.springBack.spring.setMotorSpeed(-this.playerSpeed);
+                this.springMiddleBack.spring.setMotorSpeed(-this.playerSpeed);
+                this.springMiddleFront.spring.setMotorSpeed(-this.playerSpeed);
+                this.springFront.spring.setMotorSpeed(-this.playerSpeed);
 
-                    this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
-                }
-                else{
-                    this.resetPlayerMotorSpeed();
-                }
+                this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
             // Left movement
             } else if (this.keys['65']) {
-                if(screenX > tankWidth/2) {
-                    this.springBack.spring.setMotorSpeed(+this.playerSpeed);
-                    this.springMiddleBack.spring.setMotorSpeed(+this.playerSpeed);
-                    this.springMiddleFront.spring.setMotorSpeed(+this.playerSpeed);
-                    this.springFront.spring.setMotorSpeed(+this.playerSpeed);
+                this.springBack.spring.setMotorSpeed(+this.playerSpeed);
+                this.springMiddleBack.spring.setMotorSpeed(+this.playerSpeed);
+                this.springMiddleFront.spring.setMotorSpeed(+this.playerSpeed);
+                this.springFront.spring.setMotorSpeed(+this.playerSpeed);
 
-                    this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
-                }
-                else{
-                    this.resetPlayerMotorSpeed();
-                }
+                this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
             } else if (!this.keys["65"] || !this.keys["68"]) {
                 this.resetPlayerMotorSpeed();
             }

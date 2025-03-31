@@ -70,7 +70,7 @@ export class TankPlayer {
         })
 
         let [playerBodyX, playerBodyY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
-        const wheelFD = { density: 1, friction: 1 }
+        const wheelFD = { density: 100, friction: 100 };
 
         let wheelBack = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX - 1.4, playerBodyY - 1.2) })
         wheelBack.createFixture(new Circle(0.2), wheelFD)
@@ -210,6 +210,10 @@ export class TankPlayer {
 
     movePlayer() {
         if (this.moveDist > 0) {
+            const screenX = this.playerSprite.x;
+            const screenWidth = this.app.renderer.width;
+            const tankWidth = this.playerSprite.width;
+
             if (this.keys['68']) {
                 this.springBack.spring.setMotorSpeed(-this.playerSpeed);
                 this.springMiddleBack.spring.setMotorSpeed(-this.playerSpeed);
@@ -217,6 +221,7 @@ export class TankPlayer {
                 this.springFront.spring.setMotorSpeed(-this.playerSpeed);
 
                 this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
+            
             } else if (this.keys['65']) {
                 this.springBack.spring.setMotorSpeed(+this.playerSpeed);
                 this.springMiddleBack.spring.setMotorSpeed(+this.playerSpeed);
@@ -225,10 +230,7 @@ export class TankPlayer {
 
                 this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
             } else if (!this.keys["65"] || !this.keys["68"]) {
-                this.springBack.spring.setMotorSpeed(0);
-                this.springMiddleBack.spring.setMotorSpeed(0);
-                this.springMiddleFront.spring.setMotorSpeed(0);
-                this.springFront.spring.setMotorSpeed(0);
+                this.resetPlayerMotorSpeed();
             }
         }
 

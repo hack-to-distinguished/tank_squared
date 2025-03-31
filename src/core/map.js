@@ -36,21 +36,6 @@ export class Map {
         this.terrainBody.createFixture(this.terrainChainShape, groundFD);
     }
 
-    createBoundaries() {
-        const canvas = this.app.canvas;
-        const boundaryProperties = { density: 1, friction: 1, restitution: 1 };
-
-        const corners = [
-            new Vec2(0, 0),
-            new Vec2(canvas.width / this.scaleFactor, 0),
-            new Vec2(canvas.width / this.scaleFactor, canvas.height / this.scaleFactor),
-            new Vec2(0, canvas.height / this.scaleFactor)
-        ];
-
-        const boundaryBody = this.world.createBody({ type: "static" });
-        boundaryBody.createFixture(new Chain(corners, true), boundaryProperties);
-    }
-
     destroyTerrainGraphic() {
         this.terrainGraphic.destroy();
     }

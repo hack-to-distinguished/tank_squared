@@ -214,7 +214,6 @@ export class TankPlayer {
             const screenWidth = this.app.renderer.width;
             const tankWidth = this.playerSprite.width;
 
-            // Right movement
             if (this.keys['68']) {
                 this.springBack.spring.setMotorSpeed(-this.playerSpeed);
                 this.springMiddleBack.spring.setMotorSpeed(-this.playerSpeed);
@@ -222,7 +221,7 @@ export class TankPlayer {
                 this.springFront.spring.setMotorSpeed(-this.playerSpeed);
 
                 this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
-            // Left movement
+            
             } else if (this.keys['65']) {
                 this.springBack.spring.setMotorSpeed(+this.playerSpeed);
                 this.springMiddleBack.spring.setMotorSpeed(+this.playerSpeed);

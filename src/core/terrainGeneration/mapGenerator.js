@@ -115,9 +115,18 @@ export class MapGenerator {
         }
     }
 
+    getHeightAt(x) {
+        const points = this.getTerrainPointsFromMap();
+        if (x < 0 || x >= points.length) {
+            return null; 
+        }
+        return points[Math.floor(x)];
+    }
+
     drawTerrain(terrainPoints, world, sf, app) {
         this.map = new Map(terrainPoints, world, sf, this.app);
         this.map.initialiseMap(app);
+        this.map.createBoundaries();
         this.map.visualiseTerrain();
     }
 }

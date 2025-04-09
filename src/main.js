@@ -26,8 +26,6 @@ export async function startGame() {
     // Creating the converter
     let converter = new Converter(scaleFactor);
 
-
-
     // Adding player
     const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerOneTexture = await Assets.load('assets/images/tank.png');
@@ -36,6 +34,7 @@ export async function startGame() {
     await playerOne.initialiseShellSprite();
     await playerOne.initialisePlayerHealthBar();
     playerOne.setupKeyboardControls();
+    playerOne.setupCollisionHandler();
 
     // Adding second player
     const playerTwoTexture = await Assets.load('assets/images/tank.png');
@@ -44,6 +43,7 @@ export async function startGame() {
     await playerTwo.initialiseShellSprite();
     await playerTwo.initialisePlayerHealthBar();
     playerTwo.setupKeyboardControls();
+    playerTwo.setupCollisionHandler();
 
     // adding mapgenerator, and drawing the terrain
     const mapGenerator = new MapGenerator(app);
@@ -64,37 +64,26 @@ export async function startGame() {
     // change this value so the hpbar will hide every x seconds
     const hpBarHideCooldown = 5;
 
-    world.on('begin-contact', (contact) => {
-        const fixtureA = contact.getFixtureA();
-        const fixtureB = contact.getFixtureB();
-
-        const shapeA = fixtureA.getShape().getType();
-        const shapeB = fixtureB.getShape().getType();
-
-        if ((shapeA == "polygon" && shapeB == "circle") || (shapeA == "circle" && shapeB == "polygon")) {
-            console.log("Projectile hit tank body");
-            // console.log("\nShape A: " + shapeA);
-            // console.log("Shape B: " + shapeB);
-        }
-    });
-
     app.ticker.add(() => {
 
         world.step(1 / 60);
         const currentTime = Date.now();
+        // console.log("\nPlayer Turn: " + playerTurn);
+        // console.log("p1 hit tank body: " + playerOne.hitTankBody);
+        // console.log("p2 hit tank body: " + playerTwo.hitTankBody);
 
-        playerOne.checkCollisionsOnTankBody();
 
         if (playerTurn) {
             // check if player one's projectile has hit the ground, if it has switch turns
             if (playerOne.checkIfProjectileHitGround()) {
                 playerTurn = false
                 playerOne.resetPlayerMotorSpeed();
-            } else if (playerOne.checkIfProjectileHitTankBody()) {
-                isPlayerTwoHit = true;
-                playerTurn = false;
-                playerOne.resetPlayerMotorSpeed();
             }
+            // else if (playerOne.hitTankBody) {
+            //     isPlayerTwoHit = true;
+            //     playerTurn = false;
+            //     playerOne.resetPlayerMotorSpeed();
+            // }
 
             if (playerOne.shotOutOfBounds) {
                 playerOne.shotOutOfBounds = false;
@@ -121,11 +110,12 @@ export async function startGame() {
             if (playerTwo.checkIfProjectileHitGround()) {
                 playerTurn = true
                 playerTwo.resetPlayerMotorSpeed();
-            } else if (playerTwo.checkIfProjectileHitTankBody()) {
-                isPlayerOneHit = true;
-                playerTurn = true;
-                playerTwo.resetPlayerMotorSpeed();
             }
+            // else if (playerTwo.hitTankBody) {
+            //     // isPlayerOneHit = true;
+            //     playerTurn = true;
+            //     playerTwo.resetPlayerMotorSpeed();
+            // }
 
             if (playerTwo.shotOutOfBounds) {
                 playerTwo.shotOutOfBounds = false;

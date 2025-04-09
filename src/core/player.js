@@ -3,6 +3,8 @@ import { Vec2, Circle, RevoluteJoint, Polygon, AABB } from "planck";
 
 export class TankPlayer {
     constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
+        this.collisionWorldHandler = false;
+        this.hitTankBody = false;
         this.hp = 100;
         this.hpContainer = null;
         this.hpRedBarGraphic = null;
@@ -316,56 +318,38 @@ export class TankPlayer {
             for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
                 let contact = contactList.contact;
                 let contactType = contact.m_evaluateFcn.name;
-                // console.log("Projectile Collision Type: " + contactType);
                 if (contactType == "ChainCircleContact") {
                     this.destroyTerrain(mapGenerator);
                     this.resetAndDestroyShell();
-                } else if (contactType == "PolygonCircleContact") {
-                    // console.log("Colliding with Polygon!");
+                } else if (this.hitTankBody) {
+                    this.hitTankBody = false;
                     // this.resetAndDestroyShell();
                 }
             }
         }
     }
 
-    checkCollisionsOnTankBody() {
-        // console.log(this.world.getContactList());
-        // for (let contactList = this.playerBody.getContactList(); contactList; contactList = contactList.next) {
-        //     let contact = contactList.contact;
-        //     let contactType = contact.m_evaluateFcn.name;
-        //     console.log("Tank Body Collision: " + contactType);
-        // }
-    }
+    setupCollisionHandler() {
+        if (!this.collisionWorldHandler) {
+            this.collisionWorldHandler = true;
+            this.world.on('begin-contact', (contact) => {
+                const fixtureA = contact.getFixtureA();
+                const fixtureB = contact.getFixtureB();
 
-    checkIfProjectileHitTankBody() {
-        if (this.physicalShell) {
-            // const aabbA = this.physicalShell.getFixtureList().getAABB();
-            // const aabbB = this.playerBody.getFixtureList().getAABB();
-            // console.log(AABB.testOverlap(aabbA, aabbB));
-            // for (let contact = this.world.getContactList(); contact; contact = contact.getNext()) {
-            //     const bA = contact.getFixtureA().getBody();
-            //     const bB = contact.getFixtureB().getBody();
-            //     if ((bA == this.physicalShell && bB == this.playerBody) || (bA == this.playerBody && bB == this.physicalShell)) {
-            //         console.log("Collision!");
-            //     }
-            // }
+                const shapeA = fixtureA.getShape().getType();
+                const shapeB = fixtureB.getShape().getType();
+
+                if ((shapeA == "polygon" && shapeB == "circle") || (shapeA == "circle" && shapeB == "polygon")) {
+                    console.log("Projectile hit tank body");
+                    this.hitTankBody = true;
+                    // console.log("\nShape A: " + shapeA);
+                    // console.log("Shape B: " + shapeB);
+                }
+            });
         }
-
-        // if (this.physicalShell) {
-        //     for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
-        //         let contact = contactList.contact;
-        //         let contactType = contact.m_evaluateFcn.name;
-        //         if (contactType == "PolygonCircleContact") {
-        //             return true;
-        //         } else {
-        //             return false;
-        //         }
-        //     }
-        // }
     }
 
     checkIfProjectileHitGround() {
-
         if (this.physicalShell) {
             for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
                 let contact = contactList.contact;

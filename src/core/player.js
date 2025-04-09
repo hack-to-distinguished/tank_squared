@@ -445,34 +445,6 @@ export class TankPlayer extends EventEmitter {
         mapGenerator.drawTerrain(newTerrainPoints, this.world, this.scale, this.app);
     }
 
-    //checkLongPress() {
-    //    console.log("Long press activated");
-    //    console.log("key status", this.keys["32"]);
-    //    console.log("Long Press keyPrssStart", this.keyPressStartTime);
-    //
-    //    if (this.keyPressStartTime["32"]) {
-    //        const pressDuration = Date.now() - this.keyPressStartTime["32"]; 
-    //        console.log(`Space key was pressed for ${pressDuration} ms`);
-    //
-    //        let firePower = this.minFirePower + 
-    //            (pressDuration / 4000) * (this.maxFirePower - this.minFirePower);
-    //
-    //        firePower = Math.min(
-    //            this.maxFirePower, Math.max(this.minFirePower, firePower)
-    //        );
-    //
-    //        this.openFire(firePower);
-    //    }
-    //    console.log("passed if", this.keyPressStartTime);
-    //
-    //    this.keys["32"] = false;
-    //    delete this.keyPressStartTime["32"];
-    //}
-
-
-    //checkSpaceBarInput() {
-    //    return this.keys['32'] === true;
-    //}
 
     setupKeyboardControls() {// avoids mem leaks+allows tracking ev listeners
         this.boundKeysDown = this.keysDown.bind(this);
@@ -481,42 +453,28 @@ export class TankPlayer extends EventEmitter {
         window.addEventListener("keyup", this.boundKeysUp);
     }
 
-    destroy() { // Can be used to rm player controls
-        window.removeEventListener("keydown", this.boundKeysDown);
-        window.removeEventListener("keyup", this.boundKeysUp);
+    removeKeyboardControls() {
+        if (this.boundKeysDown) {
+            window.removeEventListener("keydown", this.boundKeysDown);
+            window.removeEventListener("keyup", this.boundKeysUp);
+            this.boundKeysDown = null;
+            this.boundKeysUp = null;
+            this.keys = {}; 
+            this.keyPressStartTime = {};
+            console.log(`${this.name} keyboard controls DISABLED`);
+        } else {
+             console.log(`${this.name} keyboard controls ALREADY DISABLED`);
+        }
+    }
+
+    destroy() { // Can be used to rm player controls and other things
+        this.removeKeyboardControls();
         console.log(`${this.name} controls removed.`);
     }
 
-    //keysDown(e) {
-    //    if (e.keyCode == 68) { // D
-    //        this.keys[e.keyCode] = true;
-    //    } else if (e.keyCode == 65) { // A
-    //        this.keys[e.keyCode] = true;
-    //    } else if (e.keyCode == 32) { // Space
-    //        this.keys[e.keyCode] = true;
-    //    } else if (e.keyCode == 87) { // W
-    //        this.keys[e.keyCode] = true;
-    //    } else if (e.keyCode == 83) { // S
-    //        this.keys[e.keyCode] = true;
-    //    }
-    //
-    //    if (e.keyCode == 32) { 
-    //        console.log("keysDown", e.keyCode);
-    //        this.keyPressStartTime[e.keyCode] = Date.now();
-    //    }
-    //}
-
-    //keysUp(e) {
-    //    if ([68, 65, 32, 87, 83].includes(e.keyCode)) {
-    //        this.keys[e.keyCode] = false;
-    //    }
-    //    if (e.keyCode === 32) {
-    //        this.emit("spacebarReleased");
-    //        console.log("Emitted spacebar release");
-    //    }
-    //    this.keys[e.keyCode] = false;
-    //}
     keysDown(e) {
+        if (!this.boundKeysDown) return;
+
         const keyCode = e.keyCode.toString();
         this.keys[keyCode] = true;
 
@@ -528,6 +486,8 @@ export class TankPlayer extends EventEmitter {
     }
 
     keysUp(e) {
+        if (!this.boundKeysDown) return;
+
         const keyCode = e.keyCode.toString();
         this.keys[keyCode] = false;
 

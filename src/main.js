@@ -32,7 +32,6 @@ export async function startGame() {
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
     await playerOne.initialisePlayerHealthBar();
-    playerOne.setupKeyboardControls();
     playerOne.playerBody.setUserData({ type: "tank", player: playerOne})
 
 
@@ -42,7 +41,6 @@ export async function startGame() {
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();
     await playerTwo.initialisePlayerHealthBar();
-    playerTwo.setupKeyboardControls();
     playerTwo.playerBody.setUserData({ type: 'tank', player: playerTwo });
 
 
@@ -64,10 +62,14 @@ export async function startGame() {
 
     const switchTurn = () => {
         console.log("Switching turn...");
+        currentPlayer.removeKeyboardControls();
         currentPlayer.resetPlayerMotorSpeed();
         currentPlayer.resetMoveDist();
+
         currentPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
         otherPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
+
+        currentPlayer.setupKeyboardControls();
         currentPlayer.resetMoveDist();
         turnActive = true;
         console.log(`It is now ${currentPlayer.name}'s turn.`);
@@ -106,11 +108,12 @@ export async function startGame() {
 
 
     // FIX: Break the player hit detection - Fix it
+
+    currentPlayer.setupKeyboardControls();
+
     app.ticker.maxFPS = 60;
     app.ticker.add(() => {
-
         world.step(1 / 60);
-        const delta = app.ticker.deltaTime;
 
         if (turnActive && currentPlayer) {
             currentPlayer.movePlayer();

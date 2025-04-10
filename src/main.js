@@ -1,10 +1,8 @@
-import { Application, Assets } from "pixi.js";
-import { Slider } from "./core/slider.js";
+import { Application, Assets, Sprite } from "pixi.js";
 import { TankPlayer } from "./core/player";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
 import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
-import { Converter } from "./core/Converter.js";
 import { createMainMenu } from './menu.js';
 
 export async function startGame() {
@@ -24,130 +22,133 @@ export async function startGame() {
     document.body.appendChild(app.canvas);
     const [appHeight, appWidth] = [app.renderer.height, app.renderer.width];
 
-    // Creating the converter
-    let converter = new Converter(scaleFactor);
 
-    // adding mapgenerator, and drawing the terrain
+    const shellTexture = await Assets.load("assets/images/bullet.png");
+    const playerTexture = await Assets.load('assets/images/tank.png');
+
+    // INFO: Player 1
+    const playerOne = new TankPlayer(appWidth / 10, appHeight - 550, app, playerTexture, scaleFactor, world, shellTexture);
+    playerOne.name = "Player 1";
+    await playerOne.initialisePlayerSprite();
+    await playerOne.initialiseShellSprite();
+    await playerOne.initialisePlayerHealthBar();
+    playerOne.playerBody.setUserData({ type: "tank", player: playerOne})
+
+
+    // INFO: Player 2
+    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 550, app, playerTexture, scaleFactor, world, shellTexture);
+    playerTwo.name = "Player 2";
+    await playerTwo.initialisePlayerSprite();
+    await playerTwo.initialiseShellSprite();
+    await playerTwo.initialisePlayerHealthBar();
+    playerTwo.playerBody.setUserData({ type: 'tank', player: playerTwo });
+
+
+    let currentPlayer = playerOne;
+    let otherPlayer = playerTwo;
+    let turnActive = true;
+
+    const debugRenderer = new DebugRenderer(world, app, scaleFactor);
+
+    // INFO: Map Generator
     const mapGenerator = new MapGenerator(app);
     let terrainPoints = mapGenerator.generateTerrain(128, 256, 2, 2);
     mapGenerator.drawTerrain(terrainPoints, world, scaleFactor, app);
 
-    // Adding player
-    const shellTexture = await Assets.load("assets/images/bullet.png");
-    const playerOneTexture = await Assets.load('assets/images/tank.png');
-    const playerOneX = appWidth / 10;
-    const playerOneY = appHeight-mapGenerator.getHeightAt(playerOneX) + 50;
-    const playerOne = new TankPlayer(playerOneX, playerOneY, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
-    await playerOne.initialisePlayerSprite();
-    await playerOne.initialiseShellSprite();
-    await playerOne.initialisePlayerHealthBar();
-    playerOne.setupKeyboardControls();
-
-    // Adding second player
-    const playerTwoTexture = await Assets.load('assets/images/tank.png');
-    const playerTwoX = appWidth / 1.2;
-    const playerTwoY = appHeight-mapGenerator.getHeightAt(playerTwoX) + 50;
-    const playerTwo = new TankPlayer(playerTwoX, playerTwoY, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
-    await playerTwo.initialisePlayerSprite();
-    await playerTwo.initialiseShellSprite();
-    await playerTwo.initialisePlayerHealthBar();
-    playerTwo.setupKeyboardControls();
-
-    let playerTurn = true;
-    app.ticker.maxFPS = 60;
-    const debugRenderer = new DebugRenderer(world, app, scaleFactor);
-
-    const fireCooldown = 1000;
-    let lastFireTime = 0;
-    let shellVisible = false;
-
     let isPlayerTwoHit = false;
     let isPlayerOneHit = false;
 
-    // change this value so the hpbar will hide every x seconds
     const hpBarHideCooldown = 5;
 
-    app.ticker.add(() => {
+    const switchTurn = () => {
+        console.log("Switching turn...");
+        currentPlayer.removeKeyboardControls();
+        currentPlayer.resetPlayerMotorSpeed();
+        currentPlayer.resetMoveDist();
 
-        world.step(1 / 60);
-        const currentTime = Date.now();
+        currentPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
+        otherPlayer = (currentPlayer === playerOne) ? playerTwo : playerOne;
 
-        if (playerTurn) {
-            // check if player one's projectile has hit the ground, if it has switch turns
-            if (playerOne.getCollisions() == "ChainCircleContact") {
-                playerTurn = false
-                playerOne.resetPlayerMotorSpeed();
-            } else if (playerOne.getCollisions() == "PolygonCircleContact") {
-                isPlayerTwoHit = true;
-                playerTurn = false;
-                playerOne.resetPlayerMotorSpeed();
-            }
+        currentPlayer.setupKeyboardControls();
+        currentPlayer.resetMoveDist();
+        turnActive = true;
+        console.log(`It is now ${currentPlayer.name}'s turn.`);
 
-            if (playerOne.shotOutOfBounds) {
-                playerOne.shotOutOfBounds = false;
-                playerTurn = false;
-                playerOne.resetPlayerMotorSpeed();
-            }
+        playerOne.revealHPBar();
+        playerTwo.revealHPBar();
+    }
 
-            if (playerOne.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-                playerOne.openFire();
-                playerOne.resetPlayerMotorSpeed();
-                shellVisible = true;
-                lastFireTime = currentTime;
-                playerTwo.resetMoveDist();
-                playerOne.moveDist = -1;
-
-            } else {
-                if (playerOne.moveDist > 0) {
-                    playerOne.movePlayer()
-                }
-            }
-        } else {
-
-            // check if player two's projectile has hit the ground, if it has switch turns
-            if (playerTwo.getCollisions() == "ChainCircleContact") {
-                playerTurn = true
-                playerTwo.resetPlayerMotorSpeed();
-            } else if (playerTwo.getCollisions() == "PolygonCircleContact") {
-                isPlayerOneHit = true;
-                playerTurn = true;
-                playerTwo.resetPlayerMotorSpeed();
-            }
-
-            if (playerTwo.shotOutOfBounds) {
-                playerTwo.shotOutOfBounds = false;
-                playerTurn = true;
-                playerTwo.resetPlayerMotorSpeed();
-            }
-
-            if (playerTwo.checkSpaceBarInput() && currentTime - lastFireTime >= fireCooldown) {
-                playerTwo.openFire();
-                playerTwo.resetPlayerMotorSpeed();
-                shellVisible = true;
-                lastFireTime = currentTime;
-                playerOne.resetMoveDist();
-                playerTwo.moveDist = -1;
-            } else {
-                if (playerTwo.moveDist > 0) {
-                    playerTwo.movePlayer();
-                }
-            }
+    playerOne.on("fired", (eventData) => {
+        if (currentPlayer === playerOne) {
+            console.log(`${eventData.player.name} fired detected in main`);
+            turnActive = false;
+            currentPlayer.moveDist = 0;
         }
+    });
+    playerTwo.on("fired", (eventData) => {
+        if (currentPlayer === playerTwo) {
+            console.log(`${eventData.player.name} fired detected in main`);
+            turnActive = false;
+            currentPlayer.moveDist = 0;
+        }
+    });
 
-        // TODO: While visible, run the action
-        if (shellVisible) {
-            const shellActive = playerOne.updateShell(mapGenerator, isPlayerOneHit) || playerTwo.updateShell(mapGenerator, isPlayerTwoHit);
-            // TODO: Change from a visible flag to a collided with flag
-            if (shellActive == 0) {
-                shellVisible = false;
-            }
+    const handleShellSequenceEnd = (player) => {
+        if (currentPlayer === player) {
+            console.log(`${player.name}'s shell sequence ended.`);
+            setTimeout(() => {
+                if (!turnActive) {
+                    switchTurn();
+                }
+            }, 500);
+        }
+    };
+    playerOne.on("shellSequenceComplete", () => handleShellSequenceEnd(playerOne));
+    playerTwo.on("shellSequenceComplete", () => handleShellSequenceEnd(playerTwo));
+
+    playerOne.on("hit", () => {
+        console.log("Player 1 hit player 2");
+        playerTwo.updatePlayerHealthBar(25);
+        playerTwo.revealHPBar();
+    });
+
+    playerTwo.on("hit", () => {
+        console.log("Player 2 hit player 1");
+        playerOne.updatePlayerHealthBar(25);
+        playerOne.revealHPBar();
+    });
+
+
+    currentPlayer.setupKeyboardControls();
+    app.ticker.maxFPS = 60;
+    app.ticker.add(() => {
+        world.step(1 / 60);
+
+        if (turnActive && currentPlayer) {
+            currentPlayer.movePlayer();
+        } else if (currentPlayer && !turnActive) {
+             currentPlayer.resetPlayerMotorSpeed();
         }
 
         playerOne.updatePlayer();
-        playerOne.updatePosPlayerHealthBar();
-
-        playerTwo.updatePosPlayerHealthBar();
         playerTwo.updatePlayer();
+
+        playerOne.updateShell(mapGenerator, isPlayerOneHit);
+        playerTwo.updateShell(mapGenerator, isPlayerTwoHit);
+
+        if (playerOne.shotOutOfBounds && 
+            currentPlayer === playerOne && !turnActive) {
+            playerOne.shotOutOfBounds = false;
+            handleShellSequenceEnd(playerOne);
+        }
+        if (playerTwo.shotOutOfBounds && 
+            currentPlayer === playerTwo && !turnActive) {
+            playerTwo.shotOutOfBounds = false;
+            handleShellSequenceEnd(playerTwo);
+        }
+
+        playerOne.updatePosPlayerHealthBar();
+        playerTwo.updatePosPlayerHealthBar();
 
         if (isPlayerOneHit) {
             playerOne.revealHPBar();
@@ -166,7 +167,7 @@ export async function startGame() {
         isPlayerOneHit = false;
         isPlayerTwoHit = false;
 
-        // debugRenderer.render();
+        debugRenderer.render();
 
     })
 }

@@ -106,11 +106,20 @@ export async function startGame() {
     playerOne.on("shellSequenceComplete", () => handleShellSequenceEnd(playerOne));
     playerTwo.on("shellSequenceComplete", () => handleShellSequenceEnd(playerTwo));
 
+    playerOne.on("hit", () => {
+        console.log("Player 1 hit player 2");
+        playerTwo.updatePlayerHealthBar(25);
+        playerTwo.revealHPBar();
+    });
 
-    // FIX: Break the player hit detection - Fix it
+    playerTwo.on("hit", () => {
+        console.log("Player 2 hit player 1");
+        playerOne.updatePlayerHealthBar(25);
+        playerOne.revealHPBar();
+    });
+
 
     currentPlayer.setupKeyboardControls();
-
     app.ticker.maxFPS = 60;
     app.ticker.add(() => {
         world.step(1 / 60);
@@ -127,7 +136,6 @@ export async function startGame() {
         playerOne.updateShell(mapGenerator, isPlayerOneHit);
         playerTwo.updateShell(mapGenerator, isPlayerTwoHit);
 
-        
         if (playerOne.shotOutOfBounds && 
             currentPlayer === playerOne && !turnActive) {
             playerOne.shotOutOfBounds = false;
@@ -138,16 +146,6 @@ export async function startGame() {
             playerTwo.shotOutOfBounds = false;
             handleShellSequenceEnd(playerTwo);
         }
-
-        // TODO: While visible, run the action
-        //if (shellVisible) {
-        //    const shellActive = playerOne.updateShell(mapGenerator, isPlayerOneHit) || playerTwo.updateShell(mapGenerator, isPlayerTwoHit);
-        //    // TODO: Change from a visible flag to a collided with flag
-        //    if (shellActive == 0) {
-        //        shellVisible = false;
-        //    }
-        //}
-        
 
         playerOne.updatePosPlayerHealthBar();
         playerTwo.updatePosPlayerHealthBar();

@@ -314,6 +314,7 @@ export class TankPlayer extends EventEmitter {
 
             if (contactType == "PolygonCircleContact") {
                 console.log("Bullet has collided with the body of a tank!");
+                this.emit("hit", { player: this});
                 this.resetAndDestroyShell();
             }
         }

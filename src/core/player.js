@@ -1,37 +1,49 @@
-import { Sprite, Graphics, Container } from "pixi.js";
-import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
+import { Sprite, Graphics, Container, EventEmitter } from "pixi.js";
+import { Vec2, Circle, RevoluteJoint, Polygon, Box } from "planck";
 
-export class TankPlayer {
-    constructor(playerX, playerY, app, playerTexture, scale, coordConverter, world, shellTexture) {
+const MAX_HOLD_DURATION_MS = 3000;
+
+export class TankPlayer extends EventEmitter {
+    constructor(playerX, playerY, app, playerTexture, scale, world, shellTexture) {
+        super();
+        this.app = app;
+        this.world = world;
+        this.scale = scale;
+
+        // INFO: Player
+        this.name = `Player_${Math.random().toString(16).slice(2, 8)}`;
         this.hp = 100;
         this.hpContainer = null;
         this.hpRedBarGraphic = null;
         this.hpGreenBarGraphic = null;
-        this.world = world;
-        this.coordConverter = coordConverter;
-        this.app = app;
+
+        // INFO: Tank body
         this.playerX = playerX;
         this.playerY = playerY;
-        this.playerSpeed = 27.5;
-        this.keys = {};
-        this.keyPressStart = {};
-        this.moveDist = 30;
         this.playerTexture = playerTexture;
-        this.world = world;
         this.playerBody = null;
-        this.scale = scale;
-        this.wheelFront = null;
+        this.moveDist = 30;
+        this.playerSpeed = 27.5;
+
         this.springFront = null;
+        this.springMiddleFront = null;
         this.springBack = null;
-        this.spring = null;
+        this.springMiddleBack = null;
+
+        // INFO: Keyboard control
+        this.keyPressStartTime = {};
+        this.keys = {};
+
+        // INFO: Cannon related
         this.physicalShell = null;
         this.shellTexture = shellTexture;
         this.shellSprite = null;
         this.playerCannon = null;
+        this.cannonJoint = null;
         this.maxFirePower = 30;
         this.minFirePower = 5;
         this.shotOutOfBounds = false;
-        this.isFiring = false; // Add a flag to track if the cannon has fired
+        this.isFiring = false;
     }
 
     async initialisePlayerSprite() {
@@ -43,14 +55,10 @@ export class TankPlayer {
             gravityScale: 2, fixedRotation: false,
         })
 
-        //const vertices = [Vec2(-1.7, -1), Vec2(1, -1), Vec2(2, -0.25), Vec2(1, 1), Vec2(-1.7, 1)];
         const mainBodyVertices = [
-            Vec2(-1.8, -0.8),  // Bottom-left
-            Vec2(1.5, -0.8),   // Bottom-right
-            Vec2(2.0, -0.3),   // Mid-top-right
-            Vec2(1.2, 0.5),    // Top-right
-            Vec2(-1.5, 0.5),   // Top-left
-            Vec2(-2.0, -0.3)];
+            Vec2(-1.8, -0.8), Vec2(1.5, -0.8), Vec2(2.0, -0.3),
+            Vec2(1.2, 0.5), Vec2(-1.5, 0.5), Vec2(-2.0, -0.3)
+        ];
 
         this.playerBody.createFixture({
             shape: Polygon(mainBodyVertices),
@@ -69,61 +77,55 @@ export class TankPlayer {
             restitution: 0.01
         })
 
-        let [playerBodyX, playerBodyY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y] // x,y position according to planck
-        const wheelFD = { density: 100, friction: 100 };
+        const [playerBodyX, playerBodyY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y];
+        const wheelFD = { density: 1, friction: 1 };
 
-        let wheelBack = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX - 1.4, playerBodyY - 1.2) })
-        wheelBack.createFixture(new Circle(0.2), wheelFD)
+        const wheelPositions = [
+            { x: playerBodyX - 1.4, y: playerBodyY - 1.2 },
+            { x: playerBodyX - 0.7, y: playerBodyY - 1.2 },
+            { x: playerBodyX + 0.3, y: playerBodyY - 1.2 },
+            { x: playerBodyX + 1.0, y: playerBodyY - 1.2 },
+        ];
 
-        let wheelMiddleBack = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX - 0.7, playerBodyY - 1.2) })
-        wheelMiddleBack.createFixture(new Circle(0.2), wheelFD)
-
-        let wheelMiddleFront = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX + 0.3, playerBodyY - 1.2) })
-        wheelMiddleFront.createFixture(new Circle(0.2), wheelFD)
-
-        let wheelFront = this.world.createBody({ type: "dynamic", position: Vec2(playerBodyX + 1, playerBodyY - 1.2) })
-        wheelFront.createFixture(new Circle(0.2), wheelFD)
+        const wheels = wheelPositions.map(pos => {
+            const wheel = this.world.createBody({ type: "dynamic", position: Vec2(pos.x, pos.y) });
+            wheel.createFixture(new Circle(0.2), wheelFD);
+            return wheel;
+        });
 
         class WheelSpring {
             constructor(world, playerBody, wheel) {
-                this.world = world;
-                this.playerBody = playerBody;
-                this.wheel = wheel;
-            }
-
-            createSpring() {
-                this.spring = this.world.createJoint(
+                this.spring = world.createJoint(
                     new RevoluteJoint({
                         motorSpeed: 0, maxMotorTorque: 50, enableMotor: true,
                         frequencyHz: 0.2, dampingRatio: 1, restitution: 0.005, collideConnected: false
-                    }, this.playerBody, this.wheel, this.wheel.getPosition())
+                    }, playerBody, wheel, wheel.getPosition())
                 );
+            }
+            setMotorSpeed(speed) {
+                this.spring.setMotorSpeed(speed);
+            }
+            getMotorSpeed() {
+                return this.spring.getMotorSpeed();
             }
         }
 
-        this.springBack = new WheelSpring(this.world, this.playerBody, wheelBack);
-        this.springMiddleBack = new WheelSpring(this.world, this.playerBody, wheelMiddleBack);
-        this.springMiddleFront = new WheelSpring(this.world, this.playerBody, wheelMiddleFront);
-        this.springFront = new WheelSpring(this.world, this.playerBody, wheelFront);
-
-        this.springBack.createSpring();
-        this.springMiddleBack.createSpring();
-        this.springMiddleFront.createSpring();
-        this.springFront.createSpring();
+        this.springBack = new WheelSpring(this.world, this.playerBody, wheels[0]);
+        this.springMiddleBack = new WheelSpring(this.world, this.playerBody, wheels[1]);
+        this.springMiddleFront = new WheelSpring(this.world, this.playerBody, wheels[2]);
+        this.springFront = new WheelSpring(this.world, this.playerBody, wheels[3]);
+        this.wheelSprings = [this.springBack, this.springMiddleBack, this.springMiddleFront, this.springFront];
 
 
         // INFO: Player Sprite
         const playerSprite = Sprite.from(this.playerTexture);
         playerSprite.anchor.set(0.5, 0.5);
-
         const [spriteWidth, spriteHeight] = [100, 70];
         playerSprite.scale.set(spriteWidth / this.playerTexture.width, spriteHeight / this.playerTexture.height);
         playerSprite.x = this.playerX;
         playerSprite.y = this.playerY;
         this.playerSprite = playerSprite;
-
         this.app.stage.addChild(this.playerSprite);
-
 
 
         // INFO: Cannon Body
@@ -132,24 +134,26 @@ export class TankPlayer {
             position: Vec2(playerBodyX + 0.1, playerBodyY + 1.8),
             fixedRotation: true
         });
-        this.playerCannon.createFixture({ shape: planck.Box(0.1, 0.8), density: 1, friction: 1 });
+        this.playerCannon.createFixture({ 
+            shape: planck.Box(0.1, 0.8), density: 0.05, friction: 0.5 
+        });
 
-        const cannonJoint = this.world.createJoint(
+        this.cannonJoint = this.world.createJoint(
             new RevoluteJoint({
                 collideConnected: true
-            }, this.playerBody, this.playerCannon, Vec2(playerBodyX + 0.1, playerBodyY + 1.2))
-        );
-        this.cannonJoint = cannonJoint;
-
-        // INFO: Cannon Sprite
-        const playerCannonSprite = new Graphics()
-            .rect(
-                this.playerX, this.playerY,
-                spriteWidth / this.scale, 38
+            }, 
+                this.playerBody, this.playerCannon, 
+                Vec2(playerBodyX + 0.1, playerBodyY + 1.2)
             )
+        );
+
+        const cannonWidth = 0.2 * this.scale;
+        const cannonLength = 1.6 * this.scale;
+        const playerCannonSprite = new Graphics()
+            .rect( -cannonWidth / 2, 0, cannonWidth, cannonLength)
             .fill(0x3f553c);
 
-        playerCannonSprite.y = this.playerSprite.y - spriteHeight / 2.5
+        playerCannonSprite.pivot.set(0, 0);
         this.playerCannonSprite = playerCannonSprite;
         this.app.stage.addChild(playerCannonSprite);
     }
@@ -172,10 +176,7 @@ export class TankPlayer {
         this.playerCannonSprite
             .beginFill(0x3f553c)
             .drawRect(
-                -0.1 * this.scale,
-                -0.8 * this.scale,
-                0.2 * this.scale,
-                38
+                -0.1 * this.scale, -0.8 * this.scale, 0.2 * this.scale, 38
             )
             .endFill();
 
@@ -187,53 +188,45 @@ export class TankPlayer {
 
     updateCannon() {
         let angleChange = 0.02;
+        const currentAngle = this.playerCannon.getAngle();
 
         if (this.keys['87']) {
-            this.playerCannon.setAngle(this.playerCannon.getAngle() + angleChange);
+            this.playerCannon.setAngle(currentAngle + angleChange);
         } else if (this.keys['83']) {
-            this.playerCannon.setAngle(this.playerCannon.getAngle() - angleChange);
+            this.playerCannon.setAngle(currentAngle - angleChange);
         }
+        // FIX: Poor implementation of the angle - it should base it on the tank body.
+        const [minAngle, maxAngle] = [-Math.PI / 1.6, Math.PI / 1.6];
+        this.playerCannon.setAngle(Math.max(minAngle, Math.min(maxAngle, this.playerCannon.getAngle())));
     }
 
-
     getPlayerMotorSpeed() {
-        return this.springFront.spring.getMotorSpeed();
+        return this.springFront.getMotorSpeed();
     }
 
     resetPlayerMotorSpeed() {
-        this.springBack.spring.setMotorSpeed(0);
-        this.springMiddleBack.spring.setMotorSpeed(0);
-        this.springMiddleFront.spring.setMotorSpeed(0);
-        this.springFront.spring.setMotorSpeed(0);
+        this.wheelSprings.forEach(spring => spring.setMotorSpeed(0));
+    }
+
+    setPlayerMotorSpeed(speed) {
+        this.wheelSprings.forEach(spring => spring.setMotorSpeed(speed));
     }
 
 
     movePlayer() {
-        if (this.moveDist > 0) {
-            const screenX = this.playerSprite.x;
-            const screenWidth = this.app.renderer.width;
-            const tankWidth = this.playerSprite.width;
-
+        if (this.moveDist > 0 && !this.isFiring) {
             if (this.keys['68']) {
-                this.springBack.spring.setMotorSpeed(-this.playerSpeed);
-                this.springMiddleBack.spring.setMotorSpeed(-this.playerSpeed);
-                this.springMiddleFront.spring.setMotorSpeed(-this.playerSpeed);
-                this.springFront.spring.setMotorSpeed(-this.playerSpeed);
-
+                this.setPlayerMotorSpeed(-this.playerSpeed);
                 this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
-            
             } else if (this.keys['65']) {
-                this.springBack.spring.setMotorSpeed(+this.playerSpeed);
-                this.springMiddleBack.spring.setMotorSpeed(+this.playerSpeed);
-                this.springMiddleFront.spring.setMotorSpeed(+this.playerSpeed);
-                this.springFront.spring.setMotorSpeed(+this.playerSpeed);
-
+                this.setPlayerMotorSpeed(this.playerSpeed);
                 this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
-            } else if (!this.keys["65"] || !this.keys["68"]) {
+            } else {
                 this.resetPlayerMotorSpeed();
             }
+        } else {
+            this.resetPlayerMotorSpeed();
         }
-
         this.updateCannon();
     }
 
@@ -244,53 +237,50 @@ export class TankPlayer {
 
 
     async initialiseShellSprite() {
-        const bodyPos = this.playerBody.getPosition();
-        // INFO: Creating the shell sprite
         const shellSprite = Sprite.from(this.shellTexture);
         shellSprite.anchor.set(0.5, 0.5);
-
         const [spriteWidth, spriteHeight] = [10, 10];
         shellSprite.scale.set(spriteWidth / this.shellTexture.width, spriteHeight / this.shellTexture.height);
-        shellSprite.x = bodyPos.x * this.scale;
-        shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale) + 1;
-
+        shellSprite.visible = false;
         this.shellSprite = shellSprite;
+        this.app.stage.addChild(this.shellSprite);
     }
 
-    async openFire(power = 5) {
-        if (this.isFiring) return; // Prevent firing again if already fired
+    openFire(power) {
+        if (this.isFiring || this.physicalShell) return;
 
-        this.isFiring = true; // Set the flag to true indicating that the cannon has fired
+        console.log(`${this.name} is firing with power: ${power.toFixed(2)}`);
+        this.isFiring = true;
 
-        var cannonAngle = -this.playerCannon.getAngle();
+        const cannonAngle = -this.playerCannon.getAngle();
+        const cannonPosition = this.playerCannon.getPosition();
 
-        const magnitudeVelocity = power
-        var velX = magnitudeVelocity * Math.sin(cannonAngle);
-        var velY = magnitudeVelocity * Math.cos(cannonAngle);
+        const cannonLengthPhysics = 1.6;
+        const muzzleOffsetX = (cannonLengthPhysics) * Math.cos(cannonAngle + Math.PI / 2);
+        const muzzleOffsetY = (cannonLengthPhysics) * Math.sin(cannonAngle + Math.PI / 2);
 
-        const bodyPos = this.playerCannon.getPosition();
+        const spawnX = cannonPosition.x + cannonLengthPhysics * Math.sin(cannonAngle);
+        const spawnY = cannonPosition.y + cannonLengthPhysics * Math.cos(cannonAngle);
 
-        const cannonLen = 38 / this.scale;
-        const spawnX = bodyPos.x + cannonLen * Math.sin(cannonAngle);
-        const spawnY = bodyPos.y + cannonLen * Math.cos(cannonAngle);
+        const velX = power * Math.sin(cannonAngle);
+        const velY = power * Math.cos(cannonAngle);
+
 
         this.physicalShell = this.world.createBody({
-            type: "dynamic",
-            position: Vec2(spawnX, spawnY),
-            fixedRotation: true,
-            gravityScale: 0.5,
-            bullet: true,
-            linearVelocity: Vec2(velX, velY * 2),
+            type: "dynamic", position: Vec2(spawnX, spawnY),
+            gravityScale: 0.7, bullet: true,
+            linearVelocity: Vec2(velX, velY * 2)
         });
+        console.log(`OF physical shell: ${this.physicalShell}`);
 
-        const shellFD = { friction: 0.3, density: 1 };
+        const shellFD = { friction: 0.3, density: 20, restitution: 0.1 };
         this.physicalShell.createFixture(new Circle(0.2), shellFD);
 
-        this.shellSprite.x = bodyPos.x * this.scale;
-        this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
+        this.shellSprite.x = spawnX * this.scale;
+        this.shellSprite.y = this.app.renderer.height - (spawnY * this.scale);
         this.shellSprite.visible = true;
 
-        this.app.stage.addChild(this.shellSprite);
+        this.emit('fired', { player: this, power: power });
     }
 
 
@@ -311,6 +301,7 @@ export class TankPlayer {
                 console.log("Player has shot out of bounds!");
                 this.shotOutOfBounds = true;
                 this.resetAndDestroyShell();
+                return;
             } else {
                 this.shotOutOfBounds = false;
             }
@@ -323,6 +314,7 @@ export class TankPlayer {
 
             if (contactType == "PolygonCircleContact") {
                 console.log("Bullet has collided with the body of a tank!");
+                this.emit("hit", { player: this});
                 this.resetAndDestroyShell();
             }
         }
@@ -330,10 +322,13 @@ export class TankPlayer {
 
     resetAndDestroyShell() {
         if (this.physicalShell) {
-            this.shellSprite.visible = false;
+            if (this.shellSprite) {
+                this.shellSprite.visible = false;
+            }
             this.world.destroyBody(this.physicalShell);
             this.physicalShell = null; // Reset the shell
             this.isFiring = false;  // Reset the firing flag, allowing another shot
+            this.emit("shellSequenceComplete");
         }
     }
 
@@ -451,68 +446,69 @@ export class TankPlayer {
         mapGenerator.drawTerrain(newTerrainPoints, this.world, this.scale, this.app);
     }
 
-    checkLongPress(e) {
-        console.log("key status", this.keys["32"]);
 
-        if (this.keyPressStart["32"]) {
-            const pressDuration = Date.now() - this.keyPressStart["32"];
-            console.log(`Space key was pressed for ${pressDuration} ms`);
+    setupKeyboardControls() {// avoids mem leaks+allows tracking ev listeners
+        this.boundKeysDown = this.keysDown.bind(this);
+        this.boundKeysUp = this.keysUp.bind(this);
+        window.addEventListener("keydown", this.boundKeysDown);
+        window.addEventListener("keyup", this.boundKeysUp);
+    }
 
-            let firePower = this.minFirePower +
-                (pressDuration / 4000) * (this.maxFirePower - this.minFirePower);
-
-            firePower = Math.min(
-                this.maxFirePower, Math.max(this.minFirePower, firePower)
-            );
-
-            this.openFire(firePower);
+    removeKeyboardControls() {
+        if (this.boundKeysDown) {
+            window.removeEventListener("keydown", this.boundKeysDown);
+            window.removeEventListener("keyup", this.boundKeysUp);
+            this.boundKeysDown = null;
+            this.boundKeysUp = null;
+            this.keys = {}; 
+            this.keyPressStartTime = {};
+            console.log(`${this.name} keyboard controls DISABLED`);
+        } else {
+             console.log(`${this.name} keyboard controls ALREADY DISABLED`);
         }
-
-        this.keys["32"] = false;
-        delete this.keyPressStart["32"];
     }
 
-    checkSpaceBarInput() {
-        return this.keys['32'] === true;
-    }
-
-    setupKeyboardControls() {
-        window.addEventListener("keydown", this.keysDown.bind(this));
-        window.addEventListener("keyup", this.keysUp.bind(this));
+    destroy() { // Can be used to rm player controls and other things
+        this.removeKeyboardControls();
+        console.log(`${this.name} controls removed.`);
     }
 
     keysDown(e) {
-        if (e.keyCode == 68) { // D
-            this.keys[e.keyCode] = true;
-        } else if (e.keyCode == 65) { // A
-            this.keys[e.keyCode] = true;
-        } else if (e.keyCode == 32) { // Space
-            this.keys[e.keyCode] = true;
-        } else if (e.keyCode == 87) { // W
-            this.keys[e.keyCode] = true;
-        } else if (e.keyCode == 83) { // S
-            this.keys[e.keyCode] = true;
+        if (!this.boundKeysDown) return;
+
+        const keyCode = e.keyCode.toString();
+        this.keys[keyCode] = true;
+
+        if (keyCode === '32' && !this.keyPressStartTime[keyCode] &&
+            !this.isFiring){
+            console.log(`${this.name} Spacebar pressed down`);
+            this.keyPressStartTime[keyCode] = Date.now();
         }
-
-        //if (![68, 65, 32, 87, 83].includes(e.keyCode)) return;
-
-        //if (e.keyCode == 32 && !this.keys["32"]) { 
-        //    this.keyPressStart[e.keyCode] = Date.now();
-        //}
-        //
-        //this.keys[e.keyCode] = true;
     }
+
 
     keysUp(e) {
-        if ([68, 65, 32, 87, 83].includes(e.keyCode)) {
-            this.keys[e.keyCode] = false;
-        }
-        //if (![68, 65, 32, 87, 83].includes(e.keyCode)) return;
+        if (!this.boundKeysDown) return;
 
-        //if (e.keyCode == 32) {
-        //    this.checkLongPress(e);
-        //}
-        //this.keys[e.keyCode] = false;
-        //delete this.keyPressStart[e.keyCode];
+        const keyCode = e.keyCode.toString();
+        this.keys[keyCode] = false;
+
+        if (this.keyPressStartTime[keyCode]) {
+            const pressDuration = Date.now() - this.keyPressStartTime[keyCode];
+            console.log(`${this.name} held spacebar for ${pressDuration} ms, keyPressStart = ${this.keyPressStartTime}`);
+
+            const holdRatio = Math.min(1, pressDuration / MAX_HOLD_DURATION_MS);
+            let firePower = this.minFirePower + holdRatio * (this.maxFirePower - this.minFirePower);
+
+            if (!this.physicalShell) {
+                console.log(`opening fire - fp: ${firePower}`);
+                this.openFire(firePower);
+            } else {
+                console.log(`${this.name} shell already exists`);
+            }
+
+            delete this.keyPressStartTime[keyCode];
+        }
     }
+
 };

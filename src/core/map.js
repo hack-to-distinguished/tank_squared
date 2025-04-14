@@ -1,4 +1,4 @@
-import { Body, Fixture, Chain, Vec2 } from "planck";
+import { Chain, Vec2 } from "planck";
 import { Graphics } from "pixi.js";
 
 export class Map {

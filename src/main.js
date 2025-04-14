@@ -45,6 +45,8 @@ export async function startGame() {
     playerTwo.setupCollisionHandler();
     playerTwo.playerBody.setUserData({ type: 'tank', player: playerTwo });
 
+    playerOne.hideHPBar();
+    playerTwo.hideHPBar();
 
     let currentPlayer = playerOne;
     let otherPlayer = playerTwo;
@@ -75,9 +77,6 @@ export async function startGame() {
         currentPlayer.resetMoveDist();
         turnActive = true;
         // console.log(`It is now ${currentPlayer.name}'s turn.`);
-
-        playerOne.revealHPBar();
-        playerTwo.revealHPBar();
     }
 
     playerOne.on("fired", (eventData) => {
@@ -87,6 +86,7 @@ export async function startGame() {
             currentPlayer.moveDist = 0;
         }
     });
+
     playerTwo.on("fired", (eventData) => {
         if (currentPlayer === playerTwo) {
             // console.log(`${eventData.player.name} fired detected in main`);
@@ -105,21 +105,35 @@ export async function startGame() {
             }, 500);
         }
     };
+
     playerOne.on("shellSequenceComplete", () => handleShellSequenceEnd(playerOne));
     playerTwo.on("shellSequenceComplete", () => handleShellSequenceEnd(playerTwo));
 
     playerOne.on("hit", () => {
         console.log("Player 1 hit player 2");
-        playerTwo.updatePlayerHealthBar(25);
+        playerTwo.updatePlayerHealthBar();
         playerTwo.revealHPBar();
+        playerTwo.hideHPBar();
     });
 
     playerTwo.on("hit", () => {
         console.log("Player 2 hit player 1");
-        playerOne.updatePlayerHealthBar(25);
+        playerOne.updatePlayerHealthBar();
         playerOne.revealHPBar();
+        playerOne.hideHPBar();
     });
 
+    playerOne.on("self-hit", () => {
+        playerOne.updatePlayerHealthBar();
+        playerOne.revealHPBar();
+        playerOne.hideHPBar();
+    })
+
+    playerTwo.on("self-hit", () => {
+        playerTwo.updatePlayerHealthBar();
+        playerTwo.revealHPBar();
+        playerTwo.hideHPBar();
+    })
 
     currentPlayer.setupKeyboardControls();
     app.ticker.maxFPS = 60;
@@ -135,8 +149,8 @@ export async function startGame() {
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
 
-        playerOne.updateShell(mapGenerator, isPlayerOneHit);
-        playerTwo.updateShell(mapGenerator, isPlayerTwoHit);
+        playerOne.updateShell(mapGenerator);
+        playerTwo.updateShell(mapGenerator);
 
         if (playerOne.shotOutOfBounds &&
             currentPlayer === playerOne && !turnActive) {
@@ -152,22 +166,16 @@ export async function startGame() {
         playerOne.updatePosPlayerHealthBar();
         playerTwo.updatePosPlayerHealthBar();
 
-        if (isPlayerOneHit) {
-            playerOne.revealHPBar();
-        } else if (isPlayerTwoHit) {
-            playerTwo.revealHPBar();
-        }
+        // let time = performance.now();
+        // time /= 1000;
+        // time = Math.floor(time % 60);
+        // if (time % hpBarHideCooldown == 0 && time > 0) {
+        //     playerOne.hideHPBar();
+        //     playerTwo.hideHPBar();
+        // }
 
-        let time = performance.now();
-        time /= 1000;
-        time = Math.floor(time % 60);
-        if (time % hpBarHideCooldown == 0 && time > 0) {
-            playerOne.hideHPBar();
-            playerTwo.hideHPBar();
-        }
-
-        isPlayerOneHit = false;
-        isPlayerTwoHit = false;
+        playerOne.destroyShellOutsideContactEvent();
+        playerTwo.destroyShellOutsideContactEvent();
 
         debugRenderer.render();
 

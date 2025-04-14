@@ -1,5 +1,5 @@
 import { Sprite, Graphics, Container, EventEmitter } from "pixi.js";
-import { Vec2, Circle, RevoluteJoint, Polygon, Box } from "planck";
+import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 
 const MAX_HOLD_DURATION_MS = 3000;
 
@@ -8,7 +8,7 @@ export class TankPlayer extends EventEmitter {
         super();
 
         this.collisionWorldHandler = false;
-        this.hitTankBody = false;
+        this.bodyToDestroy = null;
 
         this.app = app;
         this.world = world;
@@ -288,11 +288,7 @@ export class TankPlayer extends EventEmitter {
     }
 
 
-    updateShell(mapGenerator, playerHit) {
-
-        if (playerHit) {
-            this.updatePlayerHealthBar();
-        }
+    updateShell(mapGenerator) {
 
         // check if the shell has gone out of bounds
         if (this.physicalShell) {
@@ -321,9 +317,6 @@ export class TankPlayer extends EventEmitter {
                 if (contactType == "ChainCircleContact") {
                     this.destroyTerrain(mapGenerator);
                     this.resetAndDestroyShell();
-                } else if (this.hitTankBody) {
-                    this.hitTankBody = false;
-                    // this.resetAndDestroyShell();
                 }
             }
         }
@@ -336,36 +329,38 @@ export class TankPlayer extends EventEmitter {
                 const fixtureA = contact.getFixtureA();
                 const fixtureB = contact.getFixtureB();
 
+                const bodyA = fixtureA.getBody();
+                const bodyB = fixtureB.getBody();
+
                 const shapeA = fixtureA.getShape().getType();
                 const shapeB = fixtureB.getShape().getType();
 
-                if ((shapeA == "polygon" && shapeB == "circle") || (shapeA == "circle" && shapeB == "polygon")) {
-                    console.log("Projectile hit tank body");
-                    this.hitTankBody = true;
-                    // console.log("\nShape A: " + shapeA);
-                    // console.log("Shape B: " + shapeB);
+                if (bodyA == this.playerBody && (shapeA == "circle" || shapeB == "circle") || bodyB == this.playerBody && (shapeA == "circle" || shapeB == "circle")) {
+                    // console.log("Hit self!");
+                    if (this.physicalShell) {
+                        this.bodyToDestroy = this.physicalShell;
+                    }
+                    this.emit("self-hit", { player: this });
+                } else if ((shapeA == "polygon" && shapeB == "circle") || (shapeA == "circle" && shapeB == "polygon")) {
+                    // console.log("Projectile hit tank body");
+                    if (this.physicalShell) {
+                        this.bodyToDestroy = this.physicalShell;
+                    }
+                    this.emit("hit", { player: this });
                 }
             });
         }
     }
 
-    //FIX: trash
-    checkIfProjectileHitGround() {
-        if (this.physicalShell) {
-            for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
-                let contact = contactList.contact;
-                let contactType = contact.m_evaluateFcn.name;
-                // if (contactType == "ChainCircleContact") {
-                //     return true;
-                // } else {
-                //     return false;
-                // }
-                // if (contactType == "PolygonCircleContact") {
-                //     // console.log("Bullet has collided with the body of a tank!");
-                //     this.emit("hit", { player: this });
-                //     this.resetAndDestroyShell();
-                // }
-            }
+    // this is required because for some reason i cant use destroy body inside the contact event listener
+    destroyShellOutsideContactEvent() {
+        if (this.bodyToDestroy) {
+            this.world.destroyBody(this.bodyToDestroy);
+            this.shellSprite.visible = false;
+            this.physicalShell = null; // Reset the shell
+            this.isFiring = false;  // Reset the firing flag, allowing another shot
+            this.emit("shellSequenceComplete");
+            this.bodyToDestroy = null;
         }
     }
 
@@ -423,7 +418,7 @@ export class TankPlayer extends EventEmitter {
     updatePlayerHealthBar() {
 
         if (this.hp > 0) {
-            this.hp -= 20;
+            this.hp -= 10;
         }
 
         this.hpContainer.removeChild(this.hpGreenBarGraphic);

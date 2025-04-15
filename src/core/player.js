@@ -1,5 +1,5 @@
 import { Sprite, Graphics, Container, EventEmitter } from "pixi.js";
-import { Vec2, Circle, RevoluteJoint, Polygon, Box } from "planck";
+import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 
 const MAX_HOLD_DURATION_MS = 3000;
 
@@ -134,15 +134,15 @@ export class TankPlayer extends EventEmitter {
             position: Vec2(playerBodyX + 0.1, playerBodyY + 1.8),
             fixedRotation: true
         });
-        this.playerCannon.createFixture({ 
-            shape: planck.Box(0.1, 0.8), density: 0.05, friction: 0.5 
+        this.playerCannon.createFixture({
+            shape: planck.Box(0.1, 0.8), density: 0.05, friction: 0.5
         });
 
         this.cannonJoint = this.world.createJoint(
             new RevoluteJoint({
                 collideConnected: true
-            }, 
-                this.playerBody, this.playerCannon, 
+            },
+                this.playerBody, this.playerCannon,
                 Vec2(playerBodyX + 0.1, playerBodyY + 1.2)
             )
         );
@@ -150,7 +150,7 @@ export class TankPlayer extends EventEmitter {
         const cannonWidth = 0.2 * this.scale;
         const cannonLength = 1.6 * this.scale;
         const playerCannonSprite = new Graphics()
-            .rect( -cannonWidth / 2, 0, cannonWidth, cannonLength)
+            .rect(-cannonWidth / 2, 0, cannonWidth, cannonLength)
             .fill(0x3f553c);
 
         playerCannonSprite.pivot.set(0, 0);
@@ -314,7 +314,7 @@ export class TankPlayer extends EventEmitter {
 
             if (contactType == "PolygonCircleContact") {
                 console.log("Bullet has collided with the body of a tank!");
-                this.emit("hit", { player: this});
+                this.emit("hit", { player: this });
                 this.resetAndDestroyShell();
             }
         }
@@ -460,11 +460,11 @@ export class TankPlayer extends EventEmitter {
             window.removeEventListener("keyup", this.boundKeysUp);
             this.boundKeysDown = null;
             this.boundKeysUp = null;
-            this.keys = {}; 
+            this.keys = {};
             this.keyPressStartTime = {};
             console.log(`${this.name} keyboard controls DISABLED`);
         } else {
-             console.log(`${this.name} keyboard controls ALREADY DISABLED`);
+            console.log(`${this.name} keyboard controls ALREADY DISABLED`);
         }
     }
 
@@ -480,7 +480,7 @@ export class TankPlayer extends EventEmitter {
         this.keys[keyCode] = true;
 
         if (keyCode === '32' && !this.keyPressStartTime[keyCode] &&
-            !this.isFiring){
+            !this.isFiring) {
             console.log(`${this.name} Spacebar pressed down`);
             this.keyPressStartTime[keyCode] = Date.now();
         }

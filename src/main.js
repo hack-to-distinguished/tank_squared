@@ -1,4 +1,4 @@
-import { Application, Assets, Sprite } from "pixi.js";
+import { Application, Assets } from "pixi.js";
 import { TankPlayer } from "./core/player";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
@@ -33,18 +33,18 @@ export async function startGame() {
 
     // INFO: Player 1
     const playerOneX = appWidth / 10;
-    const playerOneY = appHeight-mapGenerator.getHeightAt(playerOneX) + 50;
+    const playerOneY = appHeight - mapGenerator.getHeightAt(playerOneX) + 50;
     const playerOne = new TankPlayer(playerOneX, playerOneY, app, playerTexture, scaleFactor, world, shellTexture);
     playerOne.name = "Player 1";
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
     await playerOne.initialisePlayerHealthBar();
-    playerOne.playerBody.setUserData({ type: "tank", player: playerOne})
+    playerOne.playerBody.setUserData({ type: "tank", player: playerOne })
 
 
     // INFO: Player 2
     const playerTwoX = appWidth / 1.2;
-    const playerTwoY = appHeight-mapGenerator.getHeightAt(playerTwoX) + 50;
+    const playerTwoY = appHeight - mapGenerator.getHeightAt(playerTwoX) + 50;
     const playerTwo = new TankPlayer(playerTwoX, playerTwoY, app, playerTexture, scaleFactor, world, shellTexture);
     playerTwo.name = "Player 2";
     await playerTwo.initialisePlayerSprite();
@@ -131,7 +131,7 @@ export async function startGame() {
         if (turnActive && currentPlayer) {
             currentPlayer.movePlayer();
         } else if (currentPlayer && !turnActive) {
-             currentPlayer.resetPlayerMotorSpeed();
+            currentPlayer.resetPlayerMotorSpeed();
         }
 
         playerOne.updatePlayer();
@@ -140,12 +140,12 @@ export async function startGame() {
         playerOne.updateShell(mapGenerator, isPlayerOneHit);
         playerTwo.updateShell(mapGenerator, isPlayerTwoHit);
 
-        if (playerOne.shotOutOfBounds && 
+        if (playerOne.shotOutOfBounds &&
             currentPlayer === playerOne && !turnActive) {
             playerOne.shotOutOfBounds = false;
             handleShellSequenceEnd(playerOne);
         }
-        if (playerTwo.shotOutOfBounds && 
+        if (playerTwo.shotOutOfBounds &&
             currentPlayer === playerTwo && !turnActive) {
             playerTwo.shotOutOfBounds = false;
             handleShellSequenceEnd(playerTwo);
@@ -171,7 +171,7 @@ export async function startGame() {
         isPlayerOneHit = false;
         isPlayerTwoHit = false;
 
-        debugRenderer.render();
+        // debugRenderer.render();
 
     })
 }

@@ -165,7 +165,7 @@ export async function startGame() {
         playerOne.destroyShellOutsideContactEvent();
         playerTwo.destroyShellOutsideContactEvent();
 
-        debugRenderer.render();
+        // debugRenderer.render();
 
     })
 }

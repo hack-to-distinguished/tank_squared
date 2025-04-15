@@ -78,7 +78,7 @@ export class TankPlayer extends EventEmitter {
         })
 
         const [playerBodyX, playerBodyY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y];
-        const wheelFD = { density: 1, friction: 1 };
+        const wheelFD = { density: 50, friction: 50 };
 
         const wheelPositions = [
             { x: playerBodyX - 1.4, y: playerBodyY - 1.2 },

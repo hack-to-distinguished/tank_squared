@@ -1,4 +1,4 @@
-import { Body, Fixture, Chain, Vec2 } from "planck";
+import { Chain, Vec2 } from "planck";
 import { Graphics } from "pixi.js";
 
 export class Map {
@@ -34,6 +34,7 @@ export class Map {
 
         this.terrainChainShape = new Chain(this.vectorPoints, false);
         this.terrainBody.createFixture(this.terrainChainShape, groundFD);
+        this.terrainBody.setUserData({ type: 'terrain', generator: this });
     }
 
     createBoundaries() {

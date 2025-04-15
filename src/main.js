@@ -39,6 +39,7 @@ export async function startGame() {
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
     await playerOne.initialisePlayerHealthBar();
+    playerOne.setupCollisionHandler();
     playerOne.playerBody.setUserData({ type: "tank", player: playerOne })
 
 
@@ -50,8 +51,11 @@ export async function startGame() {
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();
     await playerTwo.initialisePlayerHealthBar();
+    playerTwo.setupCollisionHandler();
     playerTwo.playerBody.setUserData({ type: 'tank', player: playerTwo });
 
+    playerOne.hideHPBar();
+    playerTwo.hideHPBar();
 
     let currentPlayer = playerOne;
     let otherPlayer = playerTwo;
@@ -65,7 +69,7 @@ export async function startGame() {
     const hpBarHideCooldown = 5;
 
     const switchTurn = () => {
-        console.log("Switching turn...");
+        // console.log("Switching turn...");
         currentPlayer.removeKeyboardControls();
         currentPlayer.resetPlayerMotorSpeed();
         currentPlayer.resetMoveDist();
@@ -76,22 +80,17 @@ export async function startGame() {
         currentPlayer.setupKeyboardControls();
         currentPlayer.resetMoveDist();
         turnActive = true;
-        console.log(`It is now ${currentPlayer.name}'s turn.`);
-
-        playerOne.revealHPBar();
-        playerTwo.revealHPBar();
     }
 
     playerOne.on("fired", (eventData) => {
         if (currentPlayer === playerOne) {
-            console.log(`${eventData.player.name} fired detected in main`);
             turnActive = false;
             currentPlayer.moveDist = 0;
         }
     });
+
     playerTwo.on("fired", (eventData) => {
         if (currentPlayer === playerTwo) {
-            console.log(`${eventData.player.name} fired detected in main`);
             turnActive = false;
             currentPlayer.moveDist = 0;
         }
@@ -99,29 +98,42 @@ export async function startGame() {
 
     const handleShellSequenceEnd = (player) => {
         if (currentPlayer === player) {
-            console.log(`${player.name}'s shell sequence ended.`);
             setTimeout(() => {
                 if (!turnActive) {
                     switchTurn();
                 }
-            }, 500);
+            }, 1);
         }
     };
+
     playerOne.on("shellSequenceComplete", () => handleShellSequenceEnd(playerOne));
     playerTwo.on("shellSequenceComplete", () => handleShellSequenceEnd(playerTwo));
 
     playerOne.on("hit", () => {
-        console.log("Player 1 hit player 2");
-        playerTwo.updatePlayerHealthBar(25);
+        // console.log("Player 1 hit player 2");
+        playerTwo.updatePlayerHealthBar();
         playerTwo.revealHPBar();
+        playerTwo.hideHPBar();
     });
 
     playerTwo.on("hit", () => {
-        console.log("Player 2 hit player 1");
-        playerOne.updatePlayerHealthBar(25);
+        // console.log("Player 2 hit player 1");
+        playerOne.updatePlayerHealthBar();
         playerOne.revealHPBar();
+        playerOne.hideHPBar();
     });
 
+    playerOne.on("self-hit", () => {
+        playerOne.updatePlayerHealthBar();
+        playerOne.revealHPBar();
+        playerOne.hideHPBar();
+    })
+
+    playerTwo.on("self-hit", () => {
+        playerTwo.updatePlayerHealthBar();
+        playerTwo.revealHPBar();
+        playerTwo.hideHPBar();
+    })
 
     currentPlayer.setupKeyboardControls();
     app.ticker.maxFPS = 60;
@@ -137,8 +149,8 @@ export async function startGame() {
         playerOne.updatePlayer();
         playerTwo.updatePlayer();
 
-        playerOne.updateShell(mapGenerator, isPlayerOneHit);
-        playerTwo.updateShell(mapGenerator, isPlayerTwoHit);
+        playerOne.updateShell(mapGenerator);
+        playerTwo.updateShell(mapGenerator);
 
         if (playerOne.shotOutOfBounds &&
             currentPlayer === playerOne && !turnActive) {
@@ -154,27 +166,23 @@ export async function startGame() {
         playerOne.updatePosPlayerHealthBar();
         playerTwo.updatePosPlayerHealthBar();
 
-        if (isPlayerOneHit) {
-            playerOne.revealHPBar();
-        } else if (isPlayerTwoHit) {
-            playerTwo.revealHPBar();
-        }
+        playerOne.destroyShellOutsideContactEvent();
+        playerTwo.destroyShellOutsideContactEvent();
 
-        let time = performance.now();
-        time /= 1000;
-        time = Math.floor(time % 60);
-        if (time % hpBarHideCooldown == 0 && time > 0) {
-            playerOne.hideHPBar();
-            playerTwo.hideHPBar();
-        }
-
-        isPlayerOneHit = false;
-        isPlayerTwoHit = false;
+        // let time = performance.now();
+        // time /= 1000;
+        // time = Math.floor(time % 60);
+        // if (time % hpBarHideCooldown == 0 && time > 0) {
+        //     playerOne.hideHPBar();
+        //     playerTwo.hideHPBar();
+        // }
+        //
+        // isPlayerOneHit = false;
+        // isPlayerTwoHit = false;
 
         // debugRenderer.render();
 
     })
 }
-
 
 createMainMenu();

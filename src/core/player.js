@@ -6,9 +6,13 @@ const MAX_HOLD_DURATION_MS = 3000;
 export class TankPlayer extends EventEmitter {
     constructor(playerX, playerY, app, playerTexture, scale, world, shellTexture) {
         super();
+
+        // INFO: World
         this.app = app;
         this.world = world;
         this.scale = scale;
+        this.collisionWorldHandler = false;
+        this.bodyToDestroy = null;
 
         // INFO: Player
         this.name = `Player_${Math.random().toString(16).slice(2, 8)}`;
@@ -29,6 +33,7 @@ export class TankPlayer extends EventEmitter {
         this.springMiddleFront = null;
         this.springBack = null;
         this.springMiddleBack = null;
+        this.wheels = null;
 
         // INFO: Keyboard control
         this.keyPressStartTime = {};
@@ -93,6 +98,8 @@ export class TankPlayer extends EventEmitter {
             return wheel;
         });
 
+        this.wheels = wheels;
+
         class WheelSpring {
             constructor(world, playerBody, wheel) {
                 this.spring = world.createJoint(
@@ -110,12 +117,12 @@ export class TankPlayer extends EventEmitter {
             }
         }
 
+
         this.springBack = new WheelSpring(this.world, this.playerBody, wheels[0]);
         this.springMiddleBack = new WheelSpring(this.world, this.playerBody, wheels[1]);
         this.springMiddleFront = new WheelSpring(this.world, this.playerBody, wheels[2]);
         this.springFront = new WheelSpring(this.world, this.playerBody, wheels[3]);
         this.wheelSprings = [this.springBack, this.springMiddleBack, this.springMiddleFront, this.springFront];
-
 
         // INFO: Player Sprite
         const playerSprite = Sprite.from(this.playerTexture);
@@ -249,7 +256,6 @@ export class TankPlayer extends EventEmitter {
     openFire(power) {
         if (this.isFiring || this.physicalShell) return;
 
-        console.log(`${this.name} is firing with power: ${power.toFixed(2)}`);
         this.isFiring = true;
 
         const cannonAngle = -this.playerCannon.getAngle();
@@ -271,7 +277,6 @@ export class TankPlayer extends EventEmitter {
             gravityScale: 0.7, bullet: true,
             linearVelocity: Vec2(velX, velY * 2)
         });
-        console.log(`OF physical shell: ${this.physicalShell}`);
 
         const shellFD = { friction: 0.3, density: 20, restitution: 0.1 };
         this.physicalShell.createFixture(new Circle(0.2), shellFD);
@@ -284,39 +289,87 @@ export class TankPlayer extends EventEmitter {
     }
 
 
-    updateShell(mapGenerator, playerHit) {
+    updateShell(mapGenerator) {
 
-        if (playerHit) {
-            this.updatePlayerHealthBar();
-        }
-
+        // check if the shell has gone out of bounds
         if (this.physicalShell) {
             const bodyPos = this.physicalShell.getPosition();
-            let contactType = this.getCollisions();
+
             this.shellSprite.x = bodyPos.x * this.scale;
             this.shellSprite.y = this.app.renderer.height - (bodyPos.y * this.scale);
 
             // check if out of bounds
             if (this.shellSprite.x >= this.app.renderer.width || this.shellSprite.x <= 0 || this.shellSprite.y >= this.app.renderer.height) {
-                console.log("Player has shot out of bounds!");
+                // console.log("Player has shot out of bounds!");
                 this.shotOutOfBounds = true;
                 this.resetAndDestroyShell();
                 return;
             } else {
                 this.shotOutOfBounds = false;
             }
+        }
 
-            // check for other collision types
-            if (contactType == "ChainCircleContact") {
-                this.destroyTerrain(mapGenerator);
-                this.resetAndDestroyShell();
+        // check shell collisions for ground and player...
+        if (this.physicalShell) {
+            for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
+                let contact = contactList.contact;
+                let contactType = contact.m_evaluateFcn.name;
+                if (contactType == "ChainCircleContact") {
+                    this.destroyTerrain(mapGenerator);
+                    this.resetAndDestroyShell();
+                }
             }
+        }
+    }
 
-            if (contactType == "PolygonCircleContact") {
-                console.log("Bullet has collided with the body of a tank!");
-                this.emit("hit", { player: this });
-                this.resetAndDestroyShell();
-            }
+    isBodyAWheel(body) {
+        if (body == this.wheels[0] || body == this.wheels[1] || body == this.wheels[2] || body == this.wheels[3]) {
+            // console.log("body is a wheel!");
+            return true;
+        }
+        // console.log("body is not a wheel!");
+        return false;
+    }
+
+    setupCollisionHandler() {
+        if (!this.collisionWorldHandler) {
+            this.collisionWorldHandler = true;
+            this.world.on('begin-contact', (contact) => {
+                const fixtureA = contact.getFixtureA();
+                const fixtureB = contact.getFixtureB();
+
+                const bodyA = fixtureA.getBody();
+                const bodyB = fixtureB.getBody();
+
+                const shapeA = fixtureA.getShape().getType();
+                const shapeB = fixtureB.getShape().getType();
+
+                if (bodyA == this.playerBody && (shapeA == "circle" || shapeB == "circle") ||
+                    bodyB == this.playerBody && (shapeA == "circle" || shapeB == "circle")) {
+                    if (this.physicalShell) {
+                        this.bodyToDestroy = this.physicalShell;
+                        this.emit("self-hit", { player: this });
+                    }
+                } else if ((shapeA == "polygon" && bodyA != this.playerCannon && shapeB == "circle" && !this.isBodyAWheel(bodyB)) ||
+                    (shapeA == "circle" && !this.isBodyAWheel(bodyA) && shapeB == "polygon" && bodyB != this.playerCannon)) {
+                    if (this.physicalShell) {
+                        this.bodyToDestroy = this.physicalShell;
+                        this.emit("hit", { player: this });
+                    }
+                }
+            });
+        }
+    }
+
+    // this is required because for some reason i cant use destroy body inside the contact event listener
+    destroyShellOutsideContactEvent() {
+        if (this.bodyToDestroy) {
+            this.world.destroyBody(this.bodyToDestroy);
+            this.shellSprite.visible = false;
+            this.physicalShell = null;
+            this.isFiring = false;
+            this.emit("shellSequenceComplete");
+            this.bodyToDestroy = null;
         }
     }
 
@@ -326,8 +379,8 @@ export class TankPlayer extends EventEmitter {
                 this.shellSprite.visible = false;
             }
             this.world.destroyBody(this.physicalShell);
-            this.physicalShell = null; // Reset the shell
-            this.isFiring = false;  // Reset the firing flag, allowing another shot
+            this.physicalShell = null;
+            this.isFiring = false;
             this.emit("shellSequenceComplete");
         }
     }
@@ -374,7 +427,7 @@ export class TankPlayer extends EventEmitter {
     updatePlayerHealthBar() {
 
         if (this.hp > 0) {
-            this.hp -= 20;
+            this.hp -= 10;
         }
 
         this.hpContainer.removeChild(this.hpGreenBarGraphic);
@@ -389,23 +442,12 @@ export class TankPlayer extends EventEmitter {
         this.hpContainer.addChild(this.hpGreenBarGraphic);
     }
 
-    getCollisions() {
-        if (this.physicalShell) {
-            for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
-                let contact = contactList.contact;
-                let contactType = contact.m_evaluateFcn.name;
-                return contactType;
-            }
-        }
-    }
-
     destroyTerrain(mapGenerator) {
         // set up the original metadata of map
         let originalTerrainPoints = mapGenerator.getTerrainPointsFromMap();
         let originalTerrainBody = mapGenerator.getTerrainBodyFromMap();
         let originalTerrainFixture = originalTerrainBody.getFixtureList();
 
-        // prepare new map data to be used
         let newTerrainPoints = [];
         const pixiBlastRadius = 40;
 
@@ -439,7 +481,6 @@ export class TankPlayer extends EventEmitter {
             }
         }
 
-        // reset map body, graphic, and fixture
         originalTerrainBody.destroyFixture(originalTerrainFixture);
         this.world.destroyBody(originalTerrainBody);
         mapGenerator.destroyTerrainGraphicFromMap();
@@ -462,15 +503,11 @@ export class TankPlayer extends EventEmitter {
             this.boundKeysUp = null;
             this.keys = {};
             this.keyPressStartTime = {};
-            console.log(`${this.name} keyboard controls DISABLED`);
-        } else {
-            console.log(`${this.name} keyboard controls ALREADY DISABLED`);
         }
     }
 
     destroy() { // Can be used to rm player controls and other things
         this.removeKeyboardControls();
-        console.log(`${this.name} controls removed.`);
     }
 
     keysDown(e) {
@@ -481,7 +518,7 @@ export class TankPlayer extends EventEmitter {
 
         if (keyCode === '32' && !this.keyPressStartTime[keyCode] &&
             !this.isFiring) {
-            console.log(`${this.name} Spacebar pressed down`);
+            // console.log(`${this.name} Spacebar pressed down`);
             this.keyPressStartTime[keyCode] = Date.now();
         }
     }
@@ -495,18 +532,13 @@ export class TankPlayer extends EventEmitter {
 
         if (this.keyPressStartTime[keyCode]) {
             const pressDuration = Date.now() - this.keyPressStartTime[keyCode];
-            console.log(`${this.name} held spacebar for ${pressDuration} ms, keyPressStart = ${this.keyPressStartTime}`);
 
             const holdRatio = Math.min(1, pressDuration / MAX_HOLD_DURATION_MS);
             let firePower = this.minFirePower + holdRatio * (this.maxFirePower - this.minFirePower);
 
             if (!this.physicalShell) {
-                console.log(`opening fire - fp: ${firePower}`);
                 this.openFire(firePower);
-            } else {
-                console.log(`${this.name} shell already exists`);
             }
-
             delete this.keyPressStartTime[keyCode];
         }
     }

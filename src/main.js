@@ -38,7 +38,9 @@ export async function startGame() {
 
 
     // INFO: Player 2
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 550, app, playerTexture, scaleFactor, world, shellTexture);
+    const playerTwoX = appWidth / 1.2;
+    const playerTwoY = appHeight-mapGenerator.getHeightAt(playerTwoX) + 50;
+    const playerTwo = new TankPlayer(playerTwoX, playerTwoY, app, playerTwoTexture, scaleFactor, converter, world, shellTexture);
     playerTwo.name = "Player 2";
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();

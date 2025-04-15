@@ -325,10 +325,10 @@ export class TankPlayer extends EventEmitter {
 
     isBodyAWheel(body) {
         if (body == this.wheels[0] || body == this.wheels[1] || body == this.wheels[2] || body == this.wheels[3]) {
-            console.log("body is a wheel!");
+            // console.log("body is a wheel!");
             return true;
         }
-        console.log("body is not a wheel!");
+        // console.log("body is not a wheel!");
         return false;
     }
 

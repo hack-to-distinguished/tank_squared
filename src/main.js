@@ -65,7 +65,7 @@ export async function startGame() {
     const hpBarHideCooldown = 5;
 
     const switchTurn = () => {
-        console.log("Switching turn...");
+        // console.log("Switching turn...");
         currentPlayer.removeKeyboardControls();
         currentPlayer.resetPlayerMotorSpeed();
         currentPlayer.resetMoveDist();
@@ -106,14 +106,14 @@ export async function startGame() {
     playerTwo.on("shellSequenceComplete", () => handleShellSequenceEnd(playerTwo));
 
     playerOne.on("hit", () => {
-        console.log("Player 1 hit player 2");
+        // console.log("Player 1 hit player 2");
         playerTwo.updatePlayerHealthBar();
         playerTwo.revealHPBar();
         playerTwo.hideHPBar();
     });
 
     playerTwo.on("hit", () => {
-        console.log("Player 2 hit player 1");
+        // console.log("Player 2 hit player 1");
         playerOne.updatePlayerHealthBar();
         playerOne.revealHPBar();
         playerOne.hideHPBar();

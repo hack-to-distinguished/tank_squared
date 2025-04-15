@@ -27,7 +27,9 @@ export async function startGame() {
     const playerTexture = await Assets.load('assets/images/tank.png');
 
     // INFO: Player 1
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 550, app, playerTexture, scaleFactor, world, shellTexture);
+    const playerOneX = appWidth / 10;
+    const playerOneY = appHeight-mapGenerator.getHeightAt(playerOneX) + 50;
+    const playerOne = new TankPlayer(playerOneX, playerOneY, app, playerOneTexture, scaleFactor, converter, world, shellTexture);
     playerOne.name = "Player 1";
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();

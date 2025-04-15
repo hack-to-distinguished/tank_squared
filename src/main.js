@@ -26,6 +26,11 @@ export async function startGame() {
     const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerTexture = await Assets.load('assets/images/tank.png');
 
+    // INFO: Map Generator
+    const mapGenerator = new MapGenerator(app);
+    let terrainPoints = mapGenerator.generateTerrain(128, 256, 2, 2);
+    mapGenerator.drawTerrain(terrainPoints, world, scaleFactor, app);
+
     // INFO: Player 1
     const playerOneX = appWidth / 10;
     const playerOneY = appHeight-mapGenerator.getHeightAt(playerOneX) + 50;
@@ -53,11 +58,6 @@ export async function startGame() {
     let turnActive = true;
 
     const debugRenderer = new DebugRenderer(world, app, scaleFactor);
-
-    // INFO: Map Generator
-    const mapGenerator = new MapGenerator(app);
-    let terrainPoints = mapGenerator.generateTerrain(128, 256, 2, 2);
-    mapGenerator.drawTerrain(terrainPoints, world, scaleFactor, app);
 
     let isPlayerTwoHit = false;
     let isPlayerOneHit = false;

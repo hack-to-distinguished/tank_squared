@@ -162,18 +162,10 @@ export async function startGame() {
         playerOne.updatePosPlayerHealthBar();
         playerTwo.updatePosPlayerHealthBar();
 
-        // let time = performance.now();
-        // time /= 1000;
-        // time = Math.floor(time % 60);
-        // if (time % hpBarHideCooldown == 0 && time > 0) {
-        //     playerOne.hideHPBar();
-        //     playerTwo.hideHPBar();
-        // }
-
         playerOne.destroyShellOutsideContactEvent();
         playerTwo.destroyShellOutsideContactEvent();
 
-        //debugRenderer.render();
+        debugRenderer.render();
 
     })
 }

@@ -33,6 +33,7 @@ export class TankPlayer extends EventEmitter {
         this.springMiddleFront = null;
         this.springBack = null;
         this.springMiddleBack = null;
+        this.wheels = null;
 
         // INFO: Keyboard control
         this.keyPressStartTime = {};
@@ -97,6 +98,8 @@ export class TankPlayer extends EventEmitter {
             return wheel;
         });
 
+        this.wheels = wheels;
+
         class WheelSpring {
             constructor(world, playerBody, wheel) {
                 this.spring = world.createJoint(
@@ -114,12 +117,12 @@ export class TankPlayer extends EventEmitter {
             }
         }
 
+
         this.springBack = new WheelSpring(this.world, this.playerBody, wheels[0]);
         this.springMiddleBack = new WheelSpring(this.world, this.playerBody, wheels[1]);
         this.springMiddleFront = new WheelSpring(this.world, this.playerBody, wheels[2]);
         this.springFront = new WheelSpring(this.world, this.playerBody, wheels[3]);
         this.wheelSprings = [this.springBack, this.springMiddleBack, this.springMiddleFront, this.springFront];
-
 
         // INFO: Player Sprite
         const playerSprite = Sprite.from(this.playerTexture);
@@ -320,6 +323,15 @@ export class TankPlayer extends EventEmitter {
         }
     }
 
+    isBodyAWheel(body) {
+        if (body == this.wheels[0] || body == this.wheels[1] || body == this.wheels[2] || body == this.wheels[3]) {
+            console.log("body is a wheel!");
+            return true;
+        }
+        console.log("body is not a wheel!");
+        return false;
+    }
+
     setupCollisionHandler() {
         if (!this.collisionWorldHandler) {
             this.collisionWorldHandler = true;
@@ -333,12 +345,14 @@ export class TankPlayer extends EventEmitter {
                 const shapeA = fixtureA.getShape().getType();
                 const shapeB = fixtureB.getShape().getType();
 
-                if (bodyA == this.playerBody && (shapeA == "circle" || shapeB == "circle") || bodyB == this.playerBody && (shapeA == "circle" || shapeB == "circle")) {
+                if (bodyA == this.playerBody && (shapeA == "circle" || shapeB == "circle") ||
+                    bodyB == this.playerBody && (shapeA == "circle" || shapeB == "circle")) {
                     if (this.physicalShell) {
                         this.bodyToDestroy = this.physicalShell;
                     }
                     this.emit("self-hit", { player: this });
-                } else if ((shapeA == "polygon" && shapeB == "circle") || (shapeA == "circle" && shapeB == "polygon")) {
+                } else if ((shapeA == "polygon" && bodyA != this.playerCannon && shapeB == "circle" && !this.isBodyAWheel(bodyB)) ||
+                    (shapeA == "circle" && !this.isBodyAWheel(bodyA) && shapeB == "polygon" && bodyB != this.playerCannon)) {
                     if (this.physicalShell) {
                         this.bodyToDestroy = this.physicalShell;
                     }
@@ -490,7 +504,7 @@ export class TankPlayer extends EventEmitter {
             this.boundKeysUp = null;
             this.keys = {};
             this.keyPressStartTime = {};
-        }     
+        }
     }
 
     destroy() { // Can be used to rm player controls and other things
@@ -524,7 +538,7 @@ export class TankPlayer extends EventEmitter {
 
             if (!this.physicalShell) {
                 this.openFire(firePower);
-            } 
+            }
             delete this.keyPressStartTime[keyCode];
         }
     }

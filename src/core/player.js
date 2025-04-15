@@ -83,7 +83,7 @@ export class TankPlayer extends EventEmitter {
         })
 
         const [playerBodyX, playerBodyY] = [this.playerBody.getPosition().x, this.playerBody.getPosition().y];
-        const wheelFD = { density: 1, friction: 1 };
+        const wheelFD = { density: 50, friction: 50 };
 
         const wheelPositions = [
             { x: playerBodyX - 1.4, y: playerBodyY - 1.2 },
@@ -311,7 +311,6 @@ export class TankPlayer extends EventEmitter {
 
         // check shell collisions for ground and player...
         if (this.physicalShell) {
-
             for (let contactList = this.physicalShell.getContactList(); contactList; contactList = contactList.next) {
                 let contact = contactList.contact;
                 let contactType = contact.m_evaluateFcn.name;
@@ -519,6 +518,7 @@ export class TankPlayer extends EventEmitter {
 
         if (keyCode === '32' && !this.keyPressStartTime[keyCode] &&
             !this.isFiring) {
+            // console.log(`${this.name} Spacebar pressed down`);
             this.keyPressStartTime[keyCode] = Date.now();
         }
     }

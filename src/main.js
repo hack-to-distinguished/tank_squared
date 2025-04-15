@@ -26,8 +26,15 @@ export async function startGame() {
     const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerTexture = await Assets.load('assets/images/tank.png');
 
+    // INFO: Map Generator
+    const mapGenerator = new MapGenerator(app);
+    let terrainPoints = mapGenerator.generateTerrain(128, 256, 2, 2);
+    mapGenerator.drawTerrain(terrainPoints, world, scaleFactor, app);
+
     // INFO: Player 1
-    const playerOne = new TankPlayer(appWidth / 10, appHeight - 550, app, playerTexture, scaleFactor, world, shellTexture);
+    const playerOneX = appWidth / 10;
+    const playerOneY = appHeight - mapGenerator.getHeightAt(playerOneX) + 50;
+    const playerOne = new TankPlayer(playerOneX, playerOneY, app, playerTexture, scaleFactor, world, shellTexture);
     playerOne.name = "Player 1";
     await playerOne.initialisePlayerSprite();
     await playerOne.initialiseShellSprite();
@@ -37,7 +44,9 @@ export async function startGame() {
 
 
     // INFO: Player 2
-    const playerTwo = new TankPlayer(appWidth / 1.2, appHeight - 550, app, playerTexture, scaleFactor, world, shellTexture);
+    const playerTwoX = appWidth / 1.2;
+    const playerTwoY = appHeight - mapGenerator.getHeightAt(playerTwoX) + 50;
+    const playerTwo = new TankPlayer(playerTwoX, playerTwoY, app, playerTexture, scaleFactor, world, shellTexture);
     playerTwo.name = "Player 2";
     await playerTwo.initialisePlayerSprite();
     await playerTwo.initialiseShellSprite();
@@ -53,11 +62,6 @@ export async function startGame() {
     let turnActive = true;
 
     const debugRenderer = new DebugRenderer(world, app, scaleFactor);
-
-    // INFO: Map Generator
-    const mapGenerator = new MapGenerator(app);
-    let terrainPoints = mapGenerator.generateTerrain(128, 256, 2, 2);
-    mapGenerator.drawTerrain(terrainPoints, world, scaleFactor, app);
 
     let isPlayerTwoHit = false;
     let isPlayerOneHit = false;
@@ -164,6 +168,17 @@ export async function startGame() {
 
         playerOne.destroyShellOutsideContactEvent();
         playerTwo.destroyShellOutsideContactEvent();
+
+        // let time = performance.now();
+        // time /= 1000;
+        // time = Math.floor(time % 60);
+        // if (time % hpBarHideCooldown == 0 && time > 0) {
+        //     playerOne.hideHPBar();
+        //     playerTwo.hideHPBar();
+        // }
+        //
+        // isPlayerOneHit = false;
+        // isPlayerTwoHit = false;
 
         // debugRenderer.render();
 

@@ -102,7 +102,7 @@ export async function startGame() {
                 if (!turnActive) {
                     switchTurn();
                 }
-            }, 500);
+            }, 1);
         }
     };
 

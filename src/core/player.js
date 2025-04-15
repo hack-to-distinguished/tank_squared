@@ -349,14 +349,14 @@ export class TankPlayer extends EventEmitter {
                     bodyB == this.playerBody && (shapeA == "circle" || shapeB == "circle")) {
                     if (this.physicalShell) {
                         this.bodyToDestroy = this.physicalShell;
+                        this.emit("self-hit", { player: this });
                     }
-                    this.emit("self-hit", { player: this });
                 } else if ((shapeA == "polygon" && bodyA != this.playerCannon && shapeB == "circle" && !this.isBodyAWheel(bodyB)) ||
                     (shapeA == "circle" && !this.isBodyAWheel(bodyA) && shapeB == "polygon" && bodyB != this.playerCannon)) {
                     if (this.physicalShell) {
                         this.bodyToDestroy = this.physicalShell;
+                        this.emit("hit", { player: this });
                     }
-                    this.emit("hit", { player: this });
                 }
             });
         }

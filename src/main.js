@@ -76,12 +76,10 @@ export async function startGame() {
         currentPlayer.setupKeyboardControls();
         currentPlayer.resetMoveDist();
         turnActive = true;
-        // console.log(`It is now ${currentPlayer.name}'s turn.`);
     }
 
     playerOne.on("fired", (eventData) => {
         if (currentPlayer === playerOne) {
-            // console.log(`${eventData.player.name} fired detected in main`);
             turnActive = false;
             currentPlayer.moveDist = 0;
         }
@@ -89,7 +87,6 @@ export async function startGame() {
 
     playerTwo.on("fired", (eventData) => {
         if (currentPlayer === playerTwo) {
-            // console.log(`${eventData.player.name} fired detected in main`);
             turnActive = false;
             currentPlayer.moveDist = 0;
         }
@@ -97,7 +94,6 @@ export async function startGame() {
 
     const handleShellSequenceEnd = (player) => {
         if (currentPlayer === player) {
-            // console.log(`${player.name}'s shell sequence ended.`);
             setTimeout(() => {
                 if (!turnActive) {
                     switchTurn();
@@ -177,7 +173,7 @@ export async function startGame() {
         playerOne.destroyShellOutsideContactEvent();
         playerTwo.destroyShellOutsideContactEvent();
 
-        debugRenderer.render();
+        //debugRenderer.render();
 
     })
 }

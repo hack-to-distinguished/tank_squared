@@ -169,17 +169,6 @@ export async function startGame() {
         playerOne.destroyShellOutsideContactEvent();
         playerTwo.destroyShellOutsideContactEvent();
 
-        // let time = performance.now();
-        // time /= 1000;
-        // time = Math.floor(time % 60);
-        // if (time % hpBarHideCooldown == 0 && time > 0) {
-        //     playerOne.hideHPBar();
-        //     playerTwo.hideHPBar();
-        // }
-        //
-        // isPlayerOneHit = false;
-        // isPlayerTwoHit = false;
-
         // debugRenderer.render();
 
     })

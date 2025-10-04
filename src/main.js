@@ -3,6 +3,7 @@ import { TankPlayer } from "./core/player";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
 import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
+import { Background } from "./scenes/mapImage.js";
 import { createMainMenu } from './menu.js';
 
 export async function startGame() {
@@ -25,11 +26,17 @@ export async function startGame() {
 
     const shellTexture = await Assets.load("assets/images/bullet.png");
     const playerTexture = await Assets.load('assets/images/tank.png');
+  
+    // INFO: Generate backgroundPlains
+    const backgroundImg = new Background(app, appHeight, appWidth);
+    console.log("Background image gen", Background);
+    await backgroundImg.initialiseBackground();
 
     // INFO: Map Generator
     const mapGenerator = new MapGenerator(app);
     let terrainPoints = mapGenerator.generateTerrain(128, 256, 2, 2);
     mapGenerator.drawTerrain(terrainPoints, world, scaleFactor, app);
+
 
     // INFO: Player 1
     const playerOneX = appWidth / 10;
@@ -169,16 +176,6 @@ export async function startGame() {
         playerOne.destroyShellOutsideContactEvent();
         playerTwo.destroyShellOutsideContactEvent();
 
-        // let time = performance.now();
-        // time /= 1000;
-        // time = Math.floor(time % 60);
-        // if (time % hpBarHideCooldown == 0 && time > 0) {
-        //     playerOne.hideHPBar();
-        //     playerTwo.hideHPBar();
-        // }
-        //
-        // isPlayerOneHit = false;
-        // isPlayerTwoHit = false;
 
         // debugRenderer.render();
 

@@ -82,7 +82,6 @@ export async function startGame() {
   let otherPlayer = playerTwo;
   let turnActive = true;
 
-  const debugRenderer = new DebugRenderer(world, app, scaleFactor);
 
   let gameActive = true;
 
@@ -210,6 +209,9 @@ export async function startGame() {
     startGame();
   });
 
+
+  // const debugRenderer = new DebugRenderer(world, app, scaleFactor);
+
   app.ticker.add(() => {
     if (!gameActive) return;
     world.step(1 / 60);
@@ -249,7 +251,7 @@ export async function startGame() {
     playerOne.destroyShellOutsideContactEvent();
     playerTwo.destroyShellOutsideContactEvent();
 
-    // debugRenderer.render();
+    debugRenderer.render();
   });
 
   window.addEventListener("keydown", (e) => {

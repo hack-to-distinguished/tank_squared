@@ -425,8 +425,7 @@ export class TankPlayer extends EventEmitter {
   updatePlayerHealthBar() {
 
     if (this.hp > 0) {
-      // this.hp -= 10;
-      this.hp -= 101;
+      this.hp -= 10;
     }
 
     this.hpContainer.removeChild(this.hpGreenBarGraphic);

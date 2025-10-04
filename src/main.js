@@ -88,6 +88,8 @@ export async function startGame() {
   gameScreenManager.initialize();
 
   const switchTurn = () => {
+    // TODO: Right here add a call to a dissappearing text saying otherPlayer turn
+
     currentPlayer.removeKeyboardControls();
     currentPlayer.resetPlayerMotorSpeed();
     currentPlayer.resetMoveDist();
@@ -251,7 +253,7 @@ export async function startGame() {
     playerOne.destroyShellOutsideContactEvent();
     playerTwo.destroyShellOutsideContactEvent();
 
-    debugRenderer.render();
+    // debugRenderer.render();
   });
 
   window.addEventListener("keydown", (e) => {

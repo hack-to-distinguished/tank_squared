@@ -9,6 +9,79 @@ import { gameScreenManager } from "./screens/pauseAndDeathScreen.js";
 import "./screens/pauseAndDeathScreen.css";
 
 export async function startGame() {
+
+
+  // add near the top of startGame, after `const app = new Application();`
+  let _turnAnnouncement = null;
+  function showTurnAnnouncement(message, {
+    duration = 1500, // ms total (fade in + hold + fade out)
+    holdRatio = 0.5, // fraction of duration to hold at full alpha
+    fontSize = 36,
+  } = {}) {
+    // remove existing announcement immediately
+    if (_turnAnnouncement) {
+      _turnAnnouncement.parent && _turnAnnouncement.parent.removeChild(_turnAnnouncement);
+      _turnAnnouncement = null;
+    }
+
+    const style = new PIXI.TextStyle({
+      fontFamily: "Arial",
+      fontSize,
+      fontWeight: "700",
+      fill: "#ffffff",
+      stroke: "#000000",
+      strokeThickness: 4,
+      align: "center",
+    });
+
+    const text = new PIXI.Text(message, style);
+    text.anchor.set(0.5);
+    text.x = app.renderer.width / 2;
+    text.y = Math.max(80, app.renderer.height * 0.12); // top area
+    text.alpha = 0;
+    text.zIndex = 1000;
+
+    // ensure stage sorts by zIndex (if not using layers)
+    if (app.stage.sortableChildren === undefined) app.stage.sortableChildren = true;
+    text.zIndex = 9999;
+
+    app.stage.addChild(text);
+    _turnAnnouncement = text;
+
+    const total = duration;
+    const hold = total * holdRatio;
+    const fade = (total - hold) / 2; // fade in and fade out durations
+
+    let elapsed = 0;
+    const tickerCallback = (delta) => {
+      // delta is frames; convert to ms approx using ticker.deltaMS when available
+      const deltaMs = app.ticker.deltaMS ?? (1000 / 60) * delta;
+      elapsed += deltaMs;
+
+      if (elapsed <= fade) {
+        // fade in
+        text.alpha = Math.min(1, elapsed / fade);
+      } else if (elapsed <= fade + hold) {
+        // hold
+        text.alpha = 1;
+      } else if (elapsed <= fade + hold + fade) {
+        // fade out
+        text.alpha = Math.max(0, 1 - (elapsed - fade - hold) / fade);
+      } else {
+        // done
+        app.ticker.remove(tickerCallback);
+        text.parent && text.parent.removeChild(text);
+        if (_turnAnnouncement === text) _turnAnnouncement = null;
+      }
+    };
+
+    app.ticker.add(tickerCallback);
+    return text;
+  }
+
+
+
+
   const app = new Application();
   await app.init({
     resizeTo: window,
@@ -88,14 +161,15 @@ export async function startGame() {
   gameScreenManager.initialize();
 
   const switchTurn = () => {
-    // TODO: Right here add a call to a dissappearing text saying otherPlayer turn
-
     currentPlayer.removeKeyboardControls();
     currentPlayer.resetPlayerMotorSpeed();
     currentPlayer.resetMoveDist();
 
     currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
     otherPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
+
+    // TODO: Right here add a call to a dissappearing text saying otherPlayer turn
+    showTurnAnnouncement(`${currentPlayer.name}'s turn`);
 
     currentPlayer.setupKeyboardControls();
     currentPlayer.resetMoveDist();

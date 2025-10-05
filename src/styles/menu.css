@@ -93,3 +93,20 @@
 #start-button:hover {
     background-color: #004999;
 }
+
+/* How to Play button */
+#how-to-play-button {
+    padding: 10px 20px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #2ee651;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+#how-to-play-button:hover {
+    background-color: #1e9e3e;
+}

@@ -1,7 +1,8 @@
 @import url("menu.css");
+@import url("../screens/pauseAndDeathScreen.css");
 
-
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
 }
@@ -12,4 +13,4 @@ body {
 }
 * {
     box-sizing: border-box;
-} 
+}

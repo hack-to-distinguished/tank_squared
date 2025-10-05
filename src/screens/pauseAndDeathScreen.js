@@ -179,6 +179,15 @@ class GameScreenManager extends EventEmitter {
     resumeButton.addEventListener("click", () => this.resumeGame());
     buttonsContainer.appendChild(resumeButton);
 
+    // Create the how to play button
+    const howToPlayButton = document.createElement("button");
+    howToPlayButton.textContent = "How to Play";
+    howToPlayButton.addEventListener("click", () => {
+        this.removePauseMenu();
+        this.showHowToPlayScreen();
+    });
+    buttonsContainer.appendChild(howToPlayButton);
+
     // Create the main menu button
     const mainMenuButton = document.createElement("button");
     mainMenuButton.textContent = "Quit to Main Menu";

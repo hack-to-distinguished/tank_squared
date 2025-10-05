@@ -67,17 +67,6 @@ export function createMainMenu() {
 
     document.body.appendChild(menu);
 
-    // INFO: How to Play button
-    const howToPlayButton = document.createElement("button");
-    howToPlayButton.id = "how-to-play-button";
-    howToPlayButton.innerText = "How to Play";
-    howToPlayButton.onclick = () => {
-        import("./screens/pauseAndDeathScreen.js").then((module) => {
-            module.gameScreenManager.showHowToPlay();
-        });
-    };
-    buttonContainer.appendChild(howToPlayButton);
-
     // INFO: Team selector
     const card1 = document.querySelector("#cCard1");
     const card2 = document.querySelector("#cCard2");
@@ -89,4 +78,15 @@ export function createMainMenu() {
         card1.classList.remove("cCard1-clicked");
         card2.classList.add("cCard2-clicked");
     });
+
+    // INFO: How to Play button
+    const howToPlayButton = document.createElement("button");
+    howToPlayButton.id = "how-to-play-button";
+    howToPlayButton.innerText = "How to Play";
+    howToPlayButton.onclick = () => {
+        import("./screens/pauseAndDeathScreen.js").then((module) => {
+            module.gameScreenManager.showHowToPlayScreen();
+        });
+    };
+    buttonContainer.appendChild(howToPlayButton);
 }

@@ -56,6 +56,9 @@ class GameScreenManager extends EventEmitter {
   }
 
   showHowToPlayScreen() {
+    if (this.isPaused && this.pauseMenu) {
+      this.pauseMenu.style.display = 'none';
+    }
     this.createHowToPlayScreen();
   }
 
@@ -134,7 +137,12 @@ class GameScreenManager extends EventEmitter {
     // Create the close button
     const closeButton = document.createElement("button");
     closeButton.textContent = "Close";
-    closeButton.addEventListener("click", () => this.removeHowToPlayScreen());
+    closeButton.addEventListener("click", () => {
+      this.removeHowToPlayScreen();
+      if (this.isPaused && this.pauseMenu) {
+        this.pauseMenu.style.display = 'flex';
+      }
+    });
     buttonsContainer.appendChild(closeButton);
 
     // Add the buttons to the menu content
@@ -155,8 +163,8 @@ class GameScreenManager extends EventEmitter {
         this.howToPlayScreen.parentNode.removeChild(this.howToPlayScreen);
         this.howToPlayScreen = null;
 
-        if (this.isPaused && !this.pauseMenu) {
-          this.createPauseMenu();
+        if (this.isPaused && this.pauseMenu) {
+          this.pauseMenu.style.display = 'flex';
         }
     }
   }
@@ -192,8 +200,11 @@ class GameScreenManager extends EventEmitter {
     const howToPlayButton = document.createElement("button");
     howToPlayButton.textContent = "How to Play";
     howToPlayButton.addEventListener("click", () => {
-        this.removePauseMenu();
-        this.showHowToPlayScreen();
+      if (this.pauseMenu) {
+        this.pauseMenu.style.display = "none";
+      }
+      // this.removePauseMenu();
+      this.showHowToPlayScreen();
     });
     buttonsContainer.appendChild(howToPlayButton);
 

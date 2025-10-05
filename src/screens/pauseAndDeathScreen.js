@@ -20,6 +20,7 @@ class GameScreenManager extends EventEmitter {
     if (e.key === "Escape" && !this.isGameOver) {
       if (this.howToPlayScreen) {
         this.removeHowToPlayScreen();
+        return;
       } else if (!this.isGameOver) {
         if (this.isPaused) {
           this.resumeGame();
@@ -153,6 +154,10 @@ class GameScreenManager extends EventEmitter {
     if (this.howToPlayScreen && this.howToPlayScreen.parentNode) {
         this.howToPlayScreen.parentNode.removeChild(this.howToPlayScreen);
         this.howToPlayScreen = null;
+
+        if (this.isPaused && !this.pauseMenu) {
+          this.createPauseMenu();
+        }
     }
   }
 

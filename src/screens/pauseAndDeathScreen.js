@@ -18,10 +18,14 @@ class GameScreenManager extends EventEmitter {
 
   handleEscKey(e) {
     if (e.key === "Escape" && !this.isGameOver) {
-      if (this.isPaused) {
-        this.resumeGame();
-      } else {
-        this.pauseGame();
+      if (this.howToPlayScreen) {
+        this.removeHowToPlayScreen();
+      } else if (!this.isGameOver) {
+        if (this.isPaused) {
+          this.resumeGame();
+        } else {
+          this.pauseGame();
+        }
       }
     }
   }
@@ -287,6 +291,7 @@ class GameScreenManager extends EventEmitter {
     window.removeEventListener("keydown", this.escKeyListener);
     this.removePauseMenu();
     this.removeDeathScreen();
+    this.removeHowToPlayScreen();
   }
 }
 

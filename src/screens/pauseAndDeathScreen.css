@@ -81,3 +81,67 @@
 #death-screen h2 {
     color: #ff3333;
 }
+
+/* How to Play screen styles */
+#how-to-play-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+#how-to-play-screen .menu-content {
+    background-color: rgba(30, 30, 30, 0.95);
+    border-radius: 10px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px solid #555;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    width: 500px;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+#how-to-play-screen h2 {
+    color: white;
+    font-size: 36px;
+    margin: 0 0 20px 0;
+    text-align: center;
+}
+
+.controls-content {
+    color: white;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.controls-section {
+    margin-bottom: 25px;
+}
+
+.controls-section h3 {
+    color: #2ee651;
+    font-size: 20px;
+    margin: 0 0 10px 0;
+}
+
+.controls-section p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.controls-note {
+    color: #cccccc;
+    font-style: italic;
+    margin-top: 20px;
+    text-align: center;
+}

@@ -78,4 +78,14 @@ export function createMainMenu() {
         card1.classList.remove("cCard1-clicked");
         card2.classList.add("cCard2-clicked");
     });
+
+    const howToPlayButton = document.createElement("button");
+    howToPlayButton.id = "how-to-play-button";
+    howToPlayButton.innerText = "How to Play";
+    howToPlayButton.onclick = () => {
+        import("./screens/pauseAndDeathScreen.js").then((module) => {
+            module.gameScreenManager.showHowToPlayScreen();
+        });
+    };
+    buttonContainer.appendChild(howToPlayButton);
 }

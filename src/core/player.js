@@ -36,7 +36,7 @@ export class TankPlayer extends EventEmitter {
     this.wheels = null;
 
     // INFO: Keyboard control
-    this.controlScheme = this.controlScheme;
+    this.controlScheme = controlScheme;
     this.keyPressStartTime = {};
     this.keys = {};
 

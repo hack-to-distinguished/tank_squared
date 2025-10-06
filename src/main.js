@@ -38,8 +38,8 @@ export async function startGame() {
   const playerTwoControls = {
     left: '37',
     right: '39',
-    up: '38',
-    down: '40',
+    up: '40',
+    down: '38',
     fire: '13'
   };
 

@@ -27,6 +27,22 @@ export async function startGame() {
   const shellTexture = await Assets.load("assets/images/bullet.png");
   const playerTexture = await Assets.load("assets/images/tank.png");
 
+  const playerOneControls = {
+    left: '65',
+    right: '68',
+    up: '87',
+    down: '83',
+    fire: '32'
+  };
+
+  const playerTwoControls = {
+    left: '37',
+    right: '39',
+    up: '38',
+    down: '40',
+    fire: '13'
+  };
+
   // INFO: Generate backgroundPlains
   const backgroundImg = new Background(app, appHeight, appWidth);
   console.log("Background image gen", Background);

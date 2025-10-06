@@ -274,16 +274,16 @@ export async function startGame() {
     // debugRenderer.render();
   });
 
-  window.addEventListener("keydown", (e) => {
-    // INFO: Pauses the game on escape button press
-    if (e.key === "27" && gameActive) {
-      if (!gameScreenManager.isPaused) {
-        gameScreenManager.pauseGame();
-      } else {
-        gameScreenManager.resumeGame();
-      }
-    }
-  });
+  // window.addEventListener("keydown", (e) => {
+  //   // INFO: Pauses the game on escape button press
+  //   if (e.key === "27" && gameActive) {
+  //     if (!gameScreenManager.isPaused) {
+  //       gameScreenManager.pauseGame();
+  //     } else {
+  //       gameScreenManager.resumeGame();
+  //     }
+  //   }
+  // });
 }
 
 createMainMenu();

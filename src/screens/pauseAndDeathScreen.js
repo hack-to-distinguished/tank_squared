@@ -9,11 +9,22 @@ class GameScreenManager extends EventEmitter {
     this.isPaused = false;
     this.isGameOver = false;
     this.escKeyListener = this.handleEscKey.bind(this);
+    this.initialised = false;
   }
 
   initialize() {
+    if (this.initialised) {
+      this.cleanup();
+    }
+
+    this.isPaused = false;
+    this.isGameOver = false;
+    this.pauseMenu = null;
+    this.deathScreen = null;
+
     // Set up the escape key listener for pausing
     window.addEventListener("keydown", this.escKeyListener);
+    this.initialised = true;
   }
 
   handleEscKey(e) {
@@ -308,6 +319,9 @@ class GameScreenManager extends EventEmitter {
     this.removePauseMenu();
     this.removeDeathScreen();
     this.removeHowToPlayScreen();
+    this.initialised = false;
+
+    this.removeAllListeners();
   }
 }
 

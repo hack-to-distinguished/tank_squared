@@ -79,7 +79,6 @@ export function createMainMenu() {
         card2.classList.add("cCard2-clicked");
     });
 
-    // INFO: How to Play button
     const howToPlayButton = document.createElement("button");
     howToPlayButton.id = "how-to-play-button";
     howToPlayButton.innerText = "How to Play";

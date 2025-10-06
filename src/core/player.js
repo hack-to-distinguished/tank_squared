@@ -21,6 +21,14 @@ export class TankPlayer extends EventEmitter {
     this.hpRedBarGraphic = null;
     this.hpGreenBarGraphic = null;
 
+    // INFO: Power Bar
+    this.powerBarContainer = null;
+    this.powerBarBackground= null;
+    this.powerBarFill = null;
+    this.isCharging = false;
+    this.chargeStartTime = null;
+    this.currentPower = 0;
+
     // INFO: Tank body
     this.playerX = playerX;
     this.playerY = playerY;
@@ -164,6 +172,26 @@ export class TankPlayer extends EventEmitter {
     playerCannonSprite.pivot.set(0, 0);
     this.playerCannonSprite = playerCannonSprite;
     this.app.stage.addChild(playerCannonSprite);
+  }
+
+  initialisePowerBar() {
+    this.powerBarContainer = new Container();
+    this.powerBarBackground = new Graphics()
+        .rect(0, 0, 100, 10)
+        .fill(0x333333);
+    this.powerBarFill = new Graphics()
+        .rect(0, 0, 0, 10)
+        .fill(0xFF0000);
+    this.powerBarContainer.addChild(this.powerBarBackground, this.powerBarFill);
+    this.powerBarContainer.visible = false;
+    this.app.stage.addChild(this.powerBarContainer);
+  }
+
+  updatePowerBarPosition() {
+    if (this.powerBarContainer) {
+        this.powerBarContainer.x = this.playerSprite.x - 50;
+        this.powerBarContainer.y = this.playerSprite.y - 80;
+    }
   }
 
 

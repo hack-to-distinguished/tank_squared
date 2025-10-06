@@ -64,6 +64,7 @@ export async function startGame() {
     scaleFactor,
     world,
     shellTexture,
+    playerOneControls
   );
   playerOne.name = "Player 1";
   await playerOne.initialisePlayerSprite();
@@ -83,6 +84,7 @@ export async function startGame() {
     scaleFactor,
     world,
     shellTexture,
+    playerTwoControls
   );
   playerTwo.name = "Player 2";
   await playerTwo.initialisePlayerSprite();

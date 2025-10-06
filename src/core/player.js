@@ -4,7 +4,7 @@ import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 const MAX_HOLD_DURATION_MS = 3000;
 
 export class TankPlayer extends EventEmitter {
-  constructor(playerX, playerY, app, playerTexture, scale, world, shellTexture) {
+  constructor(playerX, playerY, app, playerTexture, scale, world, shellTexture, controlScheme) {
     super();
 
     // INFO: World
@@ -36,6 +36,7 @@ export class TankPlayer extends EventEmitter {
     this.wheels = null;
 
     // INFO: Keyboard control
+    this.controlScheme = this.controlScheme;
     this.keyPressStartTime = {};
     this.keys = {};
 
@@ -197,9 +198,9 @@ export class TankPlayer extends EventEmitter {
     let angleChange = 0.02;
     const currentAngle = this.playerCannon.getAngle();
 
-    if (this.keys['87']) {
+    if (this.keys[this.controlScheme.up]) {
       this.playerCannon.setAngle(currentAngle + angleChange);
-    } else if (this.keys['83']) {
+    } else if (this.keys[this.controlScheme.down]) {
       this.playerCannon.setAngle(currentAngle - angleChange);
     }
     // FIX: Poor implementation of the angle - it should base it on the tank body.
@@ -222,10 +223,10 @@ export class TankPlayer extends EventEmitter {
 
   movePlayer() {
     if (this.moveDist > 0 && !this.isFiring) {
-      if (this.keys['68']) {
+      if (this.keys[this.controlScheme.right]) {
         this.setPlayerMotorSpeed(-this.playerSpeed);
         this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
-      } else if (this.keys['65']) {
+      } else if (this.keys[this.controlScheme.left]) {
         this.setPlayerMotorSpeed(this.playerSpeed);
         this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
       } else {
@@ -514,7 +515,7 @@ export class TankPlayer extends EventEmitter {
     const keyCode = e.keyCode.toString();
     this.keys[keyCode] = true;
 
-    if (keyCode === '32' && !this.keyPressStartTime[keyCode] &&
+    if (keyCode === this.controlScheme.fire && !this.keyPressStartTime[keyCode] &&
       !this.isFiring) {
       // console.log(`${this.name} Spacebar pressed down`);
       this.keyPressStartTime[keyCode] = Date.now();
@@ -528,7 +529,7 @@ export class TankPlayer extends EventEmitter {
     const keyCode = e.keyCode.toString();
     this.keys[keyCode] = false;
 
-    if (this.keyPressStartTime[keyCode]) {
+    if (keyCode === this.controlScheme.fire && this.keyPressStartTime[keyCode]) {
       const pressDuration = Date.now() - this.keyPressStartTime[keyCode];
 
       const holdRatio = Math.min(1, pressDuration / MAX_HOLD_DURATION_MS);

@@ -172,6 +172,8 @@ export class TankPlayer extends EventEmitter {
     playerCannonSprite.pivot.set(0, 0);
     this.playerCannonSprite = playerCannonSprite;
     this.app.stage.addChild(playerCannonSprite);
+
+    this.initialisePowerBar();
   }
 
   initialisePowerBar() {
@@ -200,6 +202,15 @@ export class TankPlayer extends EventEmitter {
         this.powerBarFill
             .rect(0, 0, width, 10)
             .fill(0xFFFFFF);
+    }
+  }
+
+  updateCharging() {
+    if (this.isCharging && this.keyPressStartTime[this.controlScheme.fire]) {
+        const pressDuration = Date.now() - this.keyPressStartTime[this.controlScheme.fire];
+        const holdRatio = Math.min(1, pressDuration / MAX_HOLD_DURATION_MS);
+        this.currentPower = holdRatio;
+        this.updatePowerBar(holdRatio);
     }
   }
 
@@ -242,6 +253,8 @@ export class TankPlayer extends EventEmitter {
     this.playerCannonSprite.x = cannonPosition.x * this.scale;
     this.playerCannonSprite.y = this.app.renderer.height - (cannonPosition.y * this.scale);
     this.playerCannonSprite.rotation = cannonAngle;
+
+    this.updatePowerBarPosition();
   }
 
 
@@ -558,6 +571,16 @@ export class TankPlayer extends EventEmitter {
 
   destroy() { // Can be used to rm player controls and other things
     this.removeKeyboardControls();
+
+    if (this.chargingAnimation) {
+      this.app.ticker.remove(this.chargingAnimation);
+      this.chargingAnimation = null;
+    }
+
+    if (this.powerBarContainer) {
+        this.app.stage.removeChild(this.powerBarContainer);
+        this.powerBarContainer.destroy();
+    }
   }
 
   keysDown(e) {
@@ -570,6 +593,9 @@ export class TankPlayer extends EventEmitter {
       !this.isFiring) {
       // console.log(`${this.name} Spacebar pressed down`);
       this.keyPressStartTime[keyCode] = Date.now();
+      this.isCharging = true;
+      this.chargeStartTime = Date.now();
+      this.showPowerBar();
     }
   }
 
@@ -589,6 +615,9 @@ export class TankPlayer extends EventEmitter {
       if (!this.physicalShell) {
         this.openFire(firePower);
       }
+
+      this.isCharging = false;
+      this.hidePowerBar();
       delete this.keyPressStartTime[keyCode];
     }
   }

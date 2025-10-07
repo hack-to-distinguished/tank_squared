@@ -237,6 +237,7 @@ export async function startGame() {
 
     if (turnActive && currentPlayer) {
       currentPlayer.movePlayer();
+      currentPlayer.updateCharging();
     } else if (currentPlayer && !turnActive) {
       currentPlayer.resetPlayerMotorSpeed();
     }
@@ -272,17 +273,6 @@ export async function startGame() {
 
     // debugRenderer.render();
   });
-
-  // window.addEventListener("keydown", (e) => {
-  //   // INFO: Pauses the game on escape button press
-  //   if (e.key === "27" && gameActive) {
-  //     if (!gameScreenManager.isPaused) {
-  //       gameScreenManager.pauseGame();
-  //     } else {
-  //       gameScreenManager.resumeGame();
-  //     }
-  //   }
-  // });
 }
 
 createMainMenu();

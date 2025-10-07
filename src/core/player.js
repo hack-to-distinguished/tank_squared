@@ -193,6 +193,29 @@ export class TankPlayer extends EventEmitter {
         this.powerBarContainer.y = this.playerSprite.y - 80;
     }
   }
+  updatePowerBar(powerRatio) {
+    if (this.powerBarFill) {
+        this.powerBarFill.clear();
+        const width = 100 * powerRatio;
+        this.powerBarFill
+            .rect(0, 0, width, 10)
+            .fill(0xFFFFFF);
+    }
+  }
+
+  showPowerBar() {
+    if (this.powerBarContainer) {
+        this.powerBarContainer.visible = true;
+        this.updatePowerBar(0);
+    }
+  }
+
+  hidePowerBar() {
+    if (this.powerBarContainer) {
+        this.powerBarContainer.visible = false;
+    }
+  }
+
 
 
   updatePlayer() {

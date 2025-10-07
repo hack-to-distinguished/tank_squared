@@ -1,3 +1,5 @@
+import { GameScreenManager } from "./screens/pauseAndDeathScreen.js";
+
 export function createMainMenu() {
     // INFO: Main menu container
     const menu = document.createElement("div");
@@ -79,13 +81,12 @@ export function createMainMenu() {
         card2.classList.add("cCard2-clicked");
     });
 
+    const gsm = new GameScreenManager();
     const howToPlayButton = document.createElement("button");
     howToPlayButton.id = "how-to-play-button";
     howToPlayButton.innerText = "How to Play";
     howToPlayButton.onclick = () => {
-        import("./screens/pauseAndDeathScreen.js").then((module) => {
-            module.gameScreenManager.showHowToPlayScreen();
-        });
+      gsm.showHowToPlayScreen();
     };
     buttonContainer.appendChild(howToPlayButton);
 }

@@ -1,11 +1,11 @@
-import { Application, Assets } from "pixi.js";
+import { Application, Assets, Text, TextStyle } from "pixi.js";
 import { TankPlayer } from "./core/player";
 import { DebugRenderer } from "./core/debugOutlines.js";
 import { World, Vec2 } from "planck";
 import { MapGenerator } from "./core/terrainGeneration/mapGenerator.js";
 import { Background } from "./scenes/mapImage.js";
 import { createMainMenu } from "./menu.js";
-import { gameScreenManager } from "./screens/pauseAndDeathScreen.js";
+import { GameScreenManager, TurnChangeDisplay } from "./screens/pauseAndDeathScreen.js";
 import "./screens/pauseAndDeathScreen.css";
 
 export async function startGame() {
@@ -13,11 +13,9 @@ export async function startGame() {
   await app.init({
     resizeTo: window,
   });
-
   let world = new World({
     gravity: Vec2(0, -9.8),
   });
-
   const scaleFactor = 25;
 
   app.canvas.style.position = "absolute";
@@ -82,20 +80,22 @@ export async function startGame() {
   let otherPlayer = playerTwo;
   let turnActive = true;
 
-
   let gameActive = true;
 
-  gameScreenManager.initialize();
+  const gsm = new GameScreenManager();
+  gsm.initialize();
 
+  let _turnAnnouncement = null;
+  const tcd = new TurnChangeDisplay(app, _turnAnnouncement);
   const switchTurn = () => {
-    // TODO: Right here add a call to a dissappearing text saying otherPlayer turn
-
     currentPlayer.removeKeyboardControls();
     currentPlayer.resetPlayerMotorSpeed();
     currentPlayer.resetMoveDist();
 
     currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
     otherPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
+
+    tcd.showTurnAnnouncement(`${currentPlayer.name}'s turn`);
 
     currentPlayer.setupKeyboardControls();
     currentPlayer.resetMoveDist();
@@ -140,7 +140,7 @@ export async function startGame() {
 
     if (playerTwo.hp <= 0) {
       gameActive = false;
-      gameScreenManager.showDeathScreen(playerOne.name);
+      gsm.showDeathScreen(playerOne.name);
     }
   });
 
@@ -151,7 +151,7 @@ export async function startGame() {
 
     if (playerOne.hp <= 0) {
       gameActive = false;
-      gameScreenManager.showDeathScreen(playerTwo.name);
+      gsm.showDeathScreen(playerTwo.name);
     }
   });
 
@@ -162,7 +162,7 @@ export async function startGame() {
 
     if (playerOne.hp <= 0) {
       gameActive = false;
-      gameScreenManager.showDeathScreen(playerTwo.name);
+      gsm.showDeathScreen(playerTwo.name);
     }
   });
 
@@ -173,7 +173,7 @@ export async function startGame() {
 
     if (playerTwo.hp <= 0) {
       gameActive = false;
-      gameScreenManager.showDeathScreen(playerOne.name);
+      gsm.showDeathScreen(playerOne.name);
     }
   });
 
@@ -181,36 +181,35 @@ export async function startGame() {
   app.ticker.maxFPS = 60;
 
   // INFO: Set up game screen manager event handlers
-  gameScreenManager.on("game-paused", () => {
+  gsm.on("game-paused", () => {
     app.ticker.stop();
     currentPlayer.removeKeyboardControls();
   });
 
-  gameScreenManager.on("game-resumed", () => {
+  gsm.on("game-resumed", () => {
     app.ticker.start();
     currentPlayer.setupKeyboardControls();
   });
 
-  gameScreenManager.on("quit-to-menu", () => {
+  gsm.on("quit-to-menu", () => {
     app.ticker.stop();
     playerOne.destroy();
     playerTwo.destroy();
-    gameScreenManager.cleanup();
+    gsm.cleanup();
 
     document.body.removeChild(app.canvas);
     createMainMenu();
   });
 
-  gameScreenManager.on("restart-game", () => {
+  gsm.on("restart-game", () => {
     app.ticker.stop();
     playerOne.destroy();
     playerTwo.destroy();
-    gameScreenManager.cleanup();
+    gsm.cleanup();
 
     document.body.removeChild(app.canvas);
     startGame();
   });
-
 
   // const debugRenderer = new DebugRenderer(world, app, scaleFactor);
 
@@ -259,10 +258,10 @@ export async function startGame() {
   window.addEventListener("keydown", (e) => {
     // INFO: Pauses the game on escape button press
     if (e.key === "27" && gameActive) {
-      if (!gameScreenManager.isPaused) {
-        gameScreenManager.pauseGame();
+      if (!gsm.isPaused) {
+        gsm.pauseGame();
       } else {
-        gameScreenManager.resumeGame();
+        gsm.resumeGame();
       }
     }
   });

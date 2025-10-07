@@ -1,6 +1,6 @@
-import { EventEmitter } from "pixi.js";
+import { EventEmitter, Text, TextStyle } from "pixi.js";
 
-class GameScreenManager extends EventEmitter {
+export class GameScreenManager extends EventEmitter {
   constructor() {
     super();
     this.pauseMenu = null;
@@ -74,27 +74,21 @@ class GameScreenManager extends EventEmitter {
   }
 
   createHowToPlayScreen() {
-    // Remove any existing how to play screen
     this.removeHowToPlayScreen();
 
-    // Create the how to play screen container
     const howToPlayScreen = document.createElement("div");
     howToPlayScreen.id = "how-to-play-screen";
 
-    // Create the menu content container
     const menuContent = document.createElement("div");
     menuContent.className = "menu-content";
 
-    // Create the title
     const title = document.createElement("h2");
     title.textContent = "How to Play";
     menuContent.appendChild(title);
 
-    // Create the controls content
     const controlsContent = document.createElement("div");
     controlsContent.className = "controls-content";
 
-    // Player Controls
     const playerSection = document.createElement("div");
     playerSection.className = "controls-section";
     
@@ -116,7 +110,6 @@ class GameScreenManager extends EventEmitter {
 
     controlsContent.appendChild(playerSection);
 
-    // Game Instructions
     const instructionsSection = document.createElement("div");
     instructionsSection.className = "controls-section";
     
@@ -138,14 +131,11 @@ class GameScreenManager extends EventEmitter {
 
     controlsContent.appendChild(instructionsSection);
 
-    // Add the controls content to the menu
     menuContent.appendChild(controlsContent);
 
-    // Create the buttons container
     const buttonsContainer = document.createElement("div");
     buttonsContainer.className = "menu-buttons";
 
-    // Create the close button
     const closeButton = document.createElement("button");
     closeButton.textContent = "Close";
     closeButton.addEventListener("click", () => {
@@ -156,16 +146,12 @@ class GameScreenManager extends EventEmitter {
     });
     buttonsContainer.appendChild(closeButton);
 
-    // Add the buttons to the menu content
     menuContent.appendChild(buttonsContainer);
 
-    // Add the menu content to the how to play screen
     howToPlayScreen.appendChild(menuContent);
 
-    // Add the how to play screen to the document
     document.body.appendChild(howToPlayScreen);
 
-    // Store a reference to the how to play screen
     this.howToPlayScreen = howToPlayScreen;
   }
 
@@ -181,33 +167,26 @@ class GameScreenManager extends EventEmitter {
   }
 
   createPauseMenu() {
-    // Remove any existing pause menu
     this.removePauseMenu();
 
-    // Create the pause menu container
     const pauseMenu = document.createElement("div");
     pauseMenu.id = "pause-menu";
 
-    // Create the menu content container
     const menuContent = document.createElement("div");
     menuContent.className = "menu-content";
 
-    // Create the title
     const title = document.createElement("h2");
     title.textContent = "Game Paused";
     menuContent.appendChild(title);
 
-    // Create the buttons container
     const buttonsContainer = document.createElement("div");
     buttonsContainer.className = "menu-buttons";
 
-    // Create the resume button
     const resumeButton = document.createElement("button");
     resumeButton.textContent = "Resume Game";
     resumeButton.addEventListener("click", () => this.resumeGame());
     buttonsContainer.appendChild(resumeButton);
 
-    // Create the how to play button
     const howToPlayButton = document.createElement("button");
     howToPlayButton.textContent = "How to Play";
     howToPlayButton.addEventListener("click", () => {
@@ -219,7 +198,6 @@ class GameScreenManager extends EventEmitter {
     });
     buttonsContainer.appendChild(howToPlayButton);
 
-    // Create the main menu button
     const mainMenuButton = document.createElement("button");
     mainMenuButton.textContent = "Quit to Main Menu";
     mainMenuButton.addEventListener("click", () => {
@@ -228,16 +206,12 @@ class GameScreenManager extends EventEmitter {
     });
     buttonsContainer.appendChild(mainMenuButton);
 
-    // Add the buttons to the menu content
     menuContent.appendChild(buttonsContainer);
 
-    // Add the menu content to the pause menu
     pauseMenu.appendChild(menuContent);
 
-    // Add the pause menu to the document
     document.body.appendChild(pauseMenu);
 
-    // Store a reference to the pause menu
     this.pauseMenu = pauseMenu;
   }
 
@@ -249,33 +223,26 @@ class GameScreenManager extends EventEmitter {
   }
 
   createDeathScreen(winnerName) {
-    // Remove any existing death screen
     this.removeDeathScreen();
 
-    // Create the death screen container
     const deathScreen = document.createElement("div");
     deathScreen.id = "death-screen";
 
-    // Create the menu content container
     const menuContent = document.createElement("div");
     menuContent.className = "menu-content";
 
-    // Create the title
     const title = document.createElement("h2");
     title.textContent = "Game Over!";
     menuContent.appendChild(title);
 
-    // Create the winner text
     const winnerText = document.createElement("p");
     winnerText.className = "winner-text";
     winnerText.textContent = `${winnerName} Wins!`;
     menuContent.appendChild(winnerText);
 
-    // Create the buttons container
     const buttonsContainer = document.createElement("div");
     buttonsContainer.className = "menu-buttons";
 
-    // Create the play again button
     const playAgainButton = document.createElement("button");
     playAgainButton.textContent = "Play Again";
     playAgainButton.addEventListener("click", () => {
@@ -284,7 +251,6 @@ class GameScreenManager extends EventEmitter {
     });
     buttonsContainer.appendChild(playAgainButton);
 
-    // Create the main menu button
     const mainMenuButton = document.createElement("button");
     mainMenuButton.textContent = "Back to Main Menu";
     mainMenuButton.addEventListener("click", () => {
@@ -293,16 +259,12 @@ class GameScreenManager extends EventEmitter {
     });
     buttonsContainer.appendChild(mainMenuButton);
 
-    // Add the buttons to the menu content
     menuContent.appendChild(buttonsContainer);
 
-    // Add the menu content to the death screen
     deathScreen.appendChild(menuContent);
 
-    // Add the death screen to the document
     document.body.appendChild(deathScreen);
 
-    // Store a reference to the death screen
     this.deathScreen = deathScreen;
   }
 
@@ -314,7 +276,6 @@ class GameScreenManager extends EventEmitter {
   }
 
   cleanup() {
-    // Remove event listeners when done
     window.removeEventListener("keydown", this.escKeyListener);
     this.removePauseMenu();
     this.removeDeathScreen();
@@ -323,7 +284,73 @@ class GameScreenManager extends EventEmitter {
 
     this.removeAllListeners();
   }
-}
+};
 
-// Export a singleton instance to be shared across the application
-export const gameScreenManager = new GameScreenManager();
+
+
+export class TurnChangeDisplay extends EventEmitter {
+  constructor(app, _turnAnnouncement) {
+    super();
+    this._turnAnnouncement = _turnAnnouncement;
+    this.app = app; 
+  };
+
+  showTurnAnnouncement( message) {
+    const duration = 1500;
+    const holdRatio = 0.5;
+    const fontSize = 36;
+
+    if (this._turnAnnouncement) {
+      this._turnAnnouncement.parent && this._turnAnnouncement.parent.removeChild(this._turnAnnouncement);
+      this._turnAnnouncement = null;
+    }
+
+    const style = new TextStyle({
+      fontFamily: "Arial", fontSize,
+      fontWeight: "700", fill: "#ffffff",
+      stroke: "#000000", strokeThickness: 4,
+      align: "center",
+    });
+
+    const text = new Text(message, style);
+    text.anchor.set(0.5);
+    text.x = this.app.renderer.width / 2;
+    text.y = Math.max(80, this.app.renderer.height * 0.12);
+    text.alpha = 0;
+    text.zIndex = 1000;
+
+    // ensure stage sorts by zIndex (if not using layers)
+    if (this.app.stage.sortableChildren === undefined)
+      this.app.stage.sortableChildren = true;
+    text.zIndex = 9999;
+
+    this.app.stage.addChild(text);
+    this._turnAnnouncement = text;
+
+    const total = duration;
+    const hold = total * holdRatio;
+    const fade = (total - hold) / 2;
+
+    let elapsed = 0;
+    const tickerCallback = (delta) => {
+      const deltaMs = this.app.ticker.deltaMS ?? (1000 / 60) * delta;
+      elapsed += deltaMs;
+
+      if (elapsed <= fade) { // fade in
+        text.alpha = Math.min(1, elapsed / fade);
+      } else if (elapsed <= fade + hold) { // hold
+        text.alpha = 1;
+      } else if (elapsed <= fade + hold + fade) { // fade out
+        text.alpha = Math.max(0, 1 - (elapsed - fade - hold) / fade);
+      } else { // done
+        this.app.ticker.remove(tickerCallback);
+        text.parent && text.parent.removeChild(text);
+        if (this._turnAnnouncement === text) this._turnAnnouncement = null;
+      }
+    };
+
+    this.app.ticker.add(tickerCallback);
+    return text;
+  };
+
+};

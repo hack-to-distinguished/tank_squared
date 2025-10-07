@@ -86,66 +86,7 @@ export async function startGame() {
   gsm.initialize();
 
   let _turnAnnouncement = null;
-  function showTurnAnnouncement(
-    message,
-    { duration = 1500, holdRatio = 0.5, fontSize = 36 } = {},
-  ) {
-    showTurnChange.intialize()
-
-    if (_turnAnnouncement) {
-      _turnAnnouncement.parent && _turnAnnouncement.parent.removeChild(_turnAnnouncement);
-      _turnAnnouncement = null;
-    }
-
-    const style = new TextStyle({
-      fontFamily: "Arial", fontSize,
-      fontWeight: "700", fill: "#ffffff",
-      stroke: "#000000", strokeThickness: 4,
-      align: "center",
-    });
-
-    const text = new Text(message, style);
-    text.anchor.set(0.5);
-    text.x = app.renderer.width / 2;
-    text.y = Math.max(80, app.renderer.height * 0.12);
-    text.alpha = 0;
-    text.zIndex = 1000;
-
-    // ensure stage sorts by zIndex (if not using layers)
-    if (app.stage.sortableChildren === undefined)
-      app.stage.sortableChildren = true;
-    text.zIndex = 9999;
-
-    app.stage.addChild(text);
-    _turnAnnouncement = text;
-
-    const total = duration;
-    const hold = total * holdRatio;
-    const fade = (total - hold) / 2;
-
-    let elapsed = 0;
-    const tickerCallback = (delta) => {
-      const deltaMs = app.ticker.deltaMS ?? (1000 / 60) * delta;
-      elapsed += deltaMs;
-
-      if (elapsed <= fade) { // fade in
-        text.alpha = Math.min(1, elapsed / fade);
-      } else if (elapsed <= fade + hold) { // hold
-        text.alpha = 1;
-      } else if (elapsed <= fade + hold + fade) { // fade out
-        text.alpha = Math.max(0, 1 - (elapsed - fade - hold) / fade);
-      } else { // done
-        app.ticker.remove(tickerCallback);
-        text.parent && text.parent.removeChild(text);
-        if (_turnAnnouncement === text) _turnAnnouncement = null;
-      }
-    };
-
-    app.ticker.add(tickerCallback);
-    return text;
-  }
-
-
+  const tcd = new TurnChangeDisplay(app, _turnAnnouncement);
   const switchTurn = () => {
     currentPlayer.removeKeyboardControls();
     currentPlayer.resetPlayerMotorSpeed();
@@ -154,8 +95,6 @@ export async function startGame() {
     currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
     otherPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
 
-    // TODO: Right here add a call to a dissappearing text saying otherPlayer turn
-    const tcd = new TurnChangeDisplay(_turnAnnouncement)
     tcd.showTurnAnnouncement(`${currentPlayer.name}'s turn`);
 
     currentPlayer.setupKeyboardControls();

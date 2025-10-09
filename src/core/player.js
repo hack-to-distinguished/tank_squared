@@ -337,11 +337,11 @@ export class TankPlayer extends EventEmitter {
 
     this.physicalShell = this.world.createBody({
       type: "dynamic", position: Vec2(spawnX, spawnY),
-      gravityScale: 0.7, bullet: true,
-      linearVelocity: Vec2(velX, velY * 2)
+      gravityScale: 1.5, bullet: true,
+      linearVelocity: Vec2(velX, velY)
     });
 
-    const shellFD = { friction: 0.3, density: 20, restitution: 0.1 };
+    const shellFD = { friction: 0.3, density: 100, restitution: 0.1 };
     this.physicalShell.createFixture(new Circle(0.2), shellFD);
 
     this.shellSprite.x = spawnX * this.scale;

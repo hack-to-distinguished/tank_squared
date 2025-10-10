@@ -207,14 +207,14 @@ export class TankPlayer extends EventEmitter {
 
   getPowerBarColour(powerRatio) {
     if (powerRatio < 0.5) {
-      const r = Math.floor(255 * (powerRatio * 2)); // 0 to 255
+      const r = Math.floor(255 * (powerRatio * 2));
       const g = 255;
       return (r << 16) | (g << 8);
       // return 0x00FF00;
     }
     else if (powerRatio < 0.8) {
       const r = 255;
-      const g = Math.floor(255 * (1 - (powerRatio - 0.5) * 3)); // 255 to 0
+      const g = Math.floor(255 * (1 - (powerRatio - 0.5) * 3));
       return (r << 16) | (g << 8);
       // return 0xFFFF00;
     }

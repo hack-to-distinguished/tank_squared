@@ -22,7 +22,6 @@ export class GameScreenManager extends EventEmitter {
     this.pauseMenu = null;
     this.deathScreen = null;
 
-    // Set up the escape key listener for pausing
     window.addEventListener("keydown", this.escKeyListener);
     this.initialised = true;
   }

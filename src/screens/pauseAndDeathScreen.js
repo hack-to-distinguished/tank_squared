@@ -89,26 +89,47 @@ export class GameScreenManager extends EventEmitter {
     const controlsContent = document.createElement("div");
     controlsContent.className = "controls-content";
 
-    const playerSection = document.createElement("div");
-    playerSection.className = "controls-section";
+    const player1Section = document.createElement("div");
+    player1Section.className = "controls-section";
     
-    const playerTitle = document.createElement("h3");
-    playerTitle.textContent = "Player Controls";
-    playerSection.appendChild(playerTitle);
+    const player1Title = document.createElement("h3");
+    player1Title.textContent = "Player 1 Controls";
+    player1Section.appendChild(player1Title);
 
-    const playerMove = document.createElement("p");
-    playerMove.textContent = "Move: A / D";
-    playerSection.appendChild(playerMove);
+    const player1Move = document.createElement("p");
+    player1Move.textContent = "Move: A / D";
+    player1Section.appendChild(player1Move);
 
-    const playerAim = document.createElement("p");
-    playerAim.textContent = "Aim: W / S";
-    playerSection.appendChild(playerAim);
+    const player1Aim = document.createElement("p");
+    player1Aim.textContent = "Aim: W / S";
+    player1Section.appendChild(player1Aim);
 
-    const playerFire = document.createElement("p");
-    playerFire.textContent = "Fire: Space (hold to charge)";
-    playerSection.appendChild(playerFire);
+    const player1Fire = document.createElement("p");
+    player1Fire.textContent = "Fire: Space (hold to charge)";
+    player1Section.appendChild(player1Fire);
 
-    controlsContent.appendChild(playerSection);
+    controlsContent.appendChild(player1Section);
+    
+    const player2Section = document.createElement("div");
+    player2Section.className = "controls-section";
+    
+    const player2Title = document.createElement("h3");
+    player2Title.textContent = "Player 2 Controls";
+    player2Section.appendChild(player2Title);
+
+    const player2Move = document.createElement("p");
+    player2Move.textContent = "Move: ← / → Arrow Keys";
+    player2Section.appendChild(player2Move);
+
+    const player2Aim = document.createElement("p");
+    player2Aim.textContent = "Aim: ↑ / ↓ Arrow Keys";
+    player2Section.appendChild(player2Aim);
+
+    const player2Fire = document.createElement("p");
+    player2Fire.textContent = "Fire: Enter Key (hold to charge)";
+    player2Section.appendChild(player2Fire);
+
+    controlsContent.appendChild(player2Section);
 
     const instructionsSection = document.createElement("div");
     instructionsSection.className = "controls-section";

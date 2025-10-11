@@ -25,6 +25,22 @@ export async function startGame() {
   const shellTexture = await Assets.load("assets/images/bullet.png");
   const playerTexture = await Assets.load("assets/images/tank.png");
 
+  const playerOneControls = {
+    left: '65',
+    right: '68',
+    up: '87',
+    down: '83',
+    fire: '32'
+  };
+
+  const playerTwoControls = {
+    left: '37',
+    right: '39',
+    up: '40',
+    down: '38',
+    fire: '13'
+  };
+
   // INFO: Generate backgroundPlains
   const backgroundImg = new Background(app, appHeight, appWidth);
   console.log("Background image gen", Background);
@@ -46,6 +62,7 @@ export async function startGame() {
     scaleFactor,
     world,
     shellTexture,
+    playerOneControls
   );
   playerOne.name = "Player 1";
   await playerOne.initialisePlayerSprite();
@@ -65,6 +82,7 @@ export async function startGame() {
     scaleFactor,
     world,
     shellTexture,
+    playerTwoControls
   );
   playerTwo.name = "Player 2";
   await playerTwo.initialisePlayerSprite();
@@ -219,6 +237,7 @@ export async function startGame() {
 
     if (turnActive && currentPlayer) {
       currentPlayer.movePlayer();
+      currentPlayer.updateCharging();
     } else if (currentPlayer && !turnActive) {
       currentPlayer.resetPlayerMotorSpeed();
     }
@@ -253,17 +272,6 @@ export async function startGame() {
     playerTwo.destroyShellOutsideContactEvent();
 
     // debugRenderer.render();
-  });
-
-  window.addEventListener("keydown", (e) => {
-    // INFO: Pauses the game on escape button press
-    if (e.key === "27" && gameActive) {
-      if (!gsm.isPaused) {
-        gsm.pauseGame();
-      } else {
-        gsm.resumeGame();
-      }
-    }
   });
 }
 

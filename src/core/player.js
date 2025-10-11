@@ -4,7 +4,7 @@ import { Vec2, Circle, RevoluteJoint, Polygon } from "planck";
 const MAX_HOLD_DURATION_MS = 3000;
 
 export class TankPlayer extends EventEmitter {
-  constructor(playerX, playerY, app, playerTexture, scale, world, shellTexture) {
+  constructor(playerX, playerY, app, playerTexture, scale, world, shellTexture, controlScheme) {
     super();
 
     // INFO: World
@@ -21,6 +21,14 @@ export class TankPlayer extends EventEmitter {
     this.hpRedBarGraphic = null;
     this.hpGreenBarGraphic = null;
 
+    // INFO: Power Bar
+    this.powerBarContainer = null;
+    this.powerBarBackground= null;
+    this.powerBarFill = null;
+    this.isCharging = false;
+    this.chargeStartTime = null;
+    this.currentPower = 0;
+
     // INFO: Tank body
     this.playerX = playerX;
     this.playerY = playerY;
@@ -36,6 +44,7 @@ export class TankPlayer extends EventEmitter {
     this.wheels = null;
 
     // INFO: Keyboard control
+    this.controlScheme = controlScheme;
     this.keyPressStartTime = {};
     this.keys = {};
 
@@ -163,7 +172,82 @@ export class TankPlayer extends EventEmitter {
     playerCannonSprite.pivot.set(0, 0);
     this.playerCannonSprite = playerCannonSprite;
     this.app.stage.addChild(playerCannonSprite);
+
+    this.initialisePowerBar();
   }
+
+  initialisePowerBar() {
+    this.powerBarContainer = new Container();
+    this.powerBarBackground = new Graphics()
+        .rect(0, 0, 100, 10)
+        .fill(0x333333);
+    this.powerBarFill = new Graphics()
+        .rect(0, 0, 0, 10)
+        .fill(0xFF0000);
+    this.powerBarContainer.addChild(this.powerBarBackground, this.powerBarFill);
+    this.powerBarContainer.visible = false;
+    this.app.stage.addChild(this.powerBarContainer);
+  }
+
+  updatePowerBarPosition() {
+    if (this.powerBarContainer) {
+        this.powerBarContainer.x = this.playerSprite.x - 50;
+        this.powerBarContainer.y = this.playerSprite.y - 80;
+    }
+  }
+  updatePowerBar(powerRatio) {
+    if (this.powerBarFill) {
+        this.powerBarFill.clear();
+        const width = 100 * powerRatio;
+        this.powerBarFill
+            .rect(0, 0, width, 10)
+            .fill(this.getPowerBarColour(powerRatio));
+    }
+  }
+
+  getPowerBarColour(powerRatio) {
+    if (powerRatio < 0.5) {
+      const r = Math.floor(255 * (powerRatio * 2));
+      const g = 255;
+      return (r << 16) | (g << 8);
+      // return 0x00FF00;
+    }
+    else if (powerRatio < 0.8) {
+      const r = 255;
+      const g = Math.floor(255 * (1 - (powerRatio - 0.5) * 3));
+      return (r << 16) | (g << 8);
+      // return 0xFFFF00;
+    }
+    else {
+      const r = 255;
+      const g = 0;
+      return (r << 16) | (g << 8);
+      // return 0xFF0000;
+    }
+  }
+
+  updateCharging() {
+    if (this.isCharging && this.keyPressStartTime[this.controlScheme.fire]) {
+        const pressDuration = Date.now() - this.keyPressStartTime[this.controlScheme.fire];
+        const holdRatio = Math.min(1, pressDuration / MAX_HOLD_DURATION_MS);
+        this.currentPower = holdRatio;
+        this.updatePowerBar(holdRatio);
+    }
+  }
+
+  showPowerBar() {
+    if (this.powerBarContainer) {
+        this.powerBarContainer.visible = true;
+        this.updatePowerBar(0);
+    }
+  }
+
+  hidePowerBar() {
+    if (this.powerBarContainer) {
+        this.powerBarContainer.visible = false;
+    }
+  }
+
 
 
   updatePlayer() {
@@ -190,6 +274,8 @@ export class TankPlayer extends EventEmitter {
     this.playerCannonSprite.x = cannonPosition.x * this.scale;
     this.playerCannonSprite.y = this.app.renderer.height - (cannonPosition.y * this.scale);
     this.playerCannonSprite.rotation = cannonAngle;
+
+    this.updatePowerBarPosition();
   }
 
 
@@ -197,9 +283,9 @@ export class TankPlayer extends EventEmitter {
     let angleChange = 0.02;
     const currentAngle = this.playerCannon.getAngle();
 
-    if (this.keys['87']) {
+    if (this.keys[this.controlScheme.up]) {
       this.playerCannon.setAngle(currentAngle + angleChange);
-    } else if (this.keys['83']) {
+    } else if (this.keys[this.controlScheme.down]) {
       this.playerCannon.setAngle(currentAngle - angleChange);
     }
     // FIX: Poor implementation of the angle - it should base it on the tank body.
@@ -222,10 +308,10 @@ export class TankPlayer extends EventEmitter {
 
   movePlayer() {
     if (this.moveDist > 0 && !this.isFiring) {
-      if (this.keys['68']) {
+      if (this.keys[this.controlScheme.right]) {
         this.setPlayerMotorSpeed(-this.playerSpeed);
         this.playerSprite.scale.x = Math.abs(this.playerSprite.scale.x);
-      } else if (this.keys['65']) {
+      } else if (this.keys[this.controlScheme.left]) {
         this.setPlayerMotorSpeed(this.playerSpeed);
         this.playerSprite.scale.x = -Math.abs(this.playerSprite.scale.x);
       } else {
@@ -272,11 +358,11 @@ export class TankPlayer extends EventEmitter {
 
     this.physicalShell = this.world.createBody({
       type: "dynamic", position: Vec2(spawnX, spawnY),
-      gravityScale: 0.7, bullet: true,
-      linearVelocity: Vec2(velX, velY * 2)
+      gravityScale: 1.5, bullet: true,
+      linearVelocity: Vec2(velX, velY)
     });
 
-    const shellFD = { friction: 0.3, density: 20, restitution: 0.1 };
+    const shellFD = { friction: 0.3, density: 100, restitution: 0.1 };
     this.physicalShell.createFixture(new Circle(0.2), shellFD);
 
     this.shellSprite.x = spawnX * this.scale;
@@ -506,6 +592,16 @@ export class TankPlayer extends EventEmitter {
 
   destroy() { // Can be used to rm player controls and other things
     this.removeKeyboardControls();
+
+    if (this.chargingAnimation) {
+      this.app.ticker.remove(this.chargingAnimation);
+      this.chargingAnimation = null;
+    }
+
+    if (this.powerBarContainer) {
+        this.app.stage.removeChild(this.powerBarContainer);
+        this.powerBarContainer.destroy();
+    }
   }
 
   keysDown(e) {
@@ -514,10 +610,13 @@ export class TankPlayer extends EventEmitter {
     const keyCode = e.keyCode.toString();
     this.keys[keyCode] = true;
 
-    if (keyCode === '32' && !this.keyPressStartTime[keyCode] &&
+    if (keyCode === this.controlScheme.fire && !this.keyPressStartTime[keyCode] &&
       !this.isFiring) {
       // console.log(`${this.name} Spacebar pressed down`);
       this.keyPressStartTime[keyCode] = Date.now();
+      this.isCharging = true;
+      this.chargeStartTime = Date.now();
+      this.showPowerBar();
     }
   }
 
@@ -528,7 +627,7 @@ export class TankPlayer extends EventEmitter {
     const keyCode = e.keyCode.toString();
     this.keys[keyCode] = false;
 
-    if (this.keyPressStartTime[keyCode]) {
+    if (keyCode === this.controlScheme.fire && this.keyPressStartTime[keyCode]) {
       const pressDuration = Date.now() - this.keyPressStartTime[keyCode];
 
       const holdRatio = Math.min(1, pressDuration / MAX_HOLD_DURATION_MS);
@@ -537,6 +636,9 @@ export class TankPlayer extends EventEmitter {
       if (!this.physicalShell) {
         this.openFire(firePower);
       }
+
+      this.isCharging = false;
+      this.hidePowerBar();
       delete this.keyPressStartTime[keyCode];
     }
   }
